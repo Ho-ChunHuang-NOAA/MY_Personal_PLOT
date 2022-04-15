@@ -1,0 +1,3 @@
+convert grib2 to netcdf
+
+wgrib2 inputfile.grib2  -netcdf outputfile.nc

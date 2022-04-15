@@ -1,0 +1,1056 @@
+#!/bin/sh
+##
+## SCRIPT FOR SINGLE DAY PROCESSING AND MAP GENERATION
+##
+## YYYYMMDD is the start day of NAQFC PM   simulation
+## Cycle_hr is the model run starting hour
+##
+grads_ver=2.2.0
+prod_util_ver=1.1.6
+prod_envir_ver=1.1.0
+grib_util_ver=1.1.1
+module load GrADS/${grads_ver}
+module load prod_util/${prod_util_ver}
+module load prod_envir/${prod_envir_ver}
+module load grib_util/${grib_util_ver}
+wgrib=/gpfs/dell1/nco/ops/nwprod/grib_util.v${grib_util_ver}/exec/wgrib
+wgrib2=/gpfs/dell1/nco/ops/nwprod/grib_util.v${grib_util_ver}/exec/wgrib2
+export GAUDPT=/usrx/local/dev/packages/grads/${grads_ver}/lib/udpt
+export GADDIR=/usrx/local/dev/packages/grads/${grads_ver}/lib
+hl=`hostname | cut -c1`
+
+flag_test=yes
+flag_test=no
+
+flag_bsub=yes
+flag_bsub=no
+
+if [ "${flag_bsub}" == "yes" ]; then
+   flag_scp=no
+else
+   flag_scp=yes
+fi
+
+TODAY=`date +%Y%m%d`
+
+MSG="USAGE : $0 exp1 exp2 [exp2-exp1] Cycle_hr (default:all|06|12) YYYYMMDD_BEG YYYYMMDD_END"
+
+if [ $# -lt 2 ]; then
+   echo $MSG
+   exit
+else
+   opt1=$1
+   opt2=$2
+fi
+if [ $# -lt 3 ]; then
+   sel_cyc=all
+   FIRSTDAY=${TODAY}
+   LASTDAY=${TODAY}
+elif [ $# -lt 4 ]; then
+   sel_cyc=$3
+   FIRSTDAY=${TODAY}
+   LASTDAY=${TODAY}
+elif [ $# -lt 5 ]; then
+   sel_cyc=$3
+   FIRSTDAY=$4
+   LASTDAY=$4
+else
+   sel_cyc=$3
+   FIRSTDAY=$4
+   LASTDAY=$5
+fi
+echo "============================="
+echo " This code is intended for work on the dfiierence between solutions of raw model and bias_correction"
+echo "============================="
+
+flag_diff_bc=no
+if [ $# -gt 5 ]; then
+   inopt=$6
+   if [ "${inopt}" == "bc" ]; then flag_diff_bc=yes; fi
+fi
+
+aqm=rrfs-cmaq
+capaqm=`echo ${aqm} | tr '[:lower:]' '[:upper:]'`
+smlaqm=`echo ${aqm} | tr '[:upper:]' '[:lower:]'`
+
+case ${sel_cyc} in
+   ''|*[!0-9]*) if [ "${sel_cyc}" == "all" ]; then
+            declare -a cyc_opt=( 06 12 )
+         else
+            echo "input choice for cycle time is not defined $3, program stop"
+            echo $MSG
+            exit
+         fi ;;
+   *) cyc_in=`printf %2.2d ${sel_cyc}`
+      if [ "${cyc_in}" == "06" ] || [ "${cyc_in}" == "12" ]; then
+         declare -a cyc_opt=( ${cyc_in} )
+      else
+         echo "input choice for cycle time is not defined $3, program stop"
+         echo $MSG
+         exit
+      fi ;;
+esac
+echo ${cyc_opt[@]}
+
+opt=${opt1}
+capopt=`echo ${opt} | tr '[:lower:]' '[:upper:]'`
+smlopt=`echo ${opt} | tr '[:upper:]' '[:lower:]'`
+
+project=naqfc
+project2=meso
+capexp1=${capopt}
+exp1=${smlopt}
+comdir=/gpfs/hps/nco/ops/com/${smlaqm}/${exp1}
+## comdir2=${comdir}
+comdir2=/gpfs/hps3/emc/${project2}/noscrub/${USER}/com/${smlaqm}/${exp1}
+comdir2=/gpfs/dell2/emc/modeling/noscrub/${USER}/com/${smlaqm}/${exp1}
+mydir2=/gpfs/hps3/ptmp/${USER}/com/${smlaqm}/${exp1}
+mydir=/gpfs/dell2/emc/modeling/noscrub/${USER}/com/${smlaqm}/${exp1}
+mydir12=/gpfs/hps3/ptmp/Jianping.Huang/com/${smlaqm}/${exp1}
+mydir=/gpfs/hps3/emc/${project2}/noscrub/${USER}/com/${smlaqm}/${exp1}
+mydir2=/gpfs/hps3/emc/${project}/noscrub/${USER}/com/${smlaqm}/${exp1}
+mydir=/gpfs/dell2/ptmp/Ho-Chun.Huang/com/${smlaqm}/${exp1}
+mydir2=/gpfs/dell2/ptmp/Ho-Chun.Huang/com/${smlaqm}/${exp1}
+
+## special setting
+if [ ${smlopt} == 'prod' ]; then
+   mydir=${comdir}
+   mydir2=${comdir2}
+elif [ ${smlopt} == 'prodx' ]; then
+   comdir=/gpfs/dell2/emc/modeling/noscrub/${USER}/com/aqm/prod/aqm.${NOW}
+   comdir2=${comdir}
+   mydir=${comdir}
+   mydir2=${comdir}
+elif [ ${smlopt} == 'ncopara' ]; then
+   comdir=/gpfs/hps/nco/ops/com/aqm/para
+   comdir2=${comdir}
+   mydir=${comdir}
+   mydir2=${comdir}
+elif [ ${smlopt} == 'rrfs-cmaq' ] || [ ${smlopt} == 'fire-static' ]; then
+   DE=`echo ${LASTDAY} | cut -c5-8`
+   comdir=/gpfs/dell2/ptmp/Ho-Chun.Huang/expt_dirs/rrfs_cmaq_6c73ae56_conus13-${FIRSTDAY}-${DE}
+   comdir2=${comdir}
+   mydir=/gpfs/dell2/ptmp/Ho-Chun.Huang/com/rrfs-cmaq/${smlopt}
+   mydir2=${mydir}
+   mydir2=/gpfs/dell2/emc/modeling/noscrub/Ho-Chun.Huang/com/rrfs_post_stat/fire-static
+elif [ ${smlopt} == 'rrfs-cmaq-nofire' ] || [ ${smlopt} == 'nofire' ]; then
+   DE=`echo ${LASTDAY} | cut -c5-8`
+   comdir=/gpfs/dell2/ptmp/Ho-Chun.Huang/expt_dirs/rrfs_cmaq_6c73ae56_conus13-${FIRSTDAY}-${DE}_nofire
+   comdir2=${comdir}
+   mydir=/gpfs/dell2/ptmp/Ho-Chun.Huang/com/rrfs-cmaq/${smlopt}
+   mydir2=${mydir}
+   mydir2=/gpfs/dell2/emc/modeling/noscrub/Ho-Chun.Huang/com/rrfs_post_stat/nofire
+else
+   comdir=${mydir}
+   comdir2=${mydir2}
+   mydir=/gpfs/dell2/ptmp/Ho-Chun.Huang/expt_dirs/rrfs_cmaq_6c73ae56_conus13-${FIRSTDAY}-${DE}_${smlopt}
+   mydir2=/gpfs/dell2/emc/modeling/noscrub/Ho-Chun.Huang/com/rrfs_post_stat/${smlopt}
+fi
+comdir1_s1=${comdir}
+comdir2_s1=${comdir2}
+mydir1_s1=${mydir}
+mydir2_s1=${mydir2}
+
+##
+## setting for exp2
+##
+project=naqfc
+project2=meso
+opt=${opt2}
+if [ "${flag_diff_bc}" == "yes" ]; then
+   if [ "${opt2}" != "${opt1}" ]; then
+      echo " different between raw model and bias_correction solutions"
+      echo " input 2nd experiment ${opt2} is not the same as ${opt1}, force them to be the same for ${opt1} bias_correction"
+      opt=${opt1}
+   fi
+fi
+capopt=`echo ${opt} | tr '[:lower:]' '[:upper:]'`
+smlopt=`echo ${opt} | tr '[:upper:]' '[:lower:]'`
+capexp2=${capopt}
+exp2=${smlopt}
+comdir=/gpfs/hps/nco/ops/com/${smlaqm}/${exp2}
+comdir2=${comdir}
+comdir2=/gpfs/dell2/emc/modeling/noscrub/${USER}/com/${smlaqm}/${exp2}
+comdir2=/gpfs/hps3/emc/${project2}/noscrub/${USER}/com/${smlaqm}/${exp2}
+mydir2=/gpfs/hps3/ptmp/${USER}/com/${smlaqm}/${exp2}
+mydir12=/gpfs/hps3/ptmp/Jianping.Huang/com/${smlaqm}/${exp2}
+mydir=/gpfs/dell2/emc/modeling/noscrub/${USER}/com/${smlaqm}/${exp2}
+mydir=/gpfs/hps3/emc/${project2}/noscrub/${USER}/com/${smlaqm}/${exp2}
+mydir2=/gpfs/hps3/emc/${project}/noscrub/${USER}/com/${smlaqm}/${exp2}
+mydir=/gpfs/dell2/ptmp/Ho-Chun.Huang/com/${smlaqm}/${exp2}
+mydir2=/gpfs/dell2/ptmp/Ho-Chun.Huang/com/${smlaqm}/${exp2}
+
+## special setting
+if [ ${smlopt} == 'prod' ]; then
+   mydir=${comdir}
+elif [ ${smlopt} == 'prodx' ]; then
+   comdir=/gpfs/dell2/emc/modeling/noscrub/${USER}/com/aqm/prod/aqm.${NOW}
+   comdir2=${comdir}
+   mydir=${comdir}
+   mydir2=${comdir}
+elif [ ${smlopt} == 'ncopara' ]; then
+   comdir=/gpfs/hps/nco/ops/com/aqm/para
+   comdir2=${comdir}
+   mydir=${comdir}
+   mydir2=${comdir}
+elif [ ${smlopt} == 'rrfs-cmaq' ] || [ ${smlopt} == 'fire-static' ]; then
+   DE=`echo ${LASTDAY} | cut -c5-8`
+   comdir=/gpfs/dell2/ptmp/Ho-Chun.Huang/expt_dirs/rrfs_cmaq_6c73ae56_conus13-${FIRSTDAY}-${DE}
+   comdir2=${comdir}
+   mydir=/gpfs/dell2/ptmp/Ho-Chun.Huang/com/rrfs-cmaq/${smlopt}
+   mydir2=${mydir}
+   mydir2=/gpfs/dell2/emc/modeling/noscrub/Ho-Chun.Huang/com/rrfs_post_stat/fire-static
+elif [ ${smlopt} == 'rrfs-cmaq-nofire' ] || [ ${smlopt} == 'nofire' ]; then
+   DE=`echo ${LASTDAY} | cut -c5-8`
+   comdir=/gpfs/dell2/ptmp/Ho-Chun.Huang/expt_dirs/rrfs_cmaq_6c73ae56_conus13-${FIRSTDAY}-${DE}_nofire
+   comdir2=${comdir}
+   mydir=/gpfs/dell2/ptmp/Ho-Chun.Huang/com/rrfs-cmaq/${smlopt}
+   mydir2=${mydir}
+   mydir2=/gpfs/dell2/emc/modeling/noscrub/Ho-Chun.Huang/com/rrfs_post_stat/nofire
+else
+   comdir=${mydir}
+   comdir2=${mydir2}
+   mydir=/gpfs/dell2/ptmp/Ho-Chun.Huang/expt_dirs/rrfs_cmaq_6c73ae56_conus13-${FIRSTDAY}-${DE}_${smlopt}
+   mydir2=/gpfs/dell2/emc/modeling/noscrub/Ho-Chun.Huang/com/rrfs_post_stat/${smlopt}
+fi
+comdir1_s2=${comdir}
+comdir2_s2=${comdir2}
+mydir1_s2=${mydir}
+mydir2_s2=${mydir2}
+##
+if [ "${flag_diff_bc}" == "yes" ]; then
+   capexp2=${capopt}"BC"
+   exp2=${smlopt}"bc"
+fi
+capexp="${capexp2}-${capexp1}"
+exp="${exp2}-${exp1}"
+ftype="_${exp2}m${exp1}.png"
+
+if [ ${exp1} == 'para1' ]; then flag_update=no; fi
+
+## echo " ${exp} ${sel_cyc} ${FIRSTDAY} ${LASTDAY}"
+
+remote_dir=/home/people/emc/www/htdocs/mmb/hchuang/web/fig
+remote_host=emcrzdm.ncep.noaa.gov
+remote_host=rzdm
+remote_user=hchuang
+
+grid148=148
+grid227=227
+
+mfileid=pm25
+hfileid=pm25
+
+flag_update=no
+if [ "${LASTDAY}" == "${TODAY}" ]; then flag_update=yes; fi
+
+gs_dir=`pwd`
+
+declare -a reg=( dset conus east west  ne10  nw10  se10  swse  ak   hi   )
+declare -a lon0=( -175 -133 -100 -130  -81   -125  -91   -125  -170 -161 )
+declare -a lon1=(   55  -60  -60  -90  -66   -105  -74   -100  -130 -154 )
+declare -a lat0=(    0   21   24   21   37     37   24     21    50   18 )
+declare -a lat1=(   80   52   50   50   48     50   40     45    80   23 )
+nreg=${#reg[@]}
+let max_ireg=${nreg}-1
+idset=0
+iconus=1
+ieast=2
+iwest=3
+ine10=4
+inw10=5
+ise10=6
+iswse=7
+iak=8
+ihi=9
+
+declare -a mchr=( JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC )
+
+declare -a typ=( pm25 )
+declare -a typ=( pm25 max_1hr_pm25 ave_24hr_pm25 )
+declare -a typ=( max_1hr_pm25 ave_24hr_pm25 )
+ntyp=${#typ[@]}
+
+capexp=`echo ${exp} | tr '[:lower:]' '[:upper:]'`
+if [ ${exp} == 'para1' ]; then flag_update=no; fi
+
+NOW=${FIRSTDAY}
+while [ ${NOW} -le ${LASTDAY} ]; do
+
+   for cych in "${cyc_opt[@]}"; do
+      flag_plot=yes
+      echo "////////////////////////////////////////////////////"
+      if [ -d  ${comdir1_s1}/${NOW}${cych} ]; then
+         idir1=${comdir1_s1}/${NOW}${cych}
+         echo "FILE 1 from ${idir1}"
+      elif [ -d ${comdir2_s1}/${NOW}${cych} ]; then
+         idir1=${comdir2_s1}/${NOW}${cych}
+         echo "FILE 1 from ${idir1}"
+      elif [ -d  ${mydir1_s1}/${NOW}${cych} ]; then
+         idir1=${mydir1_s1}/${NOW}${cych}
+         echo "FILE 1 from ${idir1}"
+      elif [ -d ${mydir2_s1}/${NOW}${cych} ]; then
+         idir1=${mydir2_s1}/${NOW}${cych}
+         echo "FILE 1 from ${idir1}"
+      else
+         flag_plot=no
+         echo " ${NOW}${cych} :: NO ${comdir1_s1}/${NOW}${cych} & ${comdir2_s1}/${NOW}${cych}, skip to nexy cycle"
+         echo " ${NOW}${cych} :: NO ${mydir1_s1}/${NOW}${cych} & ${mydir2_s1}/${NOW}${cych}, skip to nexy cycle"
+      fi
+
+      echo "////////////////////////////////////////////////////"
+      if [ -d  ${comdir1_s2}/${NOW}${cych} ]; then
+         idir2=${comdir1_s2}/${NOW}${cych}
+         echo "FILE 2 from ${idir2}"
+      elif [ -d ${comdir2_s2}/${NOW}${cych} ]; then
+         idir2=${comdir2_s2}/${NOW}${cych}
+         echo "FILE 2 from ${idir2}"
+      elif [ -d  ${mydir1_s2}/${NOW}${cych} ]; then
+         idir2=${mydir1_s2}/${NOW}${cych}
+         echo "FILE 2 from ${idir2}"
+      elif [ -d ${mydir2_s2}/${NOW}${cych} ]; then
+         idir2=${mydir2_s2}/${NOW}${cych}
+         echo "FILE 2 from ${idir2}"
+      else
+         flag_plot=no
+         echo " ${NOW} :: NO ${comdir1_s2}/${NOW}${cych} & ${comdir2_s2}/${NOW}${cych}, skip to nexy cycle"
+         echo " ${NOW} :: NO ${mydir1_s2}/${NOW}${cych} & ${mydir2_s2}/${NOW}${cych}, skip to nexy cycle"
+      fi
+      echo "////////////////////////////////////////////////////"
+      if [ "${flag_plot}" == "no" ]; then
+         continue
+      fi
+
+      cdate=${NOW}${cych}
+      F1=$(${NDATE} +1 ${cdate}| cut -c9-10)
+      TOMORROW=$(${NDATE} +24 ${cdate}| cut -c1-8)
+      THIRDDAY=$(${NDATE} +48 ${cdate}| cut -c1-8)
+      FOURTHDAY=$(${NDATE} +72 ${cdate}| cut -c1-8)
+   
+      Y1=`echo ${NOW} | cut -c1-4`
+      MX=`echo ${NOW} | cut -c5-5`
+      if [ ${MX} == '0' ]; then
+         M1=`echo ${NOW} | cut -c6-6`
+      else
+         M1=`echo ${NOW} | cut -c5-6`
+      fi
+      D1=`echo ${NOW} | cut -c7-8`
+      Y2=`echo ${TOMORROW} | cut -c1-4`
+      MX=`echo ${TOMORROW} | cut -c5-5`
+      if [ ${MX} == '0' ]; then
+         M2=`echo ${TOMORROW} | cut -c6-6`
+      else
+         M2=`echo ${TOMORROW} | cut -c5-6`
+      fi
+      D2=`echo ${TOMORROW} | cut -c7-8`
+      Y3=`echo ${THIRDDAY} | cut -c1-4`
+      MX=`echo ${THIRDDAY} | cut -c5-5`
+      if [ ${MX} == '0' ]; then
+         M3=`echo ${THIRDDAY} | cut -c6-6`
+      else
+         M3=`echo ${THIRDDAY} | cut -c5-6`
+      fi
+      D3=`echo ${THIRDDAY} | cut -c7-8`
+      Y4=`echo ${FOURTHDAY} | cut -c1-4`
+      MX=`echo ${FOURTHDAY} | cut -c5-5`
+      if [ ${MX} == '0' ]; then
+         M4=`echo ${FOURTHDAY} | cut -c6-6`
+      else
+         M4=`echo ${FOURTHDAY} | cut -c5-6`
+      fi
+      D4=`echo ${FOURTHDAY} | cut -c7-8`
+      range1=05Z${D1}${mchr[$M1-1]}${Y1}-04Z${D2}${mchr[$M2-1]}${Y2}
+      range2=05Z${D2}${mchr[$M2-1]}${Y2}-04Z${D3}${mchr[$M3-1]}${Y3}
+      range3=05Z${D3}${mchr[$M3-1]}${Y3}-04Z${D4}${mchr[$M4-1]}${Y4}
+
+      if [ "${flag_diff_bc}" == "yes" ]; then
+         tmpdir=/gpfs/dell1/stmp/${USER}/com2_aqm_${exp}_diffpm25_bc_max.${NOW}${cych}
+      else
+         tmpdir=/gpfs/dell1/stmp/${USER}/com2_aqm_${exp}_diffpm25_max.${NOW}${cych}
+      fi
+      if [ -d ${tmpdir} ]; then /bin/rm -rf ${tmpdir}; fi
+      mkdir -p ${tmpdir}
+   
+      if [ "${flag_diff_bc}" == "yes" ]; then
+         fig_dir=/gpfs/dell1/stmp/${USER}/diff_plot_pm25_max_bc/aqm_${exp}_pm25_max_bc
+      else
+         fig_dir=/gpfs/dell1/stmp/${USER}/diff_plot_pm25_max/aqm_${exp}_pm25_max
+      fi
+      outdir=${fig_dir}.${NOW}${cych}
+      if [ ! -d ${outdir} ]; then mkdir -p ${outdir}; fi
+   
+      let end_hour=48
+      let numcyc=${cych}
+      cychr="t${cych}z"
+      echo " Perform operation on cych = ${cych}  cychr = ${cychr}"
+      if [ "${flag_test}" == "yes" ]; then continue; fi
+      for i in "${typ[@]}"
+      do
+        case ${i} in
+           max_1hr_o3) cp ${idir1}/postprd/POST_STAT/PM_O3_stat.grb2     ${tmpdir}/s1_PM_O3_stat.grb2
+                       if [ "${flag_diff_bc}" == "yes" ]; then
+                          cp ${idir2}/aqm.${cychr}.${i}_bc.${grid148}.grib2  ${tmpdir}/s2_aqm.${cychr}.${i}.${grid148}.grib2
+                       else
+                          cp ${idir2}/postprd/POST_STAT/PM_O3_stat.grb2  ${tmpdir}/s2_PM_O3_stat.grb2
+                       fi
+                       ;;
+           max_8hr_o3) cp ${idir1}/postprd/POST_STAT/PM_O3_stat.grb2     ${tmpdir}/s1_PM_O3_stat.grb2
+                       if [ "${flag_diff_bc}" == "yes" ]; then
+                          cp ${idir2}/aqm.${cychr}.${i}_bc.${grid148}.grib2  ${tmpdir}/s2_aqm.${cychr}.${i}.${grid148}.grib2
+                       else
+                          cp ${idir2}/postprd/POST_STAT/PM_O3_stat.grb2  ${tmpdir}/s2_PM_O3_stat.grb2
+                       fi
+                       ;;
+           o3)         cp ${idir1}/postprd/POST_STAT/PMTF_OZCON.grb2      ${tmpdir}/s1_PMTF_OZCON.grb2
+                       if [ "${flag_diff_bc}" == "yes" ]; then
+                          cp ${idir2}/postprd/POST_STAT/PMTF_OZCON_bc.grb2   ${tmpdir}/s2_PMTF_OZCON.grb2
+                       else
+                          cp ${idir2}/postprd/POST_STAT/PMTF_OZCON.grb2  ${tmpdir}/s2_PMTF_OZCON.grb2
+                       fi
+                       ;;
+           max_1hr_pm25) cp ${idir1}/postprd/POST_STAT/PM_O3_stat.grb2     ${tmpdir}/s1_PM_O3_stat.grb2
+                       if [ "${flag_diff_bc}" == "yes" ]; then
+                          cp ${idir2}/aqm.${cychr}.${i}_bc.${grid148}.grib2  ${tmpdir}/s2_aqm.${cychr}.${i}.${grid148}.grib2
+                       else
+                          cp ${idir2}/postprd/POST_STAT/PM_O3_stat.grb2  ${tmpdir}/s2_PM_O3_stat.grb2
+                       fi
+                       ;;
+           ave_24hr_pm25) cp ${idir1}/postprd/POST_STAT/PM_O3_stat.grb2     ${tmpdir}/s1_PM_O3_stat.grb2
+                       if [ "${flag_diff_bc}" == "yes" ]; then
+                          cp ${idir2}/aqm.${cychr}.${i}_bc.${grid148}.grib2  ${tmpdir}/s2_aqm.${cychr}.${i}.${grid148}.grib2
+                       else
+                          cp ${idir2}/postprd/POST_STAT/PM_O3_stat.grb2  ${tmpdir}/s2_PM_O3_stat.grb2
+                       fi
+                       ;;
+           pm25)       cp ${idir1}/postprd/POST_STAT/PMTF_OZCON.grb2      ${tmpdir}/s1_PMTF_OZCON.grb2
+                       if [ "${flag_diff_bc}" == "yes" ]; then
+                          cp ${idir2}/postprd/POST_STAT/PMTF_OZCON_bc.grb2   ${tmpdir}/s2_PMTF_OZCON.grb2
+                       else
+                          cp ${idir2}/postprd/POST_STAT/PMTF_OZCON.grb2  ${tmpdir}/s2_PMTF_OZCON.grb2
+                       fi
+                       ;;
+         esac
+      done
+      cd ${tmpdir}
+   
+      n0=0
+      let n1=${ntyp}-1
+      let ptyp=n0
+      while [ ${ptyp} -le ${n1} ]; do
+
+         if [ ${typ[${ptyp}]} = 'max_1hr_o3' ] || [ ${typ[${ptyp}]} = 'max_8hr_o3' ] || [ "${typ[${ptyp}]}" == "max_1hr_pm25" ] || [ "${typ[${ptyp}]}" == "ave_24hr_pm25" ]; then 
+            if [ "${typ[${ptyp}]}" = "max_1hr_pm25" ] || [ "${typ[${ptyp}]}" = "ave_24hr_pm25" ]; then
+               if [ -e aqm1.ctl ]; then /bin/rm -f aqm1.ctl; fi
+               if [ -e aqm2.ctl ]; then /bin/rm -f aqm2.ctl; fi
+               if [ "${cych}" == "06" ]; then
+                  cat >  aqm1.ctl <<EOF
+dset ${tmpdir}/s1_s1_PM_O3_stat.grb2
+index ${tmpdir}/s1_PM_O3_stat.grb2.idx
+undef 9.999E+20
+title s1_PM_O3_stat.grb2
+* produced by alt_g2ctl v1.0.5, use alt_gmp to make idx file
+* command line options: s1_PM_O3_stat.grb2 -0t -short
+* alt_gmp options: update=0
+* alt_gmp options: nthreads=1
+* alt_gmp options: big=0
+* wgrib2 inventory flags: -npts -set_ext_name 1 -T -ext_name -ftime -lev
+* wgrib2 inv suffix: .invd02
+* griddef=1:0:(442 x 265):grid_template=30:winds(grid): Lambert Conformal: (442 x 265) input WE:SN output WE:SN res 8 Lat1 21.821000 Lon1 239.372000 LoV 263.000000 LatD 33.000000 Latin1 33.000000 Latin2 45.000000 LatSP 0.000000 LonSP 0.000000 North P
+dtype grib2
+pdef 442 265 lccr 21.821000 -120.628 1 1 33.000000 45.000000 -97 12000.000000 12000.000000
+xdef 620 linear -131.659038 0.117510583392794
+ydef 293 linear 21.153709 0.109090909090909
+tdef 1 linear ${cych}Z${D1}${mchr[$M1-1]}${Y1} 1mo
+zdef 1 levels 1
+vars 3
+v1 0 0 "OZMAX1:-2147483647--2147483624 hour ave fcst:1 sigma level"
+v2 0 0 "OZMAX1:23-46 hour ave fcst:1 sigma level"
+v3 0 0 "OZMAX1:47-70 hour ave fcst:1 sigma level"
+ENDVARS
+EOF
+                  cat >  aqm2.ctl <<EOF
+dset ${tmpdir}/s2_aqm.${cychr}.${typ[${ptyp}]}.${grid148}.grib2
+index ${tmpdir}/s2_aqm.${cychr}.${typ[${ptyp}]}.${grid148}.grib2.idx
+undef 9.999E+20
+title s2_aqm.${cychr}.${typ[${ptyp}]}.${grid148}.grib2
+* produced by alt_g2ctl v1.0.5, use alt_gmp to make idx file
+* command line options: aqm.${cychr}.${typ[${ptyp}]}.${grid148}.grib2 -0t -short
+* alt_gmp options: update=0
+* alt_gmp options: nthreads=1
+* alt_gmp options: big=0
+* wgrib2 inventory flags: -npts -set_ext_name 1 -T -ext_name -ftime -lev
+* wgrib2 inv suffix: .invd02
+* griddef=1:0:(442 x 265):grid_template=30:winds(grid): Lambert Conformal: (442 x 265) input WE:SN output WE:SN res 8 Lat1 21.821000 Lon1 239.372000 LoV 263.000000 LatD 33.000000 Latin1 33.000000 Latin2 45.000000 LatSP 0.000000 LonSP 0.000000 North P
+dtype grib2
+pdef 442 265 lccr 21.821000 -120.628 1 1 33.000000 45.000000 -97 12000.000000 12000.000000
+xdef 620 linear -131.659038 0.117510583392794
+ydef 293 linear 21.153709 0.109090909090909
+tdef 1 linear ${cych}Z${D1}${mchr[$M1-1]}${Y1} 1mo
+zdef 1 levels 1
+vars 3
+v1 0 0 "OZMAX1:-2147483647--2147483624 hour ave fcst:1 sigma level"
+v2 0 0 "OZMAX1:23-46 hour ave fcst:1 sigma level"
+v3 0 0 "OZMAX1:47-70 hour ave fcst:1 sigma level"
+ENDVARS
+EOF
+               elif [ "${cych}" == "12" ]; then
+                  cat >  aqm1.ctl <<EOF
+dset ${tmpdir}/s1_PM_O3_stat.grb2
+index ${tmpdir}/s1_PM_O3_stat.grb2.idx
+undef 9.999E+20
+title ${tmpdir}/s1_PM_O3_stat.grb2
+* produced by alt_g2ctl v1.0.5, use alt_gmp to make idx file
+* command line options: -0t -short s1_PM_O3_stat.grb2
+* alt_gmp options: update=0
+* alt_gmp options: nthreads=1
+* alt_gmp options: big=0
+* wgrib2 inventory flags: -npts -set_ext_name 1 -T -ext_name -ftime -lev
+* wgrib2 inv suffix: .invd02
+* griddef=1:0:(393 x 225):grid_template=30:winds(N/S): Lambert Conformal: (393 x 225) input WE:SN output WE:SN res 0 Lat1 22.574181 Lon1 238.297684 LoV 262.500000 LatD 38.500000 Latin1 38.500000 Latin2 38.500000 LatSP 0.000000 LonSP 0.000000 North Po
+dtype grib2
+pdef 393 225 lcc 22.574181 -121.702316 1 1 38.500000 38.500000 -97.5 13000.000000 13000.000000
+xdef 534 linear -131.629212 0.127987823216879
+ydef 245 linear 22.574596 0.118181818181818
+tdef 1 linear ${cych}Z${D1}${mchr[$M1-1]}${Y1} 1mo
+zdef 1 levels 1
+vars 4
+v1 0 0 "OZMAX1:17-40 hour ave fcst:1 hybrid level"
+v2 0 0 "OZMAX8:17-40 hour ave fcst:1 hybrid level"
+v3 0 0 "PDMAX1:17-40 hour ave fcst:1 hybrid level"
+v4 0 0 "PDMAX24:17-40 hour ave fcst:1 hybrid level"
+endvars
+EOF
+                  cat >  aqm2.ctl <<EOF
+dset ${tmpdir}/s2_PM_O3_stat.grb2
+index ${tmpdir}/s2_PM_O3_stat.grb2.idx
+undef 9.999E+20
+title ${tmpdir}/s2_PM_O3_stat.grb2
+* produced by alt_g2ctl v1.0.5, use alt_gmp to make idx file
+* command line options: -0t -short s2_PM_O3_stat.grb2
+* alt_gmp options: update=0
+* alt_gmp options: nthreads=1
+* alt_gmp options: big=0
+* wgrib2 inventory flags: -npts -set_ext_name 1 -T -ext_name -ftime -lev
+* wgrib2 inv suffix: .invd02
+* griddef=1:0:(393 x 225):grid_template=30:winds(N/S): Lambert Conformal: (393 x 225) input WE:SN output WE:SN res 0 Lat1 22.574181 Lon1 238.297684 LoV 262.500000 LatD 38.500000 Latin1 38.500000 Latin2 38.500000 LatSP 0.000000 LonSP 0.000000 North Po
+dtype grib2
+pdef 393 225 lcc 22.574181 -121.702316 1 1 38.500000 38.500000 -97.5 13000.000000 13000.000000
+xdef 534 linear -131.629212 0.127987823216879
+ydef 245 linear 22.574596 0.118181818181818
+tdef 1 linear ${cych}Z${D1}${mchr[$M1-1]}${Y1} 1mo
+zdef 1 levels 1
+vars 4
+v1 0 0 "OZMAX1:17-40 hour ave fcst:1 hybrid level"
+v2 0 0 "OZMAX8:17-40 hour ave fcst:1 hybrid level"
+v3 0 0 "PDMAX1:17-40 hour ave fcst:1 hybrid level"
+v4 0 0 "PDMAX24:17-40 hour ave fcst:1 hybrid level"
+endvars
+EOF
+               else
+                  echo "Cycle Hour ${cych}z max 1hr ozone ctl files is not defined, program stop, EXIT"
+                  exit
+               fi
+            fi
+            alt_gmp aqm1.ctl
+            alt_gmp aqm2.ctl
+
+            if [ -e aqm.plots ]; then /bin/rm -f aqm.plots; fi
+
+            cat >  aqm.plots <<EOF
+'reinit'
+'set gxout shaded'
+'set gxout grfill'
+'set display color white'
+'set mpdset hires'
+'set grads off'
+'set rgb 99   0   0 150'
+'set rgb 88   0   0 200'
+'set rgb 16   0   0 255'
+'set rgb 18  80  80 255'
+'set rgb 19 120 120 255'
+'set rgb 20 150 150 255'
+'set rgb 25 220 220 255'
+'set rgb 48 150   0   0'
+'set rgb 49 200   0   0'
+'set rgb 52 255  80  80'
+'set rgb 53 255 120 120'
+'set rgb 54 255 150 150'
+'set rgb 55 255 220 220'
+'set rgb 89 238 220 220'
+'c'
+'open aqm1.ctl'
+'open aqm2.ctl'
+'set lat ${lat0[${iconus}]} ${lat1[${iconus}]}'
+'set lon ${lon0[${iconus}]} ${lon1[${iconus}]}'
+'${gs_dir}/diff.aqm.pm25.3d.max.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} ${range1} ${range2} ${range3} conus'
+'set lat ${lat0[${ieast}]} ${lat1[${ieast}]}'
+'set lon ${lon0[${ieast}]} ${lon1[${ieast}]}'
+'${gs_dir}/diff.aqm.pm25.3d.max.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} ${range1} ${range2} ${range3} east'
+'set lat ${lat0[${iwest}]} ${lat1[${iwest}]}'
+'set lon ${lon0[${iwest}]} ${lon1[${iwest}]}'
+'${gs_dir}/diff.aqm.pm25.3d.max.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} ${range1} ${range2} ${range3} west'
+'set lat ${lat0[${ine10}]} ${lat1[${ine10}]}'
+'set lon ${lon0[${ine10}]} ${lon1[${ine10}]}'
+'${gs_dir}/diff.aqm.pm25.3d.max.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} ${range1} ${range2} ${range3} ne'
+'set lat ${lat0[${inw10}]} ${lat1[${inw10}]}'
+'set lon ${lon0[${inw10}]} ${lon1[${inw10}]}'
+'${gs_dir}/diff.aqm.pm25.3d.max.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} ${range1} ${range2} ${range3} nw'
+'set lat ${lat0[${ise10}]} ${lat1[${ise10}]}'
+'set lon ${lon0[${ise10}]} ${lon1[${ise10}]}'
+'${gs_dir}/diff.aqm.pm25.3d.max.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} ${range1} ${range2} ${range3} se'
+'set lat ${lat0[${iswse}]} ${lat1[${iswse}]}'
+'set lon ${lon0[${iswse}]} ${lon1[${iswse}]}'
+'${gs_dir}/diff.aqm.pm25.3d.max.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} ${range1} ${range2} ${range3} sw'
+'quit'
+EOF
+               grads -blc "run aqm.plots"
+         elif [ "${typ[${ptyp}]}" == "o3" ] || [ "${typ[${ptyp}]}" == "pm25" ]; then
+            let xyzcyc=${cych}+1
+            start_hh=`printf %2.2d ${xyzcyc}`
+            if [ -e aqm1.ctl ]; then /bin/rm -f aqm1.ctl; fi
+            if [ -e aqm2.ctl ]; then /bin/rm -f aqm2.ctl; fi
+            cat >  aqm1.ctl <<EOF
+dset ${tmpdir}/s1_PMTF_OZCON.grb2
+index ${tmpdir}/s1_PMTF_OZCON.grb2.idx
+undef 9.999E+20
+title ${tmpdir}/s1_PMTF_OZCON.grb2
+* produced by alt_g2ctl v1.0.5, use alt_gmp to make idx file
+* command line options: -0t -short s1_PMTF_OZCON.grb2
+* alt_gmp options: update=0
+* alt_gmp options: nthreads=1
+* alt_gmp options: big=0
+* wgrib2 inventory flags: -npts -set_ext_name 1 -T -ext_name -ftime -lev
+* wgrib2 inv suffix: .invd02
+* griddef=1:0:(393 x 225):grid_template=30:winds(N/S): Lambert Conformal: (393 x 225) input WE:SN output WE:SN res 0 Lat1 22.574181 Lon1 238.297684 LoV 262.500000 LatD 38.500000 Latin1 38.500000 Latin2 38.500000 LatSP 0.000000 LonSP 0.000000 North Po
+dtype grib2
+pdef 393 225 lcc 22.574181 -121.702316 1 1 38.500000 38.500000 -97.5 13000.000000 13000.000000
+xdef 534 linear -131.629212 0.127987823216879
+ydef 245 linear 22.574596 0.118181818181818
+tdef 1 linear ${cych}Z${D1}${mchr[$M1-1]}${Y1} 1mo
+zdef 1 levels 1
+vars 96
+v1 0 0 "OZCON:1 hour fcst:1 hybrid level"
+v2 0 0 "OZCON:2 hour fcst:1 hybrid level"
+v3 0 0 "OZCON:3 hour fcst:1 hybrid level"
+v4 0 0 "OZCON:4 hour fcst:1 hybrid level"
+v5 0 0 "OZCON:5 hour fcst:1 hybrid level"
+v6 0 0 "OZCON:6 hour fcst:1 hybrid level"
+v7 0 0 "OZCON:7 hour fcst:1 hybrid level"
+v8 0 0 "OZCON:8 hour fcst:1 hybrid level"
+v9 0 0 "OZCON:9 hour fcst:1 hybrid level"
+v10 0 0 "OZCON:10 hour fcst:1 hybrid level"
+v11 0 0 "OZCON:11 hour fcst:1 hybrid level"
+v12 0 0 "OZCON:12 hour fcst:1 hybrid level"
+v13 0 0 "OZCON:13 hour fcst:1 hybrid level"
+v14 0 0 "OZCON:14 hour fcst:1 hybrid level"
+v15 0 0 "OZCON:15 hour fcst:1 hybrid level"
+v16 0 0 "OZCON:16 hour fcst:1 hybrid level"
+v17 0 0 "OZCON:17 hour fcst:1 hybrid level"
+v18 0 0 "OZCON:18 hour fcst:1 hybrid level"
+v19 0 0 "OZCON:19 hour fcst:1 hybrid level"
+v20 0 0 "OZCON:20 hour fcst:1 hybrid level"
+v21 0 0 "OZCON:21 hour fcst:1 hybrid level"
+v22 0 0 "OZCON:22 hour fcst:1 hybrid level"
+v23 0 0 "OZCON:23 hour fcst:1 hybrid level"
+v24 0 0 "OZCON:24 hour fcst:1 hybrid level"
+v25 0 0 "OZCON:25 hour fcst:1 hybrid level"
+v26 0 0 "OZCON:26 hour fcst:1 hybrid level"
+v27 0 0 "OZCON:27 hour fcst:1 hybrid level"
+v28 0 0 "OZCON:28 hour fcst:1 hybrid level"
+v29 0 0 "OZCON:29 hour fcst:1 hybrid level"
+v30 0 0 "OZCON:30 hour fcst:1 hybrid level"
+v31 0 0 "OZCON:31 hour fcst:1 hybrid level"
+v32 0 0 "OZCON:32 hour fcst:1 hybrid level"
+v33 0 0 "OZCON:33 hour fcst:1 hybrid level"
+v34 0 0 "OZCON:34 hour fcst:1 hybrid level"
+v35 0 0 "OZCON:35 hour fcst:1 hybrid level"
+v36 0 0 "OZCON:36 hour fcst:1 hybrid level"
+v37 0 0 "OZCON:37 hour fcst:1 hybrid level"
+v38 0 0 "OZCON:38 hour fcst:1 hybrid level"
+v39 0 0 "OZCON:39 hour fcst:1 hybrid level"
+v40 0 0 "OZCON:40 hour fcst:1 hybrid level"
+v41 0 0 "OZCON:41 hour fcst:1 hybrid level"
+v42 0 0 "OZCON:42 hour fcst:1 hybrid level"
+v43 0 0 "OZCON:43 hour fcst:1 hybrid level"
+v44 0 0 "OZCON:44 hour fcst:1 hybrid level"
+v45 0 0 "OZCON:45 hour fcst:1 hybrid level"
+v46 0 0 "OZCON:46 hour fcst:1 hybrid level"
+v47 0 0 "OZCON:47 hour fcst:1 hybrid level"
+v48 0 0 "OZCON:48 hour fcst:1 hybrid level"
+v49 0 0 "PMTF:1 hour fcst:1 hybrid level"
+v50 0 0 "PMTF:2 hour fcst:1 hybrid level"
+v51 0 0 "PMTF:3 hour fcst:1 hybrid level"
+v52 0 0 "PMTF:4 hour fcst:1 hybrid level"
+v53 0 0 "PMTF:5 hour fcst:1 hybrid level"
+v54 0 0 "PMTF:6 hour fcst:1 hybrid level"
+v55 0 0 "PMTF:7 hour fcst:1 hybrid level"
+v56 0 0 "PMTF:8 hour fcst:1 hybrid level"
+v57 0 0 "PMTF:9 hour fcst:1 hybrid level"
+v58 0 0 "PMTF:10 hour fcst:1 hybrid level"
+v59 0 0 "PMTF:11 hour fcst:1 hybrid level"
+v60 0 0 "PMTF:12 hour fcst:1 hybrid level"
+v61 0 0 "PMTF:13 hour fcst:1 hybrid level"
+v62 0 0 "PMTF:14 hour fcst:1 hybrid level"
+v63 0 0 "PMTF:15 hour fcst:1 hybrid level"
+v64 0 0 "PMTF:16 hour fcst:1 hybrid level"
+v65 0 0 "PMTF:17 hour fcst:1 hybrid level"
+v66 0 0 "PMTF:18 hour fcst:1 hybrid level"
+v67 0 0 "PMTF:19 hour fcst:1 hybrid level"
+v68 0 0 "PMTF:20 hour fcst:1 hybrid level"
+v69 0 0 "PMTF:21 hour fcst:1 hybrid level"
+v70 0 0 "PMTF:22 hour fcst:1 hybrid level"
+v71 0 0 "PMTF:23 hour fcst:1 hybrid level"
+v72 0 0 "PMTF:24 hour fcst:1 hybrid level"
+v73 0 0 "PMTF:25 hour fcst:1 hybrid level"
+v74 0 0 "PMTF:26 hour fcst:1 hybrid level"
+v75 0 0 "PMTF:27 hour fcst:1 hybrid level"
+v76 0 0 "PMTF:28 hour fcst:1 hybrid level"
+v77 0 0 "PMTF:29 hour fcst:1 hybrid level"
+v78 0 0 "PMTF:30 hour fcst:1 hybrid level"
+v79 0 0 "PMTF:31 hour fcst:1 hybrid level"
+v80 0 0 "PMTF:32 hour fcst:1 hybrid level"
+v81 0 0 "PMTF:33 hour fcst:1 hybrid level"
+v82 0 0 "PMTF:34 hour fcst:1 hybrid level"
+v83 0 0 "PMTF:35 hour fcst:1 hybrid level"
+v84 0 0 "PMTF:36 hour fcst:1 hybrid level"
+v85 0 0 "PMTF:37 hour fcst:1 hybrid level"
+v86 0 0 "PMTF:38 hour fcst:1 hybrid level"
+v87 0 0 "PMTF:39 hour fcst:1 hybrid level"
+v88 0 0 "PMTF:40 hour fcst:1 hybrid level"
+v89 0 0 "PMTF:41 hour fcst:1 hybrid level"
+v90 0 0 "PMTF:42 hour fcst:1 hybrid level"
+v91 0 0 "PMTF:43 hour fcst:1 hybrid level"
+v92 0 0 "PMTF:44 hour fcst:1 hybrid level"
+v93 0 0 "PMTF:45 hour fcst:1 hybrid level"
+v94 0 0 "PMTF:46 hour fcst:1 hybrid level"
+v95 0 0 "PMTF:47 hour fcst:1 hybrid level"
+v96 0 0 "PMTF:48 hour fcst:1 hybrid level"
+endvars
+EOF
+            cat >  aqm2.ctl <<EOF
+dset ${tmpdir}/s2_PMTF_OZCON.grb2
+index ${tmpdir}/s2_PMTF_OZCON.grb2.idx
+undef 9.999E+20
+title ${tmpdir}/s1_PMTF_OZCON.grb2
+* produced by alt_g2ctl v1.0.5, use alt_gmp to make idx file
+* command line options: -0t -short s2_PMTF_OZCON.grb2
+* alt_gmp options: update=0
+* alt_gmp options: nthreads=1
+* alt_gmp options: big=0
+* wgrib2 inventory flags: -npts -set_ext_name 1 -T -ext_name -ftime -lev
+* wgrib2 inv suffix: .invd02
+* griddef=1:0:(393 x 225):grid_template=30:winds(N/S): Lambert Conformal: (393 x 225) input WE:SN output WE:SN res 0 Lat1 22.574181 Lon1 238.297684 LoV 262.500000 LatD 38.500000 Latin1 38.500000 Latin2 38.500000 LatSP 0.000000 LonSP 0.000000 North Po
+dtype grib2
+pdef 393 225 lcc 22.574181 -121.702316 1 1 38.500000 38.500000 -97.5 13000.000000 13000.000000
+xdef 534 linear -131.629212 0.127987823216879
+ydef 245 linear 22.574596 0.118181818181818
+tdef 1 linear ${cych}Z${D1}${mchr[$M1-1]}${Y1} 1mo
+zdef 1 levels 1
+vars 96
+v1 0 0 "OZCON:1 hour fcst:1 hybrid level"
+v2 0 0 "OZCON:2 hour fcst:1 hybrid level"
+v3 0 0 "OZCON:3 hour fcst:1 hybrid level"
+v4 0 0 "OZCON:4 hour fcst:1 hybrid level"
+v5 0 0 "OZCON:5 hour fcst:1 hybrid level"
+v6 0 0 "OZCON:6 hour fcst:1 hybrid level"
+v7 0 0 "OZCON:7 hour fcst:1 hybrid level"
+v8 0 0 "OZCON:8 hour fcst:1 hybrid level"
+v9 0 0 "OZCON:9 hour fcst:1 hybrid level"
+v10 0 0 "OZCON:10 hour fcst:1 hybrid level"
+v11 0 0 "OZCON:11 hour fcst:1 hybrid level"
+v12 0 0 "OZCON:12 hour fcst:1 hybrid level"
+v13 0 0 "OZCON:13 hour fcst:1 hybrid level"
+v14 0 0 "OZCON:14 hour fcst:1 hybrid level"
+v15 0 0 "OZCON:15 hour fcst:1 hybrid level"
+v16 0 0 "OZCON:16 hour fcst:1 hybrid level"
+v17 0 0 "OZCON:17 hour fcst:1 hybrid level"
+v18 0 0 "OZCON:18 hour fcst:1 hybrid level"
+v19 0 0 "OZCON:19 hour fcst:1 hybrid level"
+v20 0 0 "OZCON:20 hour fcst:1 hybrid level"
+v21 0 0 "OZCON:21 hour fcst:1 hybrid level"
+v22 0 0 "OZCON:22 hour fcst:1 hybrid level"
+v23 0 0 "OZCON:23 hour fcst:1 hybrid level"
+v24 0 0 "OZCON:24 hour fcst:1 hybrid level"
+v25 0 0 "OZCON:25 hour fcst:1 hybrid level"
+v26 0 0 "OZCON:26 hour fcst:1 hybrid level"
+v27 0 0 "OZCON:27 hour fcst:1 hybrid level"
+v28 0 0 "OZCON:28 hour fcst:1 hybrid level"
+v29 0 0 "OZCON:29 hour fcst:1 hybrid level"
+v30 0 0 "OZCON:30 hour fcst:1 hybrid level"
+v31 0 0 "OZCON:31 hour fcst:1 hybrid level"
+v32 0 0 "OZCON:32 hour fcst:1 hybrid level"
+v33 0 0 "OZCON:33 hour fcst:1 hybrid level"
+v34 0 0 "OZCON:34 hour fcst:1 hybrid level"
+v35 0 0 "OZCON:35 hour fcst:1 hybrid level"
+v36 0 0 "OZCON:36 hour fcst:1 hybrid level"
+v37 0 0 "OZCON:37 hour fcst:1 hybrid level"
+v38 0 0 "OZCON:38 hour fcst:1 hybrid level"
+v39 0 0 "OZCON:39 hour fcst:1 hybrid level"
+v40 0 0 "OZCON:40 hour fcst:1 hybrid level"
+v41 0 0 "OZCON:41 hour fcst:1 hybrid level"
+v42 0 0 "OZCON:42 hour fcst:1 hybrid level"
+v43 0 0 "OZCON:43 hour fcst:1 hybrid level"
+v44 0 0 "OZCON:44 hour fcst:1 hybrid level"
+v45 0 0 "OZCON:45 hour fcst:1 hybrid level"
+v46 0 0 "OZCON:46 hour fcst:1 hybrid level"
+v47 0 0 "OZCON:47 hour fcst:1 hybrid level"
+v48 0 0 "OZCON:48 hour fcst:1 hybrid level"
+v49 0 0 "PMTF:1 hour fcst:1 hybrid level"
+v50 0 0 "PMTF:2 hour fcst:1 hybrid level"
+v51 0 0 "PMTF:3 hour fcst:1 hybrid level"
+v52 0 0 "PMTF:4 hour fcst:1 hybrid level"
+v53 0 0 "PMTF:5 hour fcst:1 hybrid level"
+v54 0 0 "PMTF:6 hour fcst:1 hybrid level"
+v55 0 0 "PMTF:7 hour fcst:1 hybrid level"
+v56 0 0 "PMTF:8 hour fcst:1 hybrid level"
+v57 0 0 "PMTF:9 hour fcst:1 hybrid level"
+v58 0 0 "PMTF:10 hour fcst:1 hybrid level"
+v59 0 0 "PMTF:11 hour fcst:1 hybrid level"
+v60 0 0 "PMTF:12 hour fcst:1 hybrid level"
+v61 0 0 "PMTF:13 hour fcst:1 hybrid level"
+v62 0 0 "PMTF:14 hour fcst:1 hybrid level"
+v63 0 0 "PMTF:15 hour fcst:1 hybrid level"
+v64 0 0 "PMTF:16 hour fcst:1 hybrid level"
+v65 0 0 "PMTF:17 hour fcst:1 hybrid level"
+v66 0 0 "PMTF:18 hour fcst:1 hybrid level"
+v67 0 0 "PMTF:19 hour fcst:1 hybrid level"
+v68 0 0 "PMTF:20 hour fcst:1 hybrid level"
+v69 0 0 "PMTF:21 hour fcst:1 hybrid level"
+v70 0 0 "PMTF:22 hour fcst:1 hybrid level"
+v71 0 0 "PMTF:23 hour fcst:1 hybrid level"
+v72 0 0 "PMTF:24 hour fcst:1 hybrid level"
+v73 0 0 "PMTF:25 hour fcst:1 hybrid level"
+v74 0 0 "PMTF:26 hour fcst:1 hybrid level"
+v75 0 0 "PMTF:27 hour fcst:1 hybrid level"
+v76 0 0 "PMTF:28 hour fcst:1 hybrid level"
+v77 0 0 "PMTF:29 hour fcst:1 hybrid level"
+v78 0 0 "PMTF:30 hour fcst:1 hybrid level"
+v79 0 0 "PMTF:31 hour fcst:1 hybrid level"
+v80 0 0 "PMTF:32 hour fcst:1 hybrid level"
+v81 0 0 "PMTF:33 hour fcst:1 hybrid level"
+v82 0 0 "PMTF:34 hour fcst:1 hybrid level"
+v83 0 0 "PMTF:35 hour fcst:1 hybrid level"
+v84 0 0 "PMTF:36 hour fcst:1 hybrid level"
+v85 0 0 "PMTF:37 hour fcst:1 hybrid level"
+v86 0 0 "PMTF:38 hour fcst:1 hybrid level"
+v87 0 0 "PMTF:39 hour fcst:1 hybrid level"
+v88 0 0 "PMTF:40 hour fcst:1 hybrid level"
+v89 0 0 "PMTF:41 hour fcst:1 hybrid level"
+v90 0 0 "PMTF:42 hour fcst:1 hybrid level"
+v91 0 0 "PMTF:43 hour fcst:1 hybrid level"
+v92 0 0 "PMTF:44 hour fcst:1 hybrid level"
+v93 0 0 "PMTF:45 hour fcst:1 hybrid level"
+v94 0 0 "PMTF:46 hour fcst:1 hybrid level"
+v95 0 0 "PMTF:47 hour fcst:1 hybrid level"
+v96 0 0 "PMTF:48 hour fcst:1 hybrid level"
+endvars
+EOF
+   
+            ## alt_gmp aqm1.ctl
+            ## alt_gmp aqm2.ctl
+            alt_gmp -update=0 -nthreads=1 -big=0 aqm1.ctl
+            alt_gmp -update=0 -nthreads=1 -big=0 aqm2.ctl
+#
+# create ctl prior to fcst loop , which is the same for fcst hours, do not need to delete and re-create
+            t0=1
+            t1=${end_hour}
+
+            let numi=t0
+            while [ ${numi} -le ${t1} ]; do
+   
+               let ploti=${numi}+${end_hour}   ## need to hardwire the location of first hour pm25, i.e., 49
+
+               fcsti=`printf %3.3d ${numi}`
+               i=`printf %2.2d ${numi}`
+   
+               let j=numi+${numcyc}
+               if [ ${j} -ge 72 ]; then
+                  let j=j-72
+                  date=${FOURTHDAY}
+               elif [ ${j} -ge 48 ]; then
+                  let j=j-48
+                  date=${THIRDDAY}
+               elif [ ${j} -ge 24 ]; then
+                  let j=j-24
+                  date=${TOMORROW}
+               else
+                  date=${NOW}
+               fi
+               numj=`printf %2.2d ${j}`
+      
+               YH=`echo ${date} | cut -c1-4`
+               MX=`echo ${date} | cut -c5-5`
+               if [ ${MX} == '0' ]; then
+                  MH=`echo ${date} | cut -c6-6`
+               else
+                  MH=`echo ${date} | cut -c5-6`
+               fi
+               DH=`echo ${date} | cut -c7-8`
+   
+               if [ ${typ[${ptyp}]} = 'pm25' ]; then 
+   
+                  if [ -e aqm.plots ]; then /bin/rm -f aqm.plots; fi
+   
+                  cat >  aqm.plots <<EOF
+'reinit'
+'set gxout shaded'
+'set gxout grfill'
+'set display color white'
+'set mpdset hires'
+'set grads off'
+'set rgb 99   0   0 150'
+'set rgb 88   0   0 200'
+'set rgb 16   0   0 255'
+'set rgb 18  80  80 255'
+'set rgb 19 120 120 255'
+'set rgb 20 150 150 255'
+'set rgb 25 220 220 255'
+'set rgb 48 150   0   0'
+'set rgb 49 200   0   0'
+'set rgb 52 255  80  80'
+'set rgb 53 255 120 120'
+'set rgb 54 255 150 150'
+'set rgb 55 255 220 220'
+'set rgb 89 238 220 220'
+'c'
+'open aqm1.ctl'
+'open aqm2.ctl'
+'set lat ${lat0[${iconus}]} ${lat1[${iconus}]}'
+'set lon ${lon0[${iconus}]} ${lon1[${iconus}]}'
+'${gs_dir}/diff.aqm.pm25.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} v${ploti} ${i} ${date}/${numj}00V${fcsti} conus'
+'set lat ${lat0[${ieast}]} ${lat1[${ieast}]}'
+'set lon ${lon0[${ieast}]} ${lon1[${ieast}]}'
+'${gs_dir}/diff.aqm.pm25.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} v${ploti} ${i} ${date}/${numj}00V${fcsti} east'
+'set lat ${lat0[${iwest}]} ${lat1[${iwest}]}'
+'set lon ${lon0[${iwest}]} ${lon1[${iwest}]}'
+'${gs_dir}/diff.aqm.pm25.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} v${ploti} ${i} ${date}/${numj}00V${fcsti} west'
+'set lat ${lat0[${ine10}]} ${lat1[${ine10}]}'
+'set lon ${lon0[${ine10}]} ${lon1[${ine10}]}'
+'${gs_dir}/diff.aqm.pm25.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} v${ploti} ${i} ${date}/${numj}00V${fcsti} ne'
+'set lat ${lat0[${inw10}]} ${lat1[${inw10}]}'
+'set lon ${lon0[${inw10}]} ${lon1[${inw10}]}'
+'${gs_dir}/diff.aqm.pm25.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} v${ploti} ${i} ${date}/${numj}00V${fcsti} nw'
+'set lat ${lat0[${ise10}]} ${lat1[${ise10}]}'
+'set lon ${lon0[${ise10}]} ${lon1[${ise10}]}'
+'${gs_dir}/diff.aqm.pm25.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} v${ploti} ${i} ${date}/${numj}00V${fcsti} se'
+'set lat ${lat0[${iswse}]} ${lat1[${iswse}]}'
+'set lon ${lon0[${iswse}]} ${lon1[${iswse}]}'
+'${gs_dir}/diff.aqm.pm25.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} v${ploti} ${i} ${date}/${numj}00V${fcsti} sw'
+'quit'
+EOF
+                  grads -blc "run aqm.plots"
+               fi
+               ((numi++))
+            done
+         fi
+         ((ptyp++))
+      done
+      if [ ${flag_scp} == 'yes' ] && [ "${flag_plot}" == "yes" ]; then  # for RZDM maintainence
+         ##
+         ## TRANSFER PLOTS TO RZDM
+         ##
+         scp ${outdir}/aqm*.png ${remote_user}@${remote_host}:${remote_dir}/${Y1}/${NOW}/${cychr}
+      fi
+   done   ## end for loop cych in "${cyc_opt[@]}"
+   cdate=${NOW}"00"
+   NOW=$(${NDATE} +24 ${cdate}| cut -c1-8)
+done
+
+if [ "${flag_bsub}" == "yes" ] && [ "${flag_plot}" == "yes" ]; then
+   working_dir=/gpfs/dell1/stmp/${USER}/job_submit
+   mkdir -p ${working_dir}
+   cd ${working_dir}
+
+   task_cpu='05:00'
+   job_name=cmaq_${mfileid}max_${exp}${sel_cyc}
+   batch_script=trans_cmaq${mfileid}max_${exp}.${FIRSTDAY}.${LASTDAY}.sh
+   if [ -e ${batch_script} ]; then /bin/rm -f ${batch_script}; fi
+
+   logdir=/gpfs/dell1/ptmp/${USER}/batch_logs
+   if [ ! -d ${logdir} ]; then mkdir -p ${logdir}; fi
+
+   logfile=${logdir}/${job_name}_${FIRSTDAY}_${LASTDAY}.out
+   if [ -e ${logfile} ]; then /bin/rm -f ${logfile}; fi
+
+   file_hd=aqm
+   file_type=png
+   cat > ${batch_script} << EOF
+#!/bin/sh
+#BSUB -o ${logfile}
+#BSUB -e ${logfile}
+#BSUB -n 1
+#BSUB -J j${job_name}
+#BSUB -q "dev_transfer"
+#BSUB -P HYS-T2O
+#BSUB -W ${task_cpu}
+#BSUB -R affinity[core(1)]
+#BSUB -M 100
+####BSUB -R span[ptile=1]
+##
+##  Provide fix date daily Hysplit data processing
+##
+   module load prod_util/1.1.6
+
+   FIRSTDAY=${FIRSTDAY}
+   LASTDAY=${LASTDAY}
+   exp=${exp}
+   remote_user=${remote_user}
+   remote_host=${remote_host}
+   remote_dir=${remote_dir}
+   file_hd=${file_hd}
+   file_type=${file_type}
+   flag_update=${flag_update}
+   declare -a cyc=( ${cyc_opt[@]} )
+   fig_dir=${fig_dir}
+EOF
+   ##
+   ##  Creat part 2 script : exact wording of scripts
+   ##
+   cat > ${batch_script}.add  << 'EOF'
+
+   NOW=${FIRSTDAY}
+   while [ ${NOW} -le ${LASTDAY} ]; do
+      YY=`echo ${NOW} | cut -c1-4`
+      YM=`echo ${NOW} | cut -c1-6`
+
+      for i in "${cyc[@]}"; do
+         cycle=t${i}z
+         data_dir=${fig_dir}.${NOW}${i}
+         if [ -d ${data_dir} ]; then
+            scp ${data_dir}/${file_hd}*${file_type} ${remote_user}@${remote_host}:${remote_dir}/${YY}/${NOW}/${cycle}
+         else
+            echo "Can not find ${data_dir}, skip to next cycle/day"
+            cdate=${NOW}"00"
+            NOW=$(${NDATE} +24 ${cdate}| cut -c1-8)
+         fi
+      done  ## cycle time
+      cdate=${NOW}"00"
+      NOW=$(${NDATE} +24 ${cdate}| cut -c1-8)
+   done
+   if [ "${flag_update}" == "yes" ]; then
+      script_dir=/gpfs/dell2/emc/modeling/save/${USER}/WEB/base
+      cd ${script_dir}
+
+      script_name=wcoss.run.cmaq_pm25.sh
+      if [ -s ${script_name} ]; then bash ${script_name} ${LASTDAY}; fi
+
+      script_name=wcoss.run.cmaq2_pm25.sh
+      if [ -s ${script_name} ]; then bash ${script_name} ${LASTDAY}; fi
+   fi
+exit
+EOF
+   ##
+   ##  Combine both working script together
+   ##
+   cat ${batch_script}.add >> ${batch_script}
+   ##
+   ##  Submit run scripts
+   ##
+   if [ "${flag_test}" == "no" ]; then
+      bsub < ${batch_script}
+   else
+      echo "test bsub < ${batch_script} completed"
+   fi
+   echo "FIG DIR = ${outdir}"
+fi
+exit

@@ -1,0 +1,77 @@
+            if i == "daily.aqm.plot.py" or i == "daily.aqm.plot_bc.py":
+                print("    Start processing "+i)
+                for j in var:
+                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    print(msg)
+                    subprocess.call(["python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+" > "+i+"."+envir+"."+j+"."+cyc+"."+date.strftime(YMD_date_format)+".log 2>&1 &"], shell=True)
+            if i == "daily.aqm.plot_spec.py" or i == "daily.aqm.plot_spec_xsel.py":
+                print("    Start processing "+i)
+                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                print(msg)
+                subprocess.call(["python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+" > "+i+"."+envir+"."+cyc+"."+date.strftime(YMD_date_format)+".log 2>&1 &"], shell=True)
+            if i == "diff.aqm.plot_bc.py":
+                print("    Start processing "+i)
+                for j in var:
+                    msg="        python "+i+" "+envir+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    print(msg)
+                    subprocess.call(["python "+i+" "+envir+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+" > "+i+"."+envir+"-"+envir+"bc."+j+"."+cyc+"."+date.strftime(YMD_date_format)+".log 2>&1 &"], shell=True)
+            if i == "diff.aqm.plot_spec.py" and envir != "prod":
+                print("    Start processing "+i)
+                msg="        python "+i+" prod "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                print(msg)
+                subprocess.call(["python "+i+" prod "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+" > "+i+"."+envir+"-prod."+cyc+"."+date.strftime(YMD_date_format)+".log 2>&1 &"], shell=True)
+                if envir == "para6z":
+                    msg="        python "+i+" para6x "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    print(msg)
+                    subprocess.call(["python "+i+" para6x "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+" > "+i+"."+envir+"-para6a."+cyc+"."+date.strftime(YMD_date_format)+".log 2>&1 &"], shell=True)
+            if i == "diff.aqm.plot.py" and envir != "prod":
+                print("    Start processing "+i)
+                for j in var:
+                    msg="        python "+i+" prod "+envir+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    print(msg)
+                    subprocess.call(["python "+i+" "+envir+" para6d "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+" > "+i+".para6d-"+envir+"."+j+"."+cyc+"."+date.strftime(YMD_date_format)+".log 2>&1 &"], shell=True)
+                if envir == "para6z":
+                    for j in var:
+                        msg="        python "+i+" "+envir+" para6d "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                        print(msg)
+                        subprocess.call(["python "+i+" "+envir+" para6d "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+" > "+i+".para6d-"+envir+"."+j+"."+cyc+"."+date.strftime(YMD_date_format)+".log 2>&1 &"], shell=True)
+            if i == "daily.aqm.plot_met_v6.py":
+                print("    Start processing "+i)
+                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                print(msg)
+                subprocess.call(["python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+" > "+i+"."+envir+"."+cyc+"."+date.strftime(YMD_date_format)+".log 2>&1 &"], shell=True)
+            if i == "diff.aqm.plot_met_v6.py" and envir != "prod":
+                print("    Start processing "+i)
+                msg="        python "+i+" prod "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                print(msg)
+                subprocess.call(["python "+i+" para6a "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+" > "+i+"."+envir+"-para6a."+cyc+"."+date.strftime(YMD_date_format)+".log 2>&1 &"], shell=True)
+            if i == "daily.aqm.col_v6.py":
+                print("    Start processing "+i)
+                for j in col_var:
+                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    print(msg)
+                    subprocess.call(["python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+" > "+i+"."+envir+"."+j+"."+cyc+"."+date.strftime(YMD_date_format)+".log 2>&1 &"], shell=True)
+            if i == "daily.aqm.plot_dustemis.py":
+                print("    Start processing "+i)
+                for j in var:
+                    msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    print(msg)
+                    subprocess.call(["python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+" > "+i+"."+envir+"."+cyc+"."+date.strftime(YMD_date_format)+".log 2>&1 &"], shell=True)
+            if i == "daily.aqm.plot_fireemis.py" and envir != "prod":
+                print("    Start processing "+i)
+                for j in var:
+                    msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    print(msg)
+                    subprocess.call(["python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+" > "+i+"."+envir+"."+cyc+"."+date.strftime(YMD_date_format)+".log 2>&1 &"], shell=True)
+            if i == "daily.aqm.plot_fireemis_r.py" and envir != "prod":
+                print("    Start processing "+i)
+                for j in var:
+                    msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    print(msg)
+                    subprocess.call(["python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+" > "+i+"."+envir+"."+cyc+"."+date.strftime(YMD_date_format)+".log 2>&1 &"], shell=True)
+            if i == "daily.aqm.plot_dustloc.py":
+                print("    Start processing "+i)
+                for j in var:
+                    msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    print(msg)
+                    subprocess.call(["python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+" > "+i+"."+envir+"."+cyc+"."+date.strftime(YMD_date_format)+".log 2>&1 &"], shell=True)

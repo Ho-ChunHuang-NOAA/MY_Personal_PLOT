@@ -1,0 +1,24 @@
+                        if figarea == "ak":
+                            cf1 = ax.contourf(
+                                     ak_lat, ak_lon, pvar_ak,
+                                     levels=clevs, cmap=cmap, norm=norm, extend='both',
+                                     transform=ccrs.PlateCarree() )
+                        elif figarea == "hi":
+                            cf1 = ax.contourf(
+                                     hi_lat, hi_lon, pvar_hi,
+                                     levels=clevs, cmap=cmap, norm=norm, extend='both',
+                                     transform=ccrs.PlateCarree() )
+                        else:
+                            cf1 = ax.contourf(
+                                     cs_lat, cs_lon, pvar_cs,
+                                     levels=clevs, cmap=cmap, norm=norm, extend='both',
+                                     transform=ccrs.PlateCarree() )
+                            if figarea == "dset":
+                                ax.contourf(
+                                     ak_lat, ak_lon, pvar_ak,
+                                     levels=clevs, cmap=cmap, norm=norm, extend='both',
+                                     transform=ccrs.PlateCarree() )
+                                ax.contourf(
+                                     hi_lat, hi_lon, pvar_hi,
+                                     levels=clevs, cmap=cmap, norm=norm, extend='both',
+                                     transform=ccrs.PlateCarree() )

@@ -1,0 +1,31 @@
+CRAY Machine
+1,$s/"\/gpfs\/hps3\/ptmp\/"+user/ptmp_dir/g
+
+1,$s/"\/gpfs\/hps3\/stmp\/"+user/stmp_dir/g
+
+Dell Machine
+1,$s/"\/gpfs\/dell2\/ptmp\/"+user/ptmp_dir/g
+
+1,$s/"\/gpfs\/dell2\/stmp\/"+user/stmp_dir/g
+
+1,$s/"\/gpfs\/dell1\/ptmp\/"+user/ptmp_dir/g
+
+1,$s/"\/gpfs\/dell1\/stmp\/"+user/stmp_dir/g
+
+
+user=os.environ['USER']
+site=os.environ['SITE']
+current_dir=os.getcwd()
+if site.upper() == 'MARS':
+    remote="venus"
+elif site.upper() == 'VENUS':
+    remote="mars"
+else:
+    print("System name not defined for this script")
+    sys.exit()
+
+1,$s/"\/gpfs\/dell1\/stmp\/Ho-Chun.Huang"/stmp_dir/g
+
+run_root=stmp_dir+"/run_python_script"
+if not os.path.exists(run_root):
+    os.mkdir(run_root)

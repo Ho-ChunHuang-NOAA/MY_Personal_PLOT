@@ -1,0 +1,2 @@
+python diff.aqm.plot.py para6a para6x pm25 06 20201221 20201221 > diff_para6x_21.log 2>&1 &
+python daily.aqm.plot.py para6x pm25 06 20201221 20201221 > para6x_21.log 2>&1 &

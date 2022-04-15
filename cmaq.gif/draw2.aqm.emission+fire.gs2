@@ -1,0 +1,225 @@
+function draw_pm25_plot(args)
+
+if (args='')
+  prompt 'input arguments gs_dir outdir exp capexp yyyymmdd cycl_hr fcsthr vldhr area'
+  return
+endif
+
+gdir=subwrd(args,1)
+odir=subwrd(args,2)
+run=subwrd(args,3)
+exp=subwrd(args,4)
+days=subwrd(args,5)
+cyclhr=subwrd(args,6)
+fcsthr=subwrd(args,7)
+vldhr=subwrd(args,8)
+area=subwrd(args,9)
+
+* ALD2=>ald2   0 t,z,y,x Model species ALD2 (moles/s)
+* ALD2_PRIMARY=>ald2pr   0 t,z,y,x  Model species ALD2_PRIMARY  (moles/s)
+* ALDX=>aldx   0 t,z,y,x  Model species ALDX (moles/s)
+* BENZENE=>benzene   0 t,z,y,x  Model species BENZ (moles/s)
+* CH4=>ch4   0 t,z,y,x  Model species CH4 (moles/s)
+* CL2=>cl2   0 t,z,y,x  Model species CL2 (moles/s)
+* CO=>co   0 t,z,y,x  Model species CO (moles/s)
+* ETH=>eth   0 t,z,y,x  Model species ETH (moles/s)
+* ETHA=>etha   0 t,z,y,x  Model species ETHA (moles/s)
+* ETOH=>etoh   0 t,z,y,x  Model species ETOH (moles/s)
+* FORM=>form   0 t,z,y,x  Model species FORM (moles/s)
+* FORM_PRIMARY=>formpr   0 t,z,y,x  Model species FORM_PRIMARY (moles/s)
+* HCL=>hcl   0 t,z,y,x  Model species HCL (moles/s)
+* HONO=>hono   0 t,z,y,x  Model species HONO (moles/s)
+* IOLE=>iole   0 t,z,y,x  Model species IOLE (moles/s)
+* ISOP=>isop   0 t,z,y,x  Model species ISOP (moles/s)
+* MEOH=>meoh   0 t,z,y,x  Model species MEOH (moles/s)
+* NH3=>nh3   0 t,z,y,x  Model species NH3 (moles/s)
+* NH3_FERT=>nh3fert   0 t,z,y,x  Model species NH3_FERT (moles/s)
+* NO=>no   0 t,z,y,x  Model species NO (moles/s)
+* NO2=>no2   0 t,z,y,x  Model species NO2 (moles/s)
+* NR=>nr   0 t,z,y,x  biogenic emissions of the indicated species (moles/s)
+* NVOL=>nvol   0 t,z,y,x  Model species NVOL (moles/s)
+* OLE=>ole   0 t,z,y,x  Model species OLE (moles/s)
+* PAL=>pal   0 t,z,y,x  Model species PAL (moles/s)
+* PAR=>par   0 t,z,y,x  Model species PAR (moles/s)
+* PCA=>pca   0 t,z,y,x  Model species PCA (g/s)
+* PCL=>pcl   0 t,z,y,x  Model species PCL (g/s)
+* PEC=>pec   0 t,z,y,x  Model species PEC (g/s)
+* PFE=>pfe   0 t,z,y,x  Model species PFE  (g/s)
+* PH2O=>ph2o   0 t,z,y,x  Model species PH2O (g/s)
+* PK=>pk   0 t,z,y,x  Model species PK (g/s)
+* PMC=>pmc   0 t,z,y,x  Model species PMC (g/s)
+* PMFINE=>pmfine   0 t,z,y,x  Model species PMFINE (g/s)
+* PMG=>pmg   0 t,z,y,x  Model species PMG (g/s)
+* PMN=>pmh   0 t,z,y,x  Model species PMN (g/s)
+* PMOTHR=>pmother   0 t,z,y,x  Model species PMOTHR (g/s)
+* PNA=>pna   0 t,z,y,x  Model species PNA (g/s)
+* PNCOM=>pncom   0 t,z,y,x  Model species PNCOM (g/s)
+* PNH4=>pnh4   0 t,z,y,x  Model species PNH4 (g/s)
+* PNO3=>pno3   0 t,z,y,x  Model species PNO3 (g/s)
+* POC=>poc   0 t,z,y,x  Model species POC (g/s)
+* PSI=>psi   0 t,z,y,x  Model species PSI (g/s)
+* PSO4=>pso4   0 t,z,y,x  Model species PSO4 (g/s)
+* PTI=>pti   0 t,z,y,x  Model species PTI (g/s)
+* SO2=>so2   0 t,z,y,x  Model species SO2 (moles/s)
+* SULF=>sulf   0 t,z,y,x  Model species SULF (moles/s)
+* TERP=>terp   0 t,z,y,x  Model species TERP (moles/s)
+* TOL=>tol   0 t,z,y,x  Model species TOL (moles/s)
+* UNK=>unk   0 t,z,y,x  Model species UNK (moles/s)
+* UNR=>unr   0 t,z,y,x  Model species UNR (moles/s)
+* VOC_INV=>vocinv   0 t,z,y,x  Model species VOC_INV (moles/s)
+* XYL=>xyl   0 t,z,y,x   XYL Model species XYLMN (moles/s)
+
+if (area='st')
+  xsize=650
+  ysize=400
+else
+  xsize=800
+  ysize=600
+endif
+
+'set z 1'
+'set font 1'
+*'set clevs 1. 9. 12. 15. 18. 35. 55. 100. 200.'
+'set clevs 3  6  9  12 25 35 45 55 65 75 85 95 105'
+'set ccols 0 20 19 18 17  5  3 10  7 12  8  2   6 98'
+'d pmfine'
+gdir'/cbar.gs'
+'draw title 'exp' 'days' 'cyclhr'\'vldhr' Primary FINE Sfc (g/s)'
+if(area='st')
+'draw.cmaq.box.st.gs'
+endif
+'printim 'odir'/aqm.'area'.'run'.'days'.'cyclhr'.'fcsthr'.pmfine.k1.gif gif x'xsize' y'ysize' white'
+'c'
+'set z 17'
+*'set clevs 1. 9. 12. 15. 18. 35. 55. 100. 200.'
+'set clevs 3  6  9  12 25 35 45 55 65 75 85 95 105'
+'set ccols 0 20 19 18 17  5  3 10  7 12  8  2   6 98'
+'d pmfine'
+gdir'/cbar.gs'
+'draw title 'exp' 'days' 'cyclhr'\'vldhr' Primary FINE MDL 17 (g/s)'
+if(area='st')
+'draw.cmaq.box.st.gs'
+endif
+'printim 'odir'/aqm.'area'.'run'.'days'.'cyclhr'.'fcsthr'.pmfine.k17.gif gif x'xsize' y'ysize' white'
+'c'
+'set z 27'
+'set font 1'
+*'set clevs 1. 9. 12. 15. 18. 35. 55. 100. 200.'
+'set clevs 3  6  9  12 25 35 45 55 65 75 85 95 105'
+'set ccols 0 20 19 18 17  5  3 10  7 12  8  2   6 98'
+'d pmfine'
+gdir'/cbar.gs'
+'draw title 'exp' 'days' 'cyclhr'\'vldhr' Primary FINE MDL 27 (g/s)'
+if(area='st')
+'draw.cmaq.box.st.gs'
+endif
+'printim 'odir'/aqm.'area'.'run'.'days'.'cyclhr'.'fcsthr'.pmfine.k27.gif gif x'xsize' y'ysize' white'
+'c'
+'set z 1'
+*'set clevs 1. 9. 12. 15. 18. 35. 55. 100. 200.'
+'set clevs 3  6  9  12 25 35 45 55 65 75 85 95 105'
+'set ccols 0 20 19 18 17  5  3 10  7 12  8  2   6 98'
+'d pmc'
+gdir'/cbar.gs'
+'draw title 'exp' 'days' 'cyclhr'\'vldhr' Primary Coarse Sfc (g/s)'
+if(area='st')
+'draw.cmaq.box.st.gs'
+endif
+'printim 'odir'/aqm.'area'.'run'.'days'.'cyclhr'.'fcsthr'.pmc.k1.gif gif x'xsize' y'ysize' white'
+'c'
+'set z 17'
+*'set clevs 1. 9. 12. 15. 18. 35. 55. 100. 200.'
+'set clevs 3  6  9  12 25 35 45 55 65 75 85 95 105'
+'set ccols 0 20 19 18 17  5  3 10  7 12  8  2   6 98'
+'d pmc'
+gdir'/cbar.gs'
+'draw title 'exp' 'days' 'cyclhr'\'vldhr' Primary Coarse MDL 17 (g/s)'
+if(area='st')
+'draw.cmaq.box.st.gs'
+endif
+'printim 'odir'/aqm.'area'.'run'.'days'.'cyclhr'.'fcsthr'.pmc.k17.gif gif x'xsize' y'ysize' white'
+'c'
+'set z 27'
+*'set clevs 1. 9. 12. 15. 18. 35. 55. 100. 200.'
+'set clevs 3  6  9  12 25 35 45 55 65 75 85 95 105'
+'set ccols 0 20 19 18 17  5  3 10  7 12  8  2   6 98'
+'d pmc'
+gdir'/cbar.gs'
+'draw title 'exp' 'days' 'cyclhr'\'vldhr' Primary Coarse MDL 27 (g/s)'
+if(area='st')
+'draw.cmaq.box.st.gs'
+endif
+'printim 'odir'/aqm.'area'.'run'.'days'.'cyclhr'.'fcsthr'.pmc.k27.gif gif x'xsize' y'ysize' white'
+'c'
+'set z 1'
+*'set clevs 1. 9. 12. 15. 18. 35. 55. 100. 200.'
+'set clevs 3  6  9  12 25 35 45 55 65 75 85 95 105'
+'set ccols 0 20 19 18 17  5  3 10  7 12  8  2   6 98'
+'d pec'
+gdir'/cbar.gs'
+'draw title 'exp' 'days' 'cyclhr'\'vldhr' Primary EC Sfc (g/s)'
+if(area='st')
+'draw.cmaq.box.st.gs'
+endif
+'printim 'odir'/aqm.'area'.'run'.'days'.'cyclhr'.'fcsthr'.pec.k1.gif gif x'xsize' y'ysize' white'
+'c'
+'set z 17'
+*'set clevs 1. 9. 12. 15. 18. 35. 55. 100. 200.'
+'set clevs 3  6  9  12 25 35 45 55 65 75 85 95 105'
+'set ccols 0 20 19 18 17  5  3 10  7 12  8  2   6 98'
+'d pec'
+gdir'/cbar.gs'
+'draw title 'exp' 'days' 'cyclhr'\'vldhr' Primary EC MDL 17 (g/s)'
+if(area='st')
+'draw.cmaq.box.st.gs'
+endif
+'printim 'odir'/aqm.'area'.'run'.'days'.'cyclhr'.'fcsthr'.pec.k17.gif gif x'xsize' y'ysize' white'
+'c'
+'set z 27'
+*'set clevs 1. 9. 12. 15. 18. 35. 55. 100. 200.'
+'set clevs 3  6  9  12 25 35 45 55 65 75 85 95 105'
+'set ccols 0 20 19 18 17  5  3 10  7 12  8  2   6 98'
+'d pec'
+gdir'/cbar.gs'
+'draw title 'exp' 'days' 'cyclhr'\'vldhr' Primary EC MDL 27(g/s)'
+if(area='st')
+'draw.cmaq.box.st.gs'
+endif
+'printim 'odir'/aqm.'area'.'run'.'days'.'cyclhr'.'fcsthr'.pec.k27.gif gif x'xsize' y'ysize' white'
+'c'
+'set z 1'
+*'set clevs 1. 9. 12. 15. 18. 35. 55. 100. 200.'
+'set clevs 3  6  9  12 25 35 45 55 65 75 85 95 105'
+'set ccols 0 20 19 18 17  5  3 10  7 12  8  2   6 98'
+'d poc'
+gdir'/cbar.gs'
+'draw title 'exp' 'days' 'cyclhr'\'vldhr' Primary OC Sfc (g/s)'
+if(area='st')
+'draw.cmaq.box.st.gs'
+endif
+'printim 'odir'/aqm.'area'.'run'.'days'.'cyclhr'.'fcsthr'.poc.k1.gif gif x'xsize' y'ysize' white'
+'c'
+'set z 17'
+*'set clevs 1. 9. 12. 15. 18. 35. 55. 100. 200.'
+'set clevs 3  6  9  12 25 35 45 55 65 75 85 95 105'
+'set ccols 0 20 19 18 17  5  3 10  7 12  8  2   6 98'
+'d poc'
+gdir'/cbar.gs'
+'draw title 'exp' 'days' 'cyclhr'\'vldhr' Primary OC MDL 17 (g/s)'
+if(area='st')
+'draw.cmaq.box.st.gs'
+endif
+'printim 'odir'/aqm.'area'.'run'.'days'.'cyclhr'.'fcsthr'.poc.k17.gif gif x'xsize' y'ysize' white'
+'c'
+'set z 27'
+*'set clevs 1. 9. 12. 15. 18. 35. 55. 100. 200.'
+'set clevs 3  6  9  12 25 35 45 55 65 75 85 95 105'
+'set ccols 0 20 19 18 17  5  3 10  7 12  8  2   6 98'
+'d poc'
+gdir'/cbar.gs'
+'draw title 'exp' 'days' 'cyclhr'\'vldhr' Primary OC MDL 27 (g/s)'
+if(area='st')
+'draw.cmaq.box.st.gs'
+endif
+'printim 'odir'/aqm.'area'.'run'.'days'.'cyclhr'.'fcsthr'.poc.k27.gif gif x'xsize' y'ysize' white'
+'c'

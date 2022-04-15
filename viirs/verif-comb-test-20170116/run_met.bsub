@@ -1,0 +1,404 @@
+#!/bin/ksh
+
+#BSUB -P NAM-T2O
+#BSUB -J fvs_218_2016-spring
+#BSUB -oo verif_218_2016-spring.out
+#BSUB -eo verif_218_20106-spring.out
+#BSUB -n 1
+#BSUB -W 01:00
+#BSUB -q "dev_shared"
+#BSUB -R "affinity[core]"
+#BSUB -R "rusage[mem=1000]"
+
+set -x
+
+starttime=`date`
+
+#===============================================================
+# Driving script for FVS Plots
+# (adapted by Perry Shafran, Jeff McQueen, and Brad Ferrier)
+#
+#---------------------------------------------------------------
+#
+# This script calls the following scripts developed by Jeff McQueen,
+# which does most of the work:
+#   o Calls cr8cfg.sh: Creates FVS.CTL file used by make-fvs.sh to set 
+#     models, regions, forecast hours, fields, dates to verify.
+#   o Calls make-fvs.sh: Creates FVS configuration files, creates 
+#     statistics and plots
+#     + It calls cr8trace.sh: Creates FVS configuration file (trace.ctl)
+#===============================================================
+
+#===============================================================
+#-- Start of input:
+#===============================================================
+
+export iplot=1      #-- Set =0 to only create fvs stats without plotting
+
+#-- Set erase_data to >0 if the user wants to remove existing /mvsdb directory 
+#   (erases all vsdb records)
+#
+erase_data=0
+
+#===  IMPORTANT!  IMPORTANT!  ==================================
+#
+#-- The following arrays must contain the same number of elements or values:
+#   $newlabl - new names or labels of renamed model runs
+#   $grid - grid number used for upper-air fields
+#   $up_reg - regions for upper-air verification
+#   $sfc_reg - regions for surface verification
+#
+#-- WARNING: No more than 4 different directories should be specified, since
+#   each directory yields two traces.  No more than 8 traces can be
+#   accomodated on the plots
+#
+
+dir[0]=`pwd`/met_vsdb/ctl
+dir[1]=`pwd`/met_vsdb/nmmb
+
+#-- Original labels for each run (likely either "ctl" or "exp")
+#
+set -A oldlabl ctl nmmb
+
+#-- New labels used to rename each of the runs.
+#
+set -A newlabl nam namx
+
+#-- Grid number used for upper-air fields
+#   (either 218, 221, or 242 source grids)
+#    o Grid 218 - 12-km "CONUS-based" grid
+#    o Grid 221 - 32-km "full domain" grid
+#    o Grid 242 - 12-km Alaska HRW grid
+#
+grid=218
+
+#-- Regions for upper-air verification
+#   (Options are G236, G245, G246, G247, G242, or G221)
+#    o Grid 236 - 12-km RUC, CONUS-based grid
+#    o Grid 221 - 32-km "full domain" grid
+#    o Grid 242 - 12-km Alaska HRW grid
+#    o Grid 245 - 12-km old East CONUS HRW grid
+#    o Grid 246 - 12-km old West CONUS HRW grid
+#    o Grid 247 - 12-km old Central CONUS HRW grid
+#
+#-- WARNING!  DO NOT USE G218!  It's not used in gridtobs, 
+#   but rather G236 should be used instead.
+#
+up_reg=G236
+
+#-- Regions for surface verification
+#   (Note that G218 is not a surface region but G236 is)
+#
+#-- Grid 218 ("CONUS-based" from $grid) contains:
+#     o G236, G245 (old east HRW), G246 (old west HRW),
+#       G247 (old central HRW), and the individual G104/XXX FVS-based 
+#       regions defined within "CONUS" grid 218
+#
+#-- Grid 221 (full domain from $grid) contains:
+#     o G236, G245 (old east HRW), G246 (old west HRW),
+#       G247 (old central HRW), G242 (Alaska HRW), and all of the
+#       individual G104/XXX FVS-based regions (contains *everything*)
+#
+#-- Grid 242 (Alaska HRW domain from $grid) contains:
+#     o G242 (Alaska HRW) and all of the # individual G104/XXX FVS-based 
+#       regions within this grid (SAK, NAK, ATC, NPO)
+#
+#-- WARNING!  DO NOT USE G218!  It's not used in gridtobs, 
+#   but rather G236 should be used instead.
+#
+sfc_reg=G236
+
+#-- Launcher run total forecast hours (can be <= to actual length
+#   of the launcher forecasts)
+#
+runhrs=84
+
+#-- Set the forecast hour(s) to plot
+#
+set -A plothrs 00 12 24 36 48 60 72 84
+
+#-- Surface variable statistics.  Each variable produces a
+#   single time series plot of bias + RMS error with respect to
+#   observations as a function of forecast hour
+#
+#-- Total_number_of_plots = Number_of_sfcvarbs
+#
+#-- Supported variables:
+#   T - temperature            DPT - dew point temperature
+#   RH - relative humidity     VWND - wind speed
+#   SLP - sea-level pressure
+#   
+
+set -A sfcvarbs T DPT RH VWND SLP
+
+#-- Upper-air statistics.  Each variable produces a vertical
+#   profile plot (with pressure) of bias + RMS errors for every 
+#   forecast hour specified in the variable array $plothrs (above).
+#
+#-- Total_number_of_plots = Number_of_$plothrs * Number_of_uparvarbs
+#
+#   Supported variables:
+#   T - temperature            Z - height
+#   RH - relative humidity     VWND - wind speed
+#
+
+set -A upavarbs T VWND RH Z
+
+#-- Set upper levels to plot for DIUrnal plots
+#-- Upper-air time-series statistics.  A combination of the two types
+#   of plots above, namely time series of plots of bias + RMS error
+#   with respect to observations as a function of forecast hour at 
+#   specified pressure levels given by $upalvls
+#-- Example: set -A upalvls P850 P500
+#  
+#-- Total_number_of_plots = Number_of_$plothrs * Number_of_upalvls
+#
+#-- Supported variables:
+#   T - temperature            Z - height
+#   RH - relative humidity     VWND - wind speed
+#
+set -A upalvls 
+
+#-- FVS statistics plotting codes for surface & upper-air fields
+#   (set below, not here by user)
+#  -o- For scalar fields => bias=1101, RMSE=1102
+#      export stno="1101 1102"
+#  -o- For vector wind fields (VWND) => bias=1201, RMSE=1202
+#      export stno="1201 1202"
+#
+
+#-- SET appstat =1 to apply all stats on one graph for all traces
+#               =0 to apply one stat per graph for all traces
+#
+export appstat=1
+
+#===============================================================
+#-- End of input
+#===============================================================
+
+n1=${#dir[*]}
+n2=${#oldlabl[*]}
+n3=${#newlabl[*]}
+
+if [[ $n1 -ne $n2 || $n2 -ne $n3 ]]; then
+  echo ; echo
+  echo n1=$n1  n2=$n2  n3=$n3  ... all must be equal ... exit 1
+  echo ; echo
+  exit 1
+fi
+
+if [ $n1 -gt 4 ]; then
+  echo ; echo
+  echo No more than 4 runs can be compared, otherwise not all of the traces get
+  echo plotted and the results are very confusing ... exit 2
+  echo ; echo
+  exit 2
+fi
+  
+if [ ! -a list ]; then
+   echo Cannot find the list file ... exit
+   exit
+fi
+cycle_list=`pwd`/list
+
+export scrdir=`pwd`
+export wrkdir=`pwd`/mwork
+if [ -d $wrkdir ]; then
+  rm -rf $wrkdir
+fi
+mkdir -p $wrkdir
+
+#-- Set up GEMPAK variables
+set +x
+echo Setting up GEMPAK variables without command echoing
+. /nwprod/gempak/.gempak > /dev/null 2>&1
+. ~wx20bf/vsdb/scripts/for_fvs.sh > /dev/null 2>&1
+export PATH=${PATH}:/meso/save/wx20bf/vsdb_exe
+set -x
+
+export VSDB_DATA=`pwd`/mvsdb
+
+echo VSDB=$VSDB and VSDB_DATA=$VSDB_DATA
+
+if [[ -d $VSDB_DATA && $erase_data -gt 0 ]]; then
+  rm -rf $VSDB_DATA
+fi
+
+make_new_data=0
+if [ ! -d $VSDB_DATA ]; then
+  make_new_data=1
+fi
+
+mkdir -p $VSDB_DATA
+cd $VSDB_DATA
+
+#-- Define TRACES variable
+
+let num=n1-1
+
+let i=0
+while [ $i -le $num ]; do
+   nname=${newlabl[i]}                 #-- New name
+   New=`echo $nname | dd conv=ucase`
+   export TRACES="$TRACES ${New}/$grid"
+   if [ $make_new_data -gt 0 ]; then
+#-- Copy & rename VSDB files if necessary
+      cp -rp ${dir[i]} $nname
+      cd $nname
+      oname=${oldlabl[i]}              #-- Old name
+      /u/wx20bf/vsdb/scripts/renamefls $oname $nname
+      cd ..
+   fi
+   let i=i+1
+done    #-- while [ $i -le $num ]; do
+
+cd $wrkdir
+cp $scrdir/SLBL.CFG .
+cp $scrdir/RLBL.CFG .
+
+pltdir=../plots
+if [ ! -d $pltdir ]; then
+  mkdir -p $pltdir
+fi
+
+#-- Loop through all 00Z cycles, then all 12Z cycles, and
+#   then finally both 00Z & 12Z cycles for upper air only.
+#
+#-- First make sure there is a mix of 00Z and 12Z cycles
+#   that were run
+
+set -A cyhr 99 99 99 99
+for cycle in `cat $cycle_list`; do
+  cyc=`echo $cycle | cut -c9-10`
+  case $cyc in
+     00) cyhr[0]=00;;
+     06) cyhr[1]=06;;
+     12) cyhr[2]=12;;
+     18) cyhr[3]=18;;
+   esac
+done
+
+i=0
+j=0
+while [ $j -le 3 ]; do
+   if [ ${cyhr[$j]} -lt 99 ]; then
+      CYCS[$i]=${cyhr[$j]}
+      let i=i+1
+   fi
+   let j=j+1
+done
+
+numcyc=${#CYCS[*]}
+if [ $numcyc -gt 1 ]; then
+   let i=numcyc
+   CYCS[$i]=all
+   numcyc=${#CYCS[*]}
+fi
+let numcyc=numcyc-1
+
+echo The following cycles will be verified: ${CYCS[*]}
+
+let i=0
+while [ $i -le numcyc ]; do
+
+  typeset -Z10 first last
+  first=9999999999
+  last=0000000000
+  CYC=${CYCS[$i]}
+  for cycle in `cat $cycle_list`; do
+     cyc=`echo $cycle | cut -c9-10`
+     if [[ $cyc = $CYC || $CYC = all ]]; then
+        if [ $cycle -lt $first ]; then
+           first=$cycle
+        elif [ $cycle -gt $last ]; then
+           last=$cycle
+        fi
+     fi
+  done
+  echo
+  echo The first cycle is $first and the last cycle is $last
+  echo
+  export strdate=${first}00
+  endate=`ndate $runhrs $last`
+  export endate=${endate}00
+
+#-- The following loop provides time series statistics of 
+#   bias + RMS errors as a function of forecast hour
+#-- Plot non-precip SFC stats (eg: T,VWND, RH, DPT, SLP ...)
+
+  export RGN=$sfc_reg
+
+  if [ $CYC != all ]; then
+     for VARB in ${sfcvarbs[*]};do
+       export VARB
+       export PLVL=SFC 
+       if [ $VARB != VWND ]; then
+         export stno="1101 1102"
+       else
+         export stno="1201 1202"
+       fi
+       export PLOTHRS="03/$runhrs/03"
+       $scrdir/cr8cfg.sh 
+       $scrdir/make-fvs.sh DIU $CYC
+     done    #-- for VARB in ${sfcvarbs[*]};do
+  fi     #-- if [ $CYC != all ]
+
+  #-- Plot upper air stats (eg: T,VWND, RH, Z ...)
+  
+  export RGN=$up_reg
+
+  for VARB in ${upavarbs[*]}; do
+
+     export TRACES
+     export VARB
+     export PLVL=UPA 
+     if [ $VARB != VWND ]; then
+       export stno="1101 1102"
+     else
+       export stno="1201 1202"
+     fi
+
+     for PHR in ${plothrs[*]};do   
+        endate=`ndate $PHR $last`
+        export endate=${endate}00    #-- Provide valid date/time
+        export PLOTHRS=$PHR
+        $scrdir/cr8cfg.sh 
+        if [ $CYC = all ]; then
+           $scrdir/make-fvs_all.sh UPA
+        else
+           $scrdir/make-fvs.sh UPA $CYC
+        fi
+     done
+   
+     if [ $CYC != all ]; then
+#-- Upper-air verification at 6 h intervals
+        endate=`ndate $runhrs $last`
+        export endate=${endate}00
+        for pl in ${upalvls[*]};do
+          export PLVL=$pl
+          export PLOTHRS="00/$runhrs/06"
+          $scrdir/cr8cfg.sh 
+          $scrdir/make-fvs.sh DIU $CYC
+        done
+     fi   #-- if [ $CYC != all ]
+  
+  done    #-- for VARB in ${upavarbs[*]};do
+
+#--  Move gifs into cycle and move cycle into plots directory
+
+  if [ $CYC = all ]; then
+    cycdir=met_$CYC
+  else
+    cycdir=met_${CYC}z
+  fi
+  mkdir -p $cycdir
+  mv *.gif $cycdir
+  mv $cycdir $pltdir
+
+  let i=i+1
+
+done    #-- while [ $i -le numcyc ]
+
+echo Start time was $starttime and end time was `date`
+
+exit

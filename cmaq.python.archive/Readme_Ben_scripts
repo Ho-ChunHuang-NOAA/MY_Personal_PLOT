@@ -1,0 +1,8 @@
+
+The variable "alldatetimes" can be defined by uncommenting the portion from "init = " to "alldatetimes.append(result)". However, I would not use the model_eval4.py script, as it is similar to model_eval5.py (improved version).
+
+The model_eval5.py script is primarily used to get forecast hour time series plots for PM2.5 and meteorological variables (e.g. 6/10 12z run). If you uncomment the section under "MESONET OBSERVATIONS" and change the dates, you can request Mesonet API data for other days.
+
+Both the model_eval6.py (point location, e.g. Birmingham) and model_eval7.py (study area, e.g. Southeast) scripts are used to produce daily PM2.5 and bias time series, forecast hour time series, forecast hour bias maps, and Hovmöller diagrams.
+
+In addition to version 3, I would test versions 5, 6, and 7. Maybe also version 1 to get CONUS maps of different variables for multiple forecast hours, but it needs some more work. 

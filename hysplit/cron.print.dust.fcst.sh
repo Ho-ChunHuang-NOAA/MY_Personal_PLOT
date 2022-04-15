@@ -1,0 +1,745 @@
+#!/bin/sh 
+#source ~/.bashrc
+module load GrADS/2.2.0
+module load prod_util/1.1.0
+module load prod_envir/1.1.0
+hl=`hostname | cut -c1`
+if [ "${hl}" == "v" ]; then
+  phase12_id='g'
+else
+  phase12_id='t'
+fi
+MSG="USAGE $0 YYYYMMDD_BEG YYYYMMDD_END aero_type[0:dust, 1:smoke, 2:all]"
+if [ $# -lt 2 ]; then
+  echo $MSG
+  exit
+fi
+#
+# Dust only for conus now
+IREG_MAX=1
+EXP=PARA
+EXP=PROD
+#
+remote_dir=/home/people/emc/www/htdocs/mmb/hchuang/web/fig
+remote_host=vm-lnx-dmznas1.ncep.noaa.gov
+remote_host=emcrzdm.ncep.noaa.gov
+user=hchuang
+### !------------------------------------------------------------------------------
+### !G      GEOG NAME           CENLAT  CENLON   LLLAT   LLLON   URLAT   URLON PROJ
+### !(8)    (18)              (8)     (8)     (8)     (8)     (8)     (8)      (30)
+### !------------------------------------------------------------------------------
+### NCUS    NCEP US              35.00 -100.00   17.89 -124.20   47.39  -40.98 STR/90;-105;0
+### USLCC   UNITED STATES LCC    35.50  -90.00   20.00 -118.00   51.00  -62.00 LCC
+### WEST    WESTERN US           37.50 -114.00   25.00 -125.00   55.00  -90.00 STR/90;-105;0
+### CENT    CENTRAL US           37.50  -96.00   24.30 -107.40   49.70  -75.30 NPS
+### EAST    EASTERN US           37.50  -78.00   24.57 -100.55   47.20  -65.42 STR/90;-90;0
+### NWSE    NW SECTOR            44.25 -114.00   38.25 -126.00   50.25 -102.00 NPS
+### NW10    NWRFC 218 SUBSET     46.00 -112.00   38.41 -125.85   54.46 -109.99 LCC/25;-95;25
+### SWSE    SW SECTOR            34.25 -114.00   28.25 -126.00   40.25 -100.00 NPS
+### NCSE    NC SECTOR            44.25  -96.00   38.25 -108.00   50.25  -84.00 NPS
+### SCSE    SC SECTOR            34.25  -96.00   24.00 -108.90   40.25  -84.00 NPS
+### NESE    NE SECTOR            44.25  -78.00   37.25  -89.00   47.25  -64.00 NPS
+### NE10    NERFC 218 SUBSET     43.00  -77.00   40.95  -80.11   47.62  -64.02 LCC/25;-95;25
+### SESE    SE SECTOR            34.25  -78.00   28.25  -90.00   40.25  -66.00 NPS
+### SE10    SERFC 218 SUBSET     31.00  -82.00   24.12  -90.60   37.91  -73.94 LCC/25;-95;25
+### AK      ALASKA               63.00 -150.00   49.00 -179.00   69.00 -116.40 NPS
+### HI      HAWAII               20.00 -157.00   17.00 -161.50   23.00 -152.50 MER
+
+gs_dir=`pwd`
+declare -a reg=( dset conus east west ne10 nw10 se10 swse   ak   hi )
+declare -a lon0=( -125 -125 -100 -125  -81 -125  -91 -125 -170 -161 )
+declare -a lon1=(  -65  -65  -65  -90  -65 -110  -74 -100 -130 -154 )
+declare -a lat0=(   25   25   25   25   37   38   25   28   50   18 )
+declare -a lat1=(   50   50   47   50   48   50   40   40   80   23 )
+nreg=${#reg[@]}
+let max_ireg=${nreg}-1
+idset=0
+iconus=1
+ieast=2
+iwest=3
+ine10=4
+inw10=5
+ise10=6
+iswse=7
+iak=8
+ihi=9
+
+declare -a modtyp=( full   ak   hi )
+declare -a xlon0=(  -125 -170 -166 )
+declare -a ylat0=(    25   50   15 )
+declare -a nxdef=(   601  401  401 )
+declare -a nydef=(   251  301  201 )
+declare -a resol=(  0.10 0.10 0.05 )
+imod00=0
+imodak=1
+imodhi=2
+
+declare -a aerosol=( dust smoke all )
+iaero=0
+if [ $# -gt 3 ]; then iaero=$3; fi
+
+echo ${aerosol[${iaero}]}
+aqm=hysplit
+if [ ${aerosol[${iaero}]} == 'smoke' ]; then
+   satellite=nesdis
+else
+   satellite=aquamodis
+fi
+
+gctl=${MYBIN}/grib2ctl.pl
+idir=/gpfs/dell2/emc/modeling/noscrub/${USER}/aod_${aerosol[${iaero}]}/conc
+
+declare -a mchr=( JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC )
+
+declare -a FCST=( 6 12 )
+n=${#FCST[@]}
+i=1
+while [ ${i} -le ${#FCST[@]} ]; do
+   if [ ${FCST[${i}-1]} -lt 10 ]; then
+      fcst_hr[${i}-1]="0"${FCST[${i}-1]}
+   else
+      fcst_hr[${i}-1]=${FCST[${i}-1]}
+   fi
+   cycle[${i}-1]="t"${fcst_hr[${i}-1]}"z"
+   ((i++))
+done
+declare -a layer=( pbl sfc )
+declare -a layer_hgt=( 5000 100 )
+declare -a layer_oct=( 12800 256 )
+
+
+ohd=MYDdust.t
+ohd_ak=MYDdustW.t
+ohd_hi=MYDdustWHI.t
+afix=z.f00
+
+## DEFINE TIME
+## TODAY=`date +%Y%m%d`
+FIRSTDAY=$1
+LASTDAY=$2
+NOW=${FIRSTDAY}
+while [ ${NOW} -le ${LASTDAY} ]; do
+
+   cdate=${NOW}"00"
+   TOMORROW=$(${NDATE} +24 ${cdate}| cut -c1-8)
+   THIRDDAY=$(${NDATE} +48 ${cdate}| cut -c1-8)
+
+   YY=`echo ${NOW} | cut -c1-4`
+   MX=`echo ${NOW} | cut -c5-5`
+   if [ ${MX} == '0' ]; then
+      MM=`echo ${NOW} | cut -c6-6`
+   else
+      MM=`echo ${NOW} | cut -c5-6`
+   fi
+   DD=`echo ${NOW} | cut -c7-8`
+
+   icyl=0
+   while [ ${icyl} -lt ${#cycle[@]} ]; do
+      if [ ${idir}/${aqm}.${NOW} ]; then
+         data_dir=/gpfs/dell1/stmp/${USER}/${aerosol[${iaero}]}/${aqm}.${NOW}.${cycle[${icyl}]}
+         if [ -d ${data_dir} ]; then
+            /bin/rm -f ${data_dir}/*
+         else
+            mkdir -p ${data_dir}
+         fi
+         cd ${data_dir}
+         ilay=0
+         ahd_cs=hysplitcs_${aerosol[${iaero}]}_${layer[${ilay}]}.${cycle[${icyl}]}.f
+         ahd_ak=hysplitak_${aerosol[${iaero}]}_${layer[${ilay}]}.${cycle[${icyl}]}.f
+         ahd_hi=hysplithi_${aerosol[${iaero}]}_${layer[${ilay}]}.${cycle[${icyl}]}.f
+         if [ -d ${idir}/${aqm}_cs.${NOW} ]; then /bin/cp -f ${idir}/${aqm}_cs.${NOW}/${ahd_cs}* .; fi
+         if [ -d ${idir}/${aqm}_ak.${NOW} ]; then /bin/cp -f ${idir}/${aqm}_ak.${NOW}/${ahd_ak}* .; fi
+         if [ -d ${idir}/${aqm}_hi.${NOW} ]; then /bin/cp -f ${idir}/${aqm}_hi.${NOW}/${ahd_hi}* .; fi
+      ##
+         t0=0
+         t1=48
+         let numi=t0
+         while [ ${numi} -le ${t1} ]; do
+            fcsti=${numi}
+            if [ ${numi} -le 9 ]; then fcsti="00"${numi}; fi
+            if [ ${numi} -gt 9 ] && [ ${numi} -le 99 ]; then fcsti="0"${numi}; fi
+
+            i=${numi}
+            if [ ${numi} -le 9 ]; then i="0"${numi}; fi
+      
+            let j=numi+${FCST[${icyl}]}
+            if [ ${j} -ge 48 ]; then
+               let j=j-48
+               date=${THIRDDAY}
+            elif [ ${j} -ge 24 ]; then
+               let j=j-24
+               date=${TOMORROW}
+            else
+               date=${NOW}
+            fi
+            numj=${j}
+            if [ ${j} -le 9 ]; then numj="0"${j}; fi
+            
+            if [ -e ${data_dir}/${ahd_cs}${i} ]; then
+               imod=imod00
+cat > ${data_dir}/${i}.ctl <<EOF
+dset ${data_dir}/${ahd_cs}${i}
+index ${data_dir}/${ahd_cs}${i}.idx
+undef 9.999E+20
+title ${data_dir}/${ahd_cs}${i}
+dtype grib 255
+xdef ${nxdef[${imod}]} linear ${xlon0[${imod}]} ${resol[${imod}]}
+ydef ${nydef[${imod}]} linear ${ylat0[${imod}]} ${resol[${imod}]}
+tdef 1 linear ${fcst_hr[${icyl}]}Z${DD}${mchr[$MM-1]}${YY} 1hr
+zdef 1 linear 1 1
+vars 1
+PMTF0_${layer_hgt[${ilay}]}m   0 157,106,${layer_oct[${ilay}]} ** 0-${layer_hgt[${ilay}]} m above ground Particulate matter (fine) [ug/m^3]
+ENDVARS
+EOF
+               gribmap -0 -i ${data_dir}/${i}.ctl
+      
+               title_aqm=HYSPLIT
+cat > ${data_dir}/${i}.plot << EOF
+'set gxout shaded'
+'set gxout grfill'
+'set display color white'
+'set mpdset hires'
+'set grads off'
+'set rgb 98 255 105 180'
+'set rgb 79 240 240 240'
+'set rgb 17  55  55 255'
+'set rgb 18 110 110 255'
+'set rgb 19 165 165 255'
+'set rgb 20 220 220 255'
+'c'
+'open ${data_dir}/${i}.ctl'
+'set clevs 0.05 1.0 2.0 5.0 10. 20. 35. 50. 65.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${idset}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'set lat ${lat0[${iconus}]} ${lat1[${iconus}]}'
+'set lon ${lon0[${iconus}]} ${lon1[${iconus}]}'
+'set clevs 0.05 1.0 2.0 5.0 10. 20. 35. 50. 65.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${iconus}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'set lat ${lat0[${ieast}]} ${lat1[${ieast}]}'
+'set lon ${lon0[${ieast}]} ${lon1[${ieast}]}'
+'set clevs 0.05 1.0 2.0 5.0 10. 20. 35. 50. 65.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${ieast}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'set lat ${lat0[${iwest}]} ${lat1[${iwest}]}'
+'set lon ${lon0[${iwest}]} ${lon1[${iwest}]}'
+'set clevs 0.05 1.0 2.0 5.0 10. 20. 35. 50. 65.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${iwest}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'set lat ${lat0[${ine10}]} ${lat1[${ine10}]}'
+'set lon ${lon0[${ine10}]} ${lon1[${ine10}]}'
+'set clevs 0.05 1.0 2.0 5.0 10. 20. 35. 50. 65.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${ine10}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'set lat ${lat0[${inw10}]} ${lat1[${inw10}]}'
+'set lon ${lon0[${inw10}]} ${lon1[${inw10}]}'
+'set clevs 0.05 1.0 2.0 5.0 10. 20. 35. 50. 65.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${inw10}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'set lat ${lat0[${ise10}]} ${lat1[${ise10}]}'
+'set lon ${lon0[${ise10}]} ${lon1[${ise10}]}'
+'set clevs 0.05 1.0 2.0 5.0 10. 20. 35. 50. 65.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${ise10}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'set lat ${lat0[${iswse}]} ${lat1[${iswse}]}'
+'set lon ${lon0[${iswse}]} ${lon1[${iswse}]}'
+'set clevs 0.05 1.0 2.0 5.0 10. 20. 35. 50. 65.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${iswse}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'quit'
+EOF
+               grads -blc "run ${data_dir}/${i}.plot"
+            fi
+      
+if [ 1 -eq 2 ]; then   ## Currently only have conus dust
+            ## For AK; if HYSPLIT_AK has NO data use HYSPLIT_FULL_DOMAIN
+            if [ -e ${data_dir}/${ahd_ak}${i} ] || [ -e ${data_dir}/${ahd_cs}${i} ] ; then
+      
+               if [ -e ${data_dir}/${ahd_ak}${i} ]; then
+      
+                  imod=imodak
+cat > ${data_dir}/${i}_ak.ctl <<EOF
+dset ${data_dir}/${ahd_ak}${i}
+index ${data_dir}/${ahd_ak}${i}.idx
+undef 9.999E+20
+title ${data_dir}/${ahd_ak}${i}
+dtype grib 255
+xdef ${nxdef[${imod}]} linear ${xlon0[${imod}]} ${resol[${imod}]}
+ydef ${nydef[${imod}]} linear ${ylat0[${imod}]} ${resol[${imod}]}
+tdef 1 linear ${fcst_hr[${icyl}]}Z${DD}${mchr[$MM-1]}${YY} 1hr
+zdef 1 linear 1 1
+vars 1
+PMTF0_${layer_hgt[${ilay}]}m   0 157,106,${layer_oct[${ilay}]} ** 0-${layer_hgt[${ilay}]} m above ground Particulate matter (fine) [ug/m^3]
+ENDVARS
+EOF
+      
+               else
+                  imod=imod00
+      
+cat > ${data_dir}/${i}_ak.ctl <<EOF
+dset ${data_dir}/${ahd_cs}${i}
+index ${data_dir}/${ahd_cs}${i}.idx
+undef 9.999E+20
+title ${data_dir}/${ahd_cs}${i}
+dtype grib 255
+xdef ${nxdef[${imod}]} linear ${xlon0[${imod}]} ${resol[${imod}]}
+ydef ${nydef[${imod}]} linear ${ylat0[${imod}]} ${resol[${imod}]}
+tdef 1 linear ${fcst_hr[${icyl}]}Z${DD}${mchr[$MM-1]}${YY} 1hr
+zdef 1 linear 1 1
+vars 1
+PMTF0_${layer_hgt[${ilay}]}m   0 157,106,${layer_oct[${ilay}]} ** 0-${layer_hgt[${ilay}]} m above ground Particulate matter (fine) [ug/m^3]
+ENDVARS
+EOF
+      
+               fi
+               gribmap -0 -i ${data_dir}/${i}_ak.ctl
+      
+      ## title_aqm=HYSPLIT
+cat > ${data_dir}/${i}_ak.plot << EOF
+'set gxout shaded'
+'set gxout grfill'
+'set display color white'
+'set mpdset hires'
+'set grads off'
+'set rgb 98 255 105 180'
+'set rgb 79 240 240 240'
+'set rgb 17  55  55 255'
+'set rgb 18 110 110 255'
+'set rgb 19 165 165 255'
+'set rgb 20 220 220 255'
+'c'
+'open ${data_dir}/${i}_ak.ctl'
+'set clevs 0.05 1.0 2.0 5.0 10. 20. 35. 50. 65.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${idset}]}_ak_${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'set lat ${lat0[${iak}]} ${lat1[${iak}]}'
+'set lon ${lon0[${iak}]} ${lon1[${iak}]}'
+'set clevs 0.05 1.0 2.0 5.0 10. 20. 35. 50. 65.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${iak}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'quit'
+EOF
+               grads -blc "run ${data_dir}/${i}_ak.plot"
+            fi
+      
+      ## For HI; if HYSPLIT_HI has NO data use HYSPLIT_FULL_DOMAIN
+            if [ -e ${data_dir}/${ahd_hi}${i} ] || [ -e ${data_dir}/${ahd_cs}${i} ] ; then
+      
+               if [ -e ${data_dir}/${ahd_hi}${i} ]; then
+                  imod=imodhi
+cat > ${data_dir}/${i}_hi.ctl <<EOF
+dset ${data_dir}/${ahd_hi}${i}
+index ${data_dir}/${ahd_hi}${i}.idx
+undef 9.999E+20
+title ${data_dir}/${ahd_hi}${i}
+dtype grib 255
+xdef ${nxdef[${imod}]} linear ${xlon0[${imod}]} ${resol[${imod}]}
+ydef ${nydef[${imod}]} linear ${ylat0[${imod}]} ${resol[${imod}]}
+tdef 1 linear ${fcst_hr[${icyl}]}Z${DD}${mchr[$MM-1]}${YY} 1hr
+zdef 1 linear 1 1
+vars 1
+PMTF0_${layer_hgt[${ilay}]}m   0 157,106,${layer_oct[${ilay}]} ** 0-${layer_hgt[${ilay}]} m above ground Particulate matter (fine) [ug/m^3]
+ENDVARS
+EOF
+      
+               else
+                  imod=imod00
+cat > ${data_dir}/${i}_hi.ctl <<EOF
+dset ${data_dir}/${ahd_cs}${i}
+index ${data_dir}/${ahd_cs}${i}.idx
+undef 9.999E+20
+title ${data_dir}/${ahd_cs}${i}
+dtype grib 255
+xdef ${nxdef[${imod}]} linear ${xlon0[${imod}]} ${resol[${imod}]}
+ydef ${nydef[${imod}]} linear ${ylat0[${imod}]} ${resol[${imod}]}
+tdef 1 linear ${fcst_hr[${icyl}]}Z${DD}${mchr[$MM-1]}${YY} 1hr
+zdef 1 linear 1 1
+vars 1
+PMTF0_${layer_hgt[${ilay}]}m   0 157,106,${layer_oct[${ilay}]} ** 0-${layer_hgt[${ilay}]} m above ground Particulate matter (fine) [ug/m^3]
+ENDVARS
+EOF
+               fi
+      
+               gribmap -0 -i ${data_dir}/${i}_hi.ctl
+      
+      ## title_aqm=HYSPLIT
+cat > ${data_dir}/${i}_hi.plot << EOF
+'set gxout shaded'
+'set gxout grfill'
+'set display color white'
+'set mpdset hires'
+'set grads off'
+'set rgb 98 255 105 180'
+'set rgb 79 240 240 240'
+'set rgb 17  55  55 255'
+'set rgb 18 110 110 255'
+'set rgb 19 165 165 255'
+'set rgb 20 220 220 255'
+'c'
+'open ${data_dir}/${i}_hi.ctl'
+'set clevs 0.05 1.0 2.0 5.0 10. 20. 35. 50. 65.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${idset}]}_hi_${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'set lat ${lat0[${ihi}]} ${lat1[${ihi}]}'
+'set lon ${lon0[${ihi}]} ${lon1[${ihi}]}'
+'set clevs 0.05 1.0 2.0 5.0 10. 20. 35. 50. 65.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${ihi}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'quit'
+EOF
+               grads -blc "run ${data_dir}/${i}_hi.plot"
+            fi
+fi   ## only for conus dust
+            ((numi++))
+         done
+         ilay=1
+         ahd_cs=hysplitcs_${aerosol[${iaero}]}_${layer[${ilay}]}.${cycle[${icyl}]}.f
+         ahd_ak=hysplitak_${aerosol[${iaero}]}_${layer[${ilay}]}.${cycle[${icyl}]}.f
+         ahd_hi=hysplithi_${aerosol[${iaero}]}_${layer[${ilay}]}.${cycle[${icyl}]}.f
+         if [ -d ${idir}/${aqm}_cs.${NOW} ]; then /bin/cp -f ${idir}/${aqm}_cs.${NOW}/${ahd_cs}* .; fi
+         if [ -d ${idir}/${aqm}_ak.${NOW} ]; then /bin/cp -f ${idir}/${aqm}_ak.${NOW}/${ahd_ak}* .; fi
+         if [ -d ${idir}/${aqm}_hi.${NOW} ]; then /bin/cp -f ${idir}/${aqm}_hi.${NOW}/${ahd_hi}* .; fi
+      ##
+         t0=0
+         t1=48
+         let numi=t0
+         while [ ${numi} -le ${t1} ]; do
+            fcsti=${numi}
+            if [ ${numi} -le 9 ]; then fcsti="00"${numi}; fi
+            if [ ${numi} -gt 9 ] && [ ${numi} -le 99 ]; then fcsti="0"${numi}; fi
+      
+            i=${numi}
+            if [ ${numi} -le 9 ]; then i="0"${numi}; fi
+      
+            if [ -e ${data_dir}/${ahd_cs}${i} ]; then
+      
+               let j=numi+${FCST[${icyl}]}
+               if [ ${j} -ge 48 ]; then
+                  let j=j-48
+                  date=${THIRDDAY}
+               elif [ ${j} -ge 24 ]; then
+                  let j=j-24
+                  date=${TOMORROW}
+               else
+                  date=${NOW}
+               fi
+               numj=${j}
+               if [ ${j} -le 9 ]; then numj="0"${j}; fi
+            
+               if [ -e ${data_dir}/${ahd_cs}${i} ]; then
+                  imod=imod00
+cat > ${data_dir}/${i}.ctl <<EOF
+dset ${data_dir}/${ahd_cs}${i}
+index ${data_dir}/${ahd_cs}${i}.idx
+undef 9.999E+20
+title ${data_dir}/${ahd_cs}${i}
+dtype grib 255
+xdef ${nxdef[${imod}]} linear ${xlon0[${imod}]} ${resol[${imod}]}
+ydef ${nydef[${imod}]} linear ${ylat0[${imod}]} ${resol[${imod}]}
+tdef 1 linear ${fcst_hr[${icyl}]}Z${DD}${mchr[$MM-1]}${YY} 1hr
+zdef 1 linear 1 1
+vars 1
+PMTF0_${layer_hgt[${ilay}]}m   0 157,106,${layer_oct[${ilay}]} ** 0-${layer_hgt[${ilay}]} m above ground Particulate matter (fine) [ug/m^3]
+ENDVARS
+EOF
+                  gribmap -0 -i ${data_dir}/${i}.ctl
+      
+                  title_aqm=HYSPLIT
+cat > ${data_dir}/${i}.plot << EOF
+'set gxout shaded'
+'set gxout grfill'
+'set display color white'
+'set mpdset hires'
+'set grads off'
+'set rgb 98 255 105 180'
+'set rgb 79 240 240 240'
+'set rgb 17  55  55 255'
+'set rgb 18 110 110 255'
+'set rgb 19 165 165 255'
+'set rgb 20 220 220 255'
+'c'
+'open ${data_dir}/${i}.ctl'
+'set clevs 1.0 9.0 12. 15. 18. 35. 55. 100. 200.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${idset}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'set lat ${lat0[${iconus}]} ${lat1[${iconus}]}'
+'set lon ${lon0[${iconus}]} ${lon1[${iconus}]}'
+'set clevs 1.0 9.0 12. 15. 18. 35. 55. 100. 200.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${iconus}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'set lat ${lat0[${ieast}]} ${lat1[${ieast}]}'
+'set lon ${lon0[${ieast}]} ${lon1[${ieast}]}'
+'set clevs 1.0 9.0 12. 15. 18. 35. 55. 100. 200.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${ieast}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'set lat ${lat0[${iwest}]} ${lat1[${iwest}]}'
+'set lon ${lon0[${iwest}]} ${lon1[${iwest}]}'
+'set clevs 1.0 9.0 12. 15. 18. 35. 55. 100. 200.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${iwest}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'set lat ${lat0[${ine10}]} ${lat1[${ine10}]}'
+'set lon ${lon0[${ine10}]} ${lon1[${ine10}]}'
+'set clevs 1.0 9.0 12. 15. 18. 35. 55. 100. 200.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${ine10}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'set lat ${lat0[${inw10}]} ${lat1[${inw10}]}'
+'set lon ${lon0[${inw10}]} ${lon1[${inw10}]}'
+'set clevs 1.0 9.0 12. 15. 18. 35. 55. 100. 200.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${inw10}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'set lat ${lat0[${ise10}]} ${lat1[${ise10}]}'
+'set lon ${lon0[${ise10}]} ${lon1[${ise10}]}'
+'set clevs 1.0 9.0 12. 15. 18. 35. 55. 100. 200.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${ise10}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'set lat ${lat0[${iswse}]} ${lat1[${iswse}]}'
+'set lon ${lon0[${iswse}]} ${lon1[${iswse}]}'
+'set clevs 1.0 9.0 12. 15. 18. 35. 55. 100. 200.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${iswse}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'quit'
+EOF
+                  grads -blc "run ${data_dir}/${i}.plot"
+      
+               fi
+if [ 1 -eq 2 ]; then  ## Currently only have conus dust
+               if [ -e ${data_dir}/${ahd_ak}${i} ] || [ -e ${data_dir}/${ahd_cs}${i} ] ; then
+      
+                  if [ -e ${data_dir}/${ahd_ak}${i} ]; then
+                     imod=imodak
+cat > ${data_dir}/${i}_ak.ctl <<EOF
+dset ${data_dir}/${ahd_ak}${i}
+index ${data_dir}/${ahd_ak}${i}.idx
+undef 9.999E+20
+title ${data_dir}/${ahd_ak}${i}
+dtype grib 255
+xdef ${nxdef[${imod}]} linear ${xlon0[${imod}]} ${resol[${imod}]}
+ydef ${nydef[${imod}]} linear ${ylat0[${imod}]} ${resol[${imod}]}
+tdef 1 linear ${fcst_hr[${icyl}]}Z${DD}${mchr[$MM-1]}${YY} 1hr
+zdef 1 linear 1 1
+vars 1
+PMTF0_${layer_hgt[${ilay}]}m   0 157,106,${layer_oct[${ilay}]} ** 0-${layer_hgt[${ilay}]} m above ground Particulate matter (fine) [ug/m^3]
+ENDVARS
+EOF
+      
+                  else
+                     imod=imod00
+cat > ${data_dir}/${i}_ak.ctl <<EOF
+dset ${data_dir}/${ahd_cs}${i}
+index ${data_dir}/${ahd_cs}${i}.idx
+undef 9.999E+20
+title ${data_dir}/${ahd_cs}${i}
+dtype grib 255
+xdef ${nxdef[${imod}]} linear ${xlon0[${imod}]} ${resol[${imod}]}
+ydef ${nydef[${imod}]} linear ${ylat0[${imod}]} ${resol[${imod}]}
+tdef 1 linear ${fcst_hr[${icyl}]}Z${DD}${mchr[$MM-1]}${YY} 1hr
+zdef 1 linear 1 1
+vars 1
+PMTF0_${layer_hgt[${ilay}]}m   0 157,106,${layer_oct[${ilay}]} ** 0-${layer_hgt[${ilay}]} m above ground Particulate matter (fine) [ug/m^3]
+ENDVARS
+EOF
+                  fi
+                  gribmap -0 -i ${data_dir}/${i}_ak.ctl
+      
+      ## title_aqm=HYSPLIT
+cat > ${data_dir}/${i}_ak.plot << EOF
+'set gxout shaded'
+'set gxout grfill'
+'set display color white'
+'set mpdset hires'
+'set grads off'
+'set rgb 98 255 105 180'
+'set rgb 79 240 240 240'
+'set rgb 17  55  55 255'
+'set rgb 18 110 110 255'
+'set rgb 19 165 165 255'
+'set rgb 20 220 220 255'
+'c'
+'open ${data_dir}/${i}_ak.ctl'
+'set clevs 1.0 9.0 12. 15. 18. 35. 55. 100. 200.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${idset}]}_ak_${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'set lat ${lat0[${iak}]} ${lat1[${iak}]}'
+'set lon ${lon0[${iak}]} ${lon1[${iak}]}'
+'set clevs 1.0 9.0 12. 15. 18. 35. 55. 100. 200.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${iak}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'quit'
+EOF
+                  grads -blc "run ${data_dir}/${i}_ak.plot"
+               fi
+      
+      ## For HI; if HYSPLIT_HI has NO data use HYSPLIT_FULL_DOMAIN
+               if [ -e ${data_dir}/${ahd_hi}${i} ] || [ -e ${data_dir}/${ahd_cs}${i} ] ; then
+      
+                  if [ -e ${data_dir}/${ahd_hi}${i} ]; then
+                     imod=imodhi
+cat > ${data_dir}/${i}_hi.ctl <<EOF
+dset ${data_dir}/${ahd_hi}${i}
+index ${data_dir}/${ahd_hi}${i}.idx
+undef 9.999E+20
+title ${data_dir}/${ahd_hi}${i}
+dtype grib 255
+xdef ${nxdef[${imod}]} linear ${xlon0[${imod}]} ${resol[${imod}]}
+ydef ${nydef[${imod}]} linear ${ylat0[${imod}]} ${resol[${imod}]}
+tdef 1 linear ${fcst_hr[${icyl}]}Z${DD}${mchr[$MM-1]}${YY} 1hr
+zdef 1 linear 1 1
+vars 1
+PMTF0_${layer_hgt[${ilay}]}m   0 157,106,${layer_oct[${ilay}]} ** 0-${layer_hgt[${ilay}]} m above ground Particulate matter (fine) [ug/m^3]
+ENDVARS
+EOF
+      
+                  else
+                     imod=imod00
+cat > ${data_dir}/${i}_hi.ctl <<EOF
+dset ${data_dir}/${ahd_cs}${i}
+index ${data_dir}/${ahd_cs}${i}.idx
+undef 9.999E+20
+title ${data_dir}/${ahd_cs}${i}
+dtype grib 255
+xdef ${nxdef[${imod}]} linear ${xlon0[${imod}]} ${resol[${imod}]}
+ydef ${nydef[${imod}]} linear ${ylat0[${imod}]} ${resol[${imod}]}
+tdef 1 linear ${fcst_hr[${icyl}]}Z${DD}${mchr[$MM-1]}${YY} 1hr
+zdef 1 linear 1 1
+vars 1
+PMTF0_${layer_hgt[${ilay}]}m   0 157,106,${layer_oct[${ilay}]} ** 0-${layer_hgt[${ilay}]} m above ground Particulate matter (fine) [ug/m^3]
+ENDVARS
+EOF
+                  fi
+                  gribmap -0 -i ${data_dir}/${i}_hi.ctl
+      
+      ## title_aqm=HYSPLIT
+cat > ${data_dir}/${i}_hi.plot << EOF
+'set gxout shaded'
+'set gxout grfill'
+'set display color white'
+'set mpdset hires'
+'set grads off'
+'set rgb 98 255 105 180'
+'set rgb 79 240 240 240'
+'set rgb 17  55  55 255'
+'set rgb 18 110 110 255'
+'set rgb 19 165 165 255'
+'set rgb 20 220 220 255'
+'c'
+'open ${data_dir}/${i}_hi.ctl'
+'set clevs 1.0 9.0 12. 15. 18. 35. 55. 100. 200.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${idset}]}_hi_${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'set lat ${lat0[${ihi}]} ${lat1[${ihi}]}'
+'set lon ${lon0[${ihi}]} ${lon1[${ihi}]}'
+'set clevs 1.0 9.0 12. 15. 18. 35. 55. 100. 200.'
+'set ccols 79 19 17 3 10 7 12 8 2 98'
+'d PMTF0_${layer_hgt[${ilay}]}m'
+'${gs_dir}/cbar.gs'
+'draw title ${title_aqm} ${EXP} ${cycle[${icyl}]} ${layer[${ilay}]} ${aerosol[${iaero}]} ${date}/${numj}00V${fcsti} conc ug/m3'
+'printim ${data_dir}/${aqm}${reg[${ihi}]}${aerosol[${iaero}]}${layer[${ilay}]}_${i}.png png x800 y600 white'
+'c'
+'quit'
+EOF
+                  grads -blc "run ${data_dir}/${i}_hi.plot"
+               fi
+            fi
+fi   ## Only have conus dust
+            ((numi++))
+         done
+         ## scp ${data_dir}/${aqm}*.png ${user}@${remote_host}:${remote_dir}/${YY}/${NOW}/${cycle[${icyl}]}
+      fi
+      ((icyl++))
+   done
+   cdate=${NOW}"00"
+   NOW=$(${NDATE} +24 ${cdate}| cut -c1-8)
+done
+exit

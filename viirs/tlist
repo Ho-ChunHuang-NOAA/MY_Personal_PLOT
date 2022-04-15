@@ -1,0 +1,16 @@
+cbar.gs
+daily.viirs.aqm.aod.plot
+daily.viirs.nesdis.aod.plot
+draw2.aod.aqm.gs2
+draw2.aod.hysplit.gs2
+draw.aod.aqm.gs
+draw.aod.hysplit.gs
+draw.aod.nesdis.gs
+mplot.viirsaod.sh
+mrgrd.viirsaod.sh
+regrid_test_compress.sh
+replace_all.sh
+run.viirs_aqm_aod.sh
+tlist
+verif-comb-test-20170116
+z.sh

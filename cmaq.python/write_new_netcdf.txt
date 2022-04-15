@@ -1,0 +1,70 @@
+import netCDF4 as nc
+import numpy as np
+toexclude = ["TO_REMOVE"]
+with nc.Dataset("orig.nc") as src, nc.Dataset("filtered.nc", "w") as dst:
+    # copy attributes
+    for name in src.ncattrs():
+        dst.setncattr(name, src.getncattr(name))
+    # copy dimensions
+    for name, dimension in src.dimensions.iteritems():
+        dst.createDimension(
+            name, (len(dimension) if not dimension.isunlimited else None))
+    # copy all file data except for the excluded
+    for name, variable in src.variables.iteritems():
+        if name not in toexclude:
+            x = dst.createVariable(name, variable.datatype, variable.dimensions)
+            dst.variables[name][:] = src.variables[name][:]
+
+with netCDF4.Dataset(file1) as src, netCDF4.Dataset(file2) as dst:
+
+  for name, dimension in src.dimensions.iteritems():
+    dst.createDimension(name, len(dimension) if not dimension.isunlimited() else None)
+
+  for name, variable in src.variables.iteritems():
+
+    # take out the variable you don't want
+    if name == 'some_variable': 
+      continue
+
+    x = dst.createVariable(name, variable.datatype, variable.dimensions)
+    dst.variables[x][:] = src.variables[x][:]
+
+
+
+===========
+Creating variables
+Now let's add some variables and store some data in them.
+
+A variable has a name, a type, a shape, and some data values.
+The shape of a variable is specified by a tuple of dimension names.
+A variable should also have some named attributes, such as 'units', that describe the data.
+The createVariable method takes 3 mandatory args.
+
+the 1st argument is the variable name (a string). This is used as the key to access the variable object from the variables dictionary.
+the 2nd argument is the datatype (most numpy datatypes supported).
+the third argument is a tuple containing the dimension names (the dimensions must be created first). Unless this is a NETCDF4 file, any unlimited dimension must be the leftmost one.
+there are lots of optional arguments (many of which are only relevant when format='NETCDF4') to control compression, chunking, fill_value, etc.
+
+# Define two variables with the same names as dimensions,
+# a conventional way to define "coordinate variables".
+lat = ncfile.createVariable('lat', np.float32, ('lat',))
+lat.units = 'degrees_north'
+lat.long_name = 'latitude'
+lon = ncfile.createVariable('lon', np.float32, ('lon',))
+lon.units = 'degrees_east'
+lon.long_name = 'longitude'
+time = ncfile.createVariable('time', np.float64, ('time',))
+time.units = 'hours since 1800-01-01'
+time.long_name = 'time'
+# Define a 3D variable to hold the data
+temp = ncfile.createVariable('temp',np.float64,('time','lat','lon')) # note: unlimited dimension is leftmost
+temp.units = 'K' # degrees Kelvin
+temp.standard_name = 'air_temperature' # this is a CF standard name
+print(temp)
+<class 'netCDF4._netCDF4.Variable'>
+float64 temp(time, lat, lon)
+    units: K
+    standard_name: air_temperature
+unlimited dimensions: time
+current shape = (0, 73, 144)
+filling on, default _FillValue of 9.969209968386869e+36 used

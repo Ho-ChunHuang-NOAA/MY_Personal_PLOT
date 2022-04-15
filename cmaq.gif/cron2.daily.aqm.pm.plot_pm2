@@ -1,0 +1,596 @@
+#!/bin/sh
+##
+## SCRIPT FOR SINGLE DAY PROCESSING AND MAP GENERATION
+##
+## YYYYMMDD is the start day of NAQFC PM   simulation
+## Cycle_hr is the model run starting hour
+##
+USAGE="USAGE : $0 YYYYMMDD_BEG YYYYMMDD_END Cycle_hr (default:06|12) NCO_run (default:prod|para)"
+if [[ $# -lt 2 ]]; then
+  echo $USAGE
+  exit
+fi
+module load GrADS/2.2.0
+module load prod_envir/1.0.3
+hl=`hostname | cut -c1`
+if [ "${hl}" == "v" ]; then
+  phase12_id='g'
+else
+  phase12_id='t'
+fi
+
+grid_id2=148
+grid_id=227
+## Manuelly activated using scp to RZDM
+flag_ftp=no
+flag_ftp=yes
+
+flag_scp=yes
+flag_scp=no
+if [ ${flag_ftp} == 'yes' ] && [ ${flag_scp} == 'yes' ]; then
+   echo " both flags of ftp and scp have been turned on, check the setting and re-submit, PROGRAM EXIT"
+   exit
+fi
+
+flag_update=no
+flag_update=yes
+if [ ${flag_update} == 'yes' ]; then
+   echo " Update Web PM Latest Day "
+else
+   echo " Without updating Web PM Latest Day "
+fi
+
+gs_dir=`pwd`
+
+declare -a reg=( dset conus east west  ne10  nw10  se10  swse  ak   hi   )
+declare -a lon0=( -175 -133 -100 -130  -81   -125  -91   -125  -170 -161 )
+declare -a lon1=(   55  -60  -60  -90  -66   -105  -74   -100  -130 -154 )
+declare -a lat0=(    0   21   24   21   37     37   24     21    50   18 )
+declare -a lat1=(   80   52   50   50   48     50   40     45    80   23 )
+nreg=${#reg[@]}
+let max_ireg=${nreg}-1
+idset=0
+iconus=1
+ieast=2
+iwest=3
+ine10=4
+inw10=5
+ise10=6
+iswse=7
+iak=8
+ihi=9
+
+declare -a mchr=( JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC )
+
+## declare -a typ=( max_1hr_pm25 ave_24hr_pm25 pm25 sp_pm )
+## declare -a typ=( max_1hr_pm25 ave_24hr_pm25 pm25 )
+##declare -a typ=( max_1hr_pm25 ave_24hr_pm25 )
+declare -a typ=( sp_pm )
+ntyp=${#typ[@]}
+
+FIRSTDAY=$1
+LASTDAY=$2
+numcyc=6
+cych=06
+if [ $# -gt 2 ]; then 
+   ck0=`echo $3 | cut -c1-1`
+   ck1=${ck0}
+   if [ ${ck1} == '0' ]; then
+      ck0=`echo $3 | cut -c2-2`
+      let numhr=${ck0}
+      echo "$3 --> ${numhr}"
+   else
+      let numhr=$3
+   fi
+   if [ ${numhr} -lt 0 ] || [ ${numhr} -gt  18 ]; then
+      echo "AQM cycle hour should be in one of [00 06 12 18], PROGRAM EXIT"
+      exit
+   else
+      if [ ${numhr} -lt 10 ]; then 
+         cych="0${numhr}"
+      else
+         cych="${numhr}"
+      fi
+      let numcyc=${numhr}
+   fi
+fi
+cychr="t${cych}z"
+echo " Perform operation on cych = ${cych}  cychr = ${cychr}"
+
+exp=prod
+if [ $# -gt 3 ]; then exp=$4; fi
+capexp=`echo ${exp} | tr '[:lower:]' '[:upper:]'`
+if [ ${exp} == 'para1' ]; then flag_update=no; fi
+
+ndate=/nwprod/util/exec/ndate
+   
+NOW=${FIRSTDAY}
+while [ ${NOW} -le ${LASTDAY} ]; do
+
+   cdate=${NOW}${cych}
+   F1=$(/nwprod/util/exec/ndate +1 ${cdate}| cut -c9-10)
+   TOMORROW=$(/nwprod/util/exec/ndate +24 ${cdate}| cut -c1-8)
+   THIRDDAY=$(/nwprod/util/exec/ndate +48 ${cdate}| cut -c1-8)
+
+   Y1=`echo ${NOW} | cut -c1-4`
+   MX=`echo ${NOW} | cut -c5-5`
+   if [ ${MX} == '0' ]; then
+      M1=`echo ${NOW} | cut -c6-6`
+   else
+      M1=`echo ${NOW} | cut -c5-6`
+   fi
+   D1=`echo ${NOW} | cut -c7-8`
+   Y2=`echo ${TOMORROW} | cut -c1-4`
+   MX=`echo ${TOMORROW} | cut -c5-5`
+   if [ ${MX} == '0' ]; then
+      M2=`echo ${TOMORROW} | cut -c6-6`
+   else
+      M2=`echo ${TOMORROW} | cut -c5-6`
+   fi
+   D2=`echo ${TOMORROW} | cut -c7-8`
+   Y3=`echo ${THIRDDAY} | cut -c1-4`
+   MX=`echo ${THIRDDAY} | cut -c5-5`
+   if [ ${MX} == '0' ]; then
+      M3=`echo ${THIRDDAY} | cut -c6-6`
+   else
+      M3=`echo ${THIRDDAY} | cut -c5-6`
+   fi
+   D3=`echo ${THIRDDAY} | cut -c7-8`
+   range1=05Z${D1}${mchr[$M1-1]}${Y1}-04Z${D2}${mchr[$M2-1]}${Y2}
+   range2=05Z${D2}${mchr[$M2-1]}${Y2}-04Z${D3}${mchr[$M3-1]}${Y3}
+
+   if [ ${exp} == 'prod' ]; then
+      comdir=${COMROOTp2}/aqm/${exp}/aqm.${NOW}
+      comdir=/gpfs/hps/nco/ops/com/aqm/${exp}/aqm.${NOW}
+   elif [ ${exp} == 'para' ]; then
+      comdir=${COMROOTp2}/aqm/${exp}/aqm.${NOW}
+      comdir=/gpfs/hps/nco/ops/com/aqm/${exp}/aqm.${NOW}
+   elif [ ${exp} == 'para1' ]; then
+      ## comdir=/ptmpp1/Jianping.Huang/com/aqm/${exp}/aqm.${NOW}
+      comdir=/naqfc/noscrub/Jianping.Huang/com/aqm/${exp}/aqm.${NOW}
+   else
+      echo " Experiments not defined for plotting schedule"
+      exit
+   fi
+   ## tmpdir=/naqfc/noscrub/${USER}/com_aqm_${exp}_sp_pm.${NOW}${cych}
+   tmpdir=/gpfs/dell2/stmp/${USER}/com2_aqm_${exp}_sp_pm_cron.${NOW}${cych}
+   if [ -d ${tmpdir} ]; then
+      /bin/rm -f ${tmpdir}/*
+   else
+      mkdir -p ${tmpdir}
+   fi
+   if [ ! -d ${comdir} ]; then
+      echo "////////////////////////////////////////"
+      echo "${comdir} does not existed, program stop"
+      echo "////////////////////////////////////////"
+      exit
+   else
+      echo "////////////////////////////////////////"
+      echo "/ Fetching PM data Data from ${comdir} /"
+      echo "////////////////////////////////////////"
+   fi
+   ## aqm.t06z.ave_24hr_pm25.148.grib2
+   ## aqm.t06z.max_1hr_pm25.148.grib2
+   ## use ncf to plot      sp_pm)         cp ${comdir}/aqm.${cychr}.chem_sfc.f*.${grid_id2}.grib2 ${tmpdir};;
+   for i in "${typ[@]}"
+   do
+     case ${i} in
+        max_1hr_pm25)  cp ${comdir}/aqm.${cychr}.max_1hr_pm25.${grid_id}.grib2  ${tmpdir};;
+        ave_24hr_pm25) cp ${comdir}/aqm.${cychr}.ave_24hr_pm25.${grid_id}.grib2 ${tmpdir};;
+        sp_pm)         cp ${comdir}/aqm.${cychr}.aconc_sfc.ncf                  ${tmpdir};;
+        pm25)          cp ${comdir}/aqm.${cychr}.pm25.f*.${grid_id2}.grib2      ${tmpdir};;
+      esac
+   done
+   cd ${tmpdir}
+   
+   outdir=/gpfs/dell2/stmp/${USER}/daily_plot_pm25_sp/aqm_${exp}_pm_sp.${NOW}${cych}
+   if [ ! -d ${outdir} ]; then mkdir -p ${outdir}; fi
+   
+   n0=0
+   let n1=${ntyp}-1
+   let ptyp=n0
+   while [ ${ptyp} -le ${n1} ]; do
+
+      if [ -e aqm.ctl ]; then /bin/rm -f aqm.ctl; fi
+#
+## dset ^aqm.t06z.max_1hr_pm25.148.grib2
+## index ^aqm.t06z.max_1hr_pm25.148.grib2.idx
+## undef 9.999E+20
+## title aqm.t06z.max_1hr_pm25.148.grib2
+## * produced by g2ctl v0.1.0
+## * command line options: aqm.t06z.max_1hr_pm25.148.grib2
+## * griddef=1:0:(442 x 265):grid_template=30:winds(grid): Lambert Conformal: (442 x 265) input WE:SN output WE:SN res 8 Lat1 21.821000 Lon1 239.372000 LoV 263.000000 LatD 33.000000 Latin1 33.000000 Latin2 45.000000 LatSP 0.000000 LonSP 0.000000 North P
+## dtype grib2
+## pdef 442 265 lccr 21.821000 -120.628 1 1 33.000000 45.000000 -97 12000.000000 12000.000000
+## xdef 620 linear -131.659038 0.117510583392794
+## ydef 293 linear 21.153709 0.109090909090909
+## tdef 2 linear 04Z28oct2015 1dy
+## zdef 1 linear 1 1
+## vars 1
+## PDMAX1sig1000   0,104,1   0,14,202,0 ** 1 sigma level PM 2.5 Daily Max from 1-hour Average [ugm-3]
+## ENDVARS
+## 
+## dset ^aqm.t06z.ave_24hr_pm25.148.grib2
+## index ^aqm.t06z.ave_24hr_pm25.148.grib2.idx
+## undef 9.999E+20
+## title aqm.t06z.ave_24hr_pm25.148.grib2
+## * produced by g2ctl v0.1.0
+## * command line options: aqm.t06z.ave_24hr_pm25.148.grib2
+## * griddef=1:0:(442 x 265):grid_template=30:winds(grid): Lambert Conformal: (442 x 265) input WE:SN output WE:SN res 8 Lat1 21.821000 Lon1 239.372000 LoV 263.000000 LatD 33.000000 Latin1 33.000000 Latin2 45.000000 LatSP 0.000000 LonSP 0.000000 North P
+## dtype grib2
+## pdef 442 265 lccr 21.821000 -120.628 1 1 33.000000 45.000000 -97 12000.000000 12000.000000
+## xdef 620 linear -131.659038 0.117510583392794
+## ydef 293 linear 21.153709 0.109090909090909
+## tdef 2 linear 04Z28oct2015 1dy
+## zdef 1 linear 1 1
+## vars 1
+## PMTFsig1000   0,104,1   0,13,193,0 ** 1 sigma level Particulate matter (fine) [10-6gm-3]
+## ENDVARS
+      if [ ${typ[${ptyp}]} = 'max_1hr_pm25' ] || [ ${typ[${ptyp}]} = 'ave_24hr_pm25' ]; then 
+         if [ ${typ[${ptyp}]} = 'max_1hr_pm25' ]; then 
+            cat >  aqm.ctl <<EOF
+dset ${tmpdir}/aqm.${cychr}.${typ[${ptyp}]}.${grid_id}.grib2
+index ${tmpdir}/aqm.${cychr}.${typ[${ptyp}]}.${grid_id}.grib2.idx
+undef 9.999E+20
+title aqm.${cychr}.${typ[${ptyp}]}.${grid_id}.grib2
+* produced by g2ctl v0.1.0
+* command line options: aqm.${cychr}.${typ[${ptyp}]}.${grid_id}.grib2
+* griddef=1:0:(1473 x 1025):grid_template=30:winds(grid): Lambert Conformal: (1473 x 1025) input WE:SN output WE:SN res 8 Lat1 12.190000 Lon1 226.541000 LoV 265.000000 LatD 25.000000 Latin1 25.000000 Latin2 25.000000 LatSP 0.000000 LonSP 0.000000 Nor
+dtype grib2
+pdef 1473 1025 lccr 12.190000 -133.459 1 1 25.000000 25.000000 -95 5079.000000 5079.000000
+xdef 2191 linear -152.852997 0.0472378093784381
+ydef 1063 linear 12.202469 0.0461727272727273
+tdef 2 linear 04Z${D2}${mchr[$M2-1]}${Y2} 1dy
+zdef 1 linear 1 1
+vars 1
+PDMAX1sig1000   0,104,1   0,14,202,0 ** 1 sigma level PM 2.5 Daily Max from 1-hour Average [ugm-3]
+ENDVARS
+EOF
+            var=PDMAX1sig1000
+         elif [ ${typ[${ptyp}]} = 'ave_24hr_pm25' ]; then 
+
+##xdef 2191 linear -152.852997 0.0472378093784381
+##ydef 1063 linear 12.202469 0.0461727272727273
+##xdef 1473 linear -133.459000 0.0472378093784381
+##ydef 1025 linear 12.190000 0.0461727272727273
+            cat >  aqm.ctl <<EOF
+dset ${tmpdir}/aqm.${cychr}.${typ[${ptyp}]}.${grid_id}.grib2
+index ${tmpdir}/aqm.${cychr}.${typ[${ptyp}]}.${grid_id}.grib2.idx
+undef 9.999E+20
+title aqm.${cychr}.${typ[${ptyp}]}.${grid_id}.grib2
+* produced by g2ctl v0.1.0
+* command line options: aqm.${cychr}.${typ[${ptyp}]}.${grid_id}.grib2
+* griddef=1:0:(1473 x 1025):grid_template=30:winds(grid): Lambert Conformal: (1473 x 1025) input WE:SN output WE:SN res 8 Lat1 12.190000 Lon1 226.541000 LoV 265.000000 LatD 25.000000 Latin1 25.000000 Latin2 25.000000 LatSP 0.000000 LonSP 0.000000 Nor
+dtype grib2
+pdef 1473 1025 lccr 12.190000 -133.459 1 1 25.000000 25.000000 -95 5079.000000 5079.000000
+xdef 2191 linear -152.852997 0.0472378093784381
+ydef 1063 linear 12.202469 0.0461727272727273
+tdef 2 linear 04Z${D2}${mchr[$M2-1]}${Y2} 1dy
+zdef 1 linear 1 1
+vars 1
+PMTFsig1000   0,104,1   0,13,193,0 ** 1 sigma level Particulate matter (fine) [10-6gm-3]
+ENDVARS
+EOF
+            var=PMTFsig1000
+         fi
+         gribmap -i aqm.ctl
+
+         if [ -e aqm.plots ]; then /bin/rm -f aqm.plots; fi
+
+         cat >  aqm.plots <<EOF
+'reinit'
+'set gxout shaded'
+'set gxout grfill'
+'set display color white'
+'set mpdset hires'
+'set grads off'
+'set rgb 98 255 105 180'
+'set rgb 79 240 240 240'
+'set rgb 17  55  55 255'
+'set rgb 18 110 110 255'
+'set rgb 19 165 165 255'
+'set rgb 20 220 220 255'
+'c'
+'open aqm.ctl'
+'set lat ${lat0[${iconus}]} ${lat1[${iconus}]}'
+'set lon ${lon0[${iconus}]} ${lon1[${iconus}]}'
+'${gs_dir}/draw2.aqm.pm25max.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} ${range1} ${range2} ${var} conus'
+'set lat ${lat0[${ieast}]} ${lat1[${ieast}]}'
+'set lon ${lon0[${ieast}]} ${lon1[${ieast}]}'
+'${gs_dir}/draw2.aqm.pm25max.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} ${range1} ${range2} ${var} east'
+'set lat ${lat0[${iwest}]} ${lat1[${iwest}]}'
+'set lon ${lon0[${iwest}]} ${lon1[${iwest}]}'
+'${gs_dir}/draw2.aqm.pm25max.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} ${range1} ${range2} ${var} west'
+'set lat ${lat0[${ine10}]} ${lat1[${ine10}]}'
+'set lon ${lon0[${ine10}]} ${lon1[${ine10}]}'
+'${gs_dir}/draw2.aqm.pm25max.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} ${range1} ${range2} ${var} ne'
+'set lat ${lat0[${inw10}]} ${lat1[${inw10}]}'
+'set lon ${lon0[${inw10}]} ${lon1[${inw10}]}'
+'${gs_dir}/draw2.aqm.pm25max.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} ${range1} ${range2} ${var} nw'
+'set lat ${lat0[${ise10}]} ${lat1[${ise10}]}'
+'set lon ${lon0[${ise10}]} ${lon1[${ise10}]}'
+'${gs_dir}/draw2.aqm.pm25max.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} ${range1} ${range2} ${var} se'
+'set lat ${lat0[${iswse}]} ${lat1[${iswse}]}'
+'set lon ${lon0[${iswse}]} ${lon1[${iswse}]}'
+'${gs_dir}/draw2.aqm.pm25max.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${typ[${ptyp}]} ${range1} ${range2} ${var} sw'
+'quit'
+EOF
+            grads -d Cairo -h GD -blc "run aqm.plots"
+      else   ## for hourly sp_pm and pm25
+         if [ ${typ[${ptyp}]} = 'sp_pm' ]; then 
+            if [ -e aqm.ctl ]; then /bin/rm -f aqm.ctl; fi
+            cat >  aqm.ctl <<EOF
+dset ${tmpdir}/aqm.${cychr}.aconc_sfc.ncf
+undef  -9.99e33
+dtype netcdf
+PDEF 442 265 lccr 21.8212 -120.628 1 1 33 45 -97 12000. 12000.
+xdef 614 linear -132.000 0.12
+ydef 262 linear 22.0000 0.12
+zdef    1 levels  1.000
+tdef  48 linear  ${F1}Z${D1}${mchr[$M1-1]}${Y1}  01hr
+vars  19
+O3=>o3   0 t,z,y,x  (ppmV)
+CO=>co   0 t,z,y,x  (ppmV)
+NO=>no   0 t,z,y,x  (ppmV)
+NO2=>no2   0 t,z,y,x  (ppmV)
+NOY=>noy   0 t,z,y,x  (ppmV)
+VOC=>voc   0 t,z,y,x  (ppmC)
+PM25_TOT=>pm25_tot   0 t,z,y,x  (micrograms/m**3)
+PM25_CL=>pm25_cl   0 t,z,y,x  (micrograms/m**3)
+PM25_EC=>pm25_ec   0 t,z,y,x  (micrograms/m**3)
+PM25_NA=>pm25_na   0 t,z,y,x  (micrograms/m**3)
+PM25_MG=>pm25_mg   0 t,z,y,x  (micrograms/m**3)
+PM25_K=>pm25_k   0 t,z,y,x  (micrograms/m**3)
+PM25_CA=>pm25_ca   0 t,z,y,x  (micrograms/m**3)
+PM25_NH4=>pm25_nh4   0 t,z,y,x  (micrograms/m**3)
+PM25_NO3=>pm25_no3   0 t,z,y,x  (micrograms/m**3)
+PM25_OC=>pm25_oc   0 t,z,y,x  (micrograms/m**3)
+PM25_SOIL=>pm25_soil   0 t,z,y,x  (micrograms/m**3)
+PM25_SO4=>pm25_so4   0 t,z,y,x  (micrograms/m**3)
+PMC_TOT=>pmc_tot   0 t,z,y,x  (micrograms/m**3)
+ENDVARS
+EOF
+         fi   ## NCF contains 48 hours file
+
+         t0=1
+         t1=48
+         let numi=t0
+         while [ ${numi} -le ${t1} ]; do
+
+            fcsti=${numi}
+            if [ ${numi} -le 9 ]; then fcsti="00"${numi}; fi
+            if [ ${numi} -gt 9 ] && [ ${numi} -le 99 ]; then fcsti="0"${numi}; fi
+   
+            i=${numi}
+            if [ ${numi} -le 9 ]; then i="0"${numi}; fi
+
+            ## older version of cmaq include IC as f01 and FCST 48hr as f49
+            ## switch the index here for this case
+            ## let ip1=${numi}+1
+            ## dati=${ip1}
+            ## if [ ${ip1} -le 9 ]; then dati="0"${ip1}; fi
+            ## Oct 28, 2015 switch the dati to i in aqm.ctl below
+
+            let j=numi+${numcyc}
+            if [ ${j} -ge 48 ]; then
+               let j=j-48
+               date=${THIRDDAY}
+            elif [ ${j} -ge 24 ]; then
+               let j=j-24
+               date=${TOMORROW}
+            else
+               date=${NOW}
+            fi
+            numj=${j}
+            if [ ${j} -le 9 ]; then numj="0"${j}; fi
+   
+            YH=`echo ${date} | cut -c1-4`
+            MX=`echo ${date} | cut -c5-5`
+            if [ ${MX} == '0' ]; then
+               MH=`echo ${date} | cut -c6-6`
+            else
+               MH=`echo ${date} | cut -c5-6`
+            fi
+            DH=`echo ${date} | cut -c7-8`
+
+            if [ ${typ[${ptyp}]} = 'sp_pm' ]; then 
+
+               Newdate=$(${ndate} ${numi} ${NOW}${cych})
+               Ynew=`echo ${Newdate} | cut -c1-4`
+               Xnew=`echo ${Newdate} | cut -c5-5`
+               if [ ${Xnew} == '0' ]; then
+                 Mnew=`echo ${Newdate} | cut -c6-6`
+               else
+                 Mnew=`echo ${Newdate} | cut -c5-6`
+               fi
+               Dnew=`echo ${Newdate} | cut -c7-8`
+               hnew=`echo ${Newdate} | cut -c9-10`
+
+               if [ -e aqm.plots ]; then /bin/rm -f aqm.plots; fi
+
+               cat >  aqm.plots <<EOF
+'reinit'
+'set gxout shaded'
+'set gxout grfill'
+'set display color white'
+'set mpdset hires'
+'set grads off'
+'set rgb 98 255 105 180'
+'set rgb 79 240 240 240'
+'set rgb 17  55  55 255'
+'set rgb 18 110 110 255'
+'set rgb 19 165 165 255'
+'set rgb 20 220 220 255'
+'c'
+'open aqm.ctl'
+'set t ${numi}'
+'set lat ${lat0[${iconus}]} ${lat1[${iconus}]}'
+'set lon ${lon0[${iconus}]} ${lon1[${iconus}]}'
+'${gs_dir}/draw2.aqm.${typ[${ptyp}]}.gs2 ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${i} ${date}/${numj}00V${fcsti} conus'
+'set lat ${lat0[${ieast}]} ${lat1[${ieast}]}'
+'set lon ${lon0[${ieast}]} ${lon1[${ieast}]}'
+'${gs_dir}/draw2.aqm.${typ[${ptyp}]}.gs2 ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${i} ${date}/${numj}00V${fcsti} east'
+'set lat ${lat0[${iwest}]} ${lat1[${iwest}]}'
+'set lon ${lon0[${iwest}]} ${lon1[${iwest}]}'
+'${gs_dir}/draw2.aqm.${typ[${ptyp}]}.gs2 ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${i} ${date}/${numj}00V${fcsti} west'
+'set lat ${lat0[${ine10}]} ${lat1[${ine10}]}'
+'set lon ${lon0[${ine10}]} ${lon1[${ine10}]}'
+'${gs_dir}/draw2.aqm.${typ[${ptyp}]}.gs2 ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${i} ${date}/${numj}00V${fcsti} ne'
+'set lat ${lat0[${inw10}]} ${lat1[${inw10}]}'
+'set lon ${lon0[${inw10}]} ${lon1[${inw10}]}'
+'${gs_dir}/draw2.aqm.${typ[${ptyp}]}.gs2 ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${i} ${date}/${numj}00V${fcsti} nw'
+'set lat ${lat0[${ise10}]} ${lat1[${ise10}]}'
+'set lon ${lon0[${ise10}]} ${lon1[${ise10}]}'
+'${gs_dir}/draw2.aqm.${typ[${ptyp}]}.gs2 ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${i} ${date}/${numj}00V${fcsti} se'
+'set lat ${lat0[${iswse}]} ${lat1[${iswse}]}'
+'set lon ${lon0[${iswse}]} ${lon1[${iswse}]}'
+'${gs_dir}/draw2.aqm.${typ[${ptyp}]}.gs2 ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${i} ${date}/${numj}00V${fcsti} sw'
+'quit'
+EOF
+               grads -d Cairo -h GD -blc "run aqm.plots"
+            elif [ ${typ[${ptyp}]} = 'pm25' ]; then 
+
+## xdef 650 linear -133.628000 0.117510583392794
+## ydef 295 linear 21.821000 0.109090909090909
+## tdef 1 linear 07Z27oct2015 1mo
+## tdef 1 linear 04Z29oct2015 1mo
+               Newdate=$(${ndate} ${numi} ${NOW}${cych})
+               Ynew=`echo ${Newdate} | cut -c1-4`
+               Xnew=`echo ${Newdate} | cut -c5-5`
+               if [ ${Xnew} == '0' ]; then
+                 Mnew=`echo ${Newdate} | cut -c6-6`
+               else
+                 Mnew=`echo ${Newdate} | cut -c5-6`
+               fi
+               Dnew=`echo ${Newdate} | cut -c7-8`
+               hnew=`echo ${Newdate} | cut -c9-10`
+            if [ -e aqm.ctl ]; then /bin/rm -f aqm.ctl; fi
+
+               cat >  aqm.ctl <<EOF
+dset ${tmpdir}/aqm.${cychr}.${typ[${ptyp}]}.f${i}.${grid_id2}.grib2
+index ${tmpdir}/aqm.${cychr}.${typ[${ptyp}]}.f${i}.${grid_id2}.grib2.idx
+undef 9.999E+20
+title ${cychr}.${typ[${ptyp}]}.f${i}.${grid_id2}.grib2
+* produced by g2ctl v0.1.0
+* command line options: aqm.t06z.pm25.f${i}.${grid_id2}.grib2
+* griddef=1:0:(442 x 265):grid_template=30:winds(grid): Lambert Conformal: (442 x 265) input WE:SN output WE:SN res 8 Lat1 21.821000 Lon1 239.372000 LoV 263.000000 LatD 33.000000 Latin1 33.000000 Latin2 45.000000 LatSP 0.000000 LonSP 0.000000 North P
+dtype grib2
+pdef 442 265 lccr 21.821000 -120.628 1 1 33.000000 45.000000 -97 12000.000000 12000.000000
+xdef 620 linear -131.659038 0.117510583392794
+ydef 293 linear 21.153709 0.109090909090909
+tdef 1 linear ${hnew}Z${Dnew}${mchr[$Mnew-1]}${Ynew} 1mo
+zdef 1 linear 1 1
+vars 1
+PMTFsig1000   0,104,1   0,13,193,0 ** 1 sigma level Particulate matter (fine) [10-6gm-3]
+ENDVARS
+EOF
+               gribmap -i aqm.ctl
+
+               if [ -e aqm.plots ]; then /bin/rm -f aqm.plots; fi
+
+               cat >  aqm.plots <<EOF
+'reinit'
+'set gxout shaded'
+'set gxout grfill'
+'set display color white'
+'set mpdset hires'
+'set grads off'
+'set rgb 98 255 105 180'
+'set rgb 79 240 240 240'
+'set rgb 17  55  55 255'
+'set rgb 18 110 110 255'
+'set rgb 19 165 165 255'
+'set rgb 20 220 220 255'
+'c'
+'open aqm.ctl'
+'set lat ${lat0[${iconus}]} ${lat1[${iconus}]}'
+'set lon ${lon0[${iconus}]} ${lon1[${iconus}]}'
+'${gs_dir}/draw2.aqm.${typ[${ptyp}]}.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${i} ${date}/${numj}00V${fcsti} conus'
+'set lat ${lat0[${ieast}]} ${lat1[${ieast}]}'
+'set lon ${lon0[${ieast}]} ${lon1[${ieast}]}'
+'${gs_dir}/draw2.aqm.${typ[${ptyp}]}.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${i} ${date}/${numj}00V${fcsti} east'
+'set lat ${lat0[${iwest}]} ${lat1[${iwest}]}'
+'set lon ${lon0[${iwest}]} ${lon1[${iwest}]}'
+'${gs_dir}/draw2.aqm.${typ[${ptyp}]}.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${i} ${date}/${numj}00V${fcsti} west'
+'set lat ${lat0[${ine10}]} ${lat1[${ine10}]}'
+'set lon ${lon0[${ine10}]} ${lon1[${ine10}]}'
+'${gs_dir}/draw2.aqm.${typ[${ptyp}]}.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${i} ${date}/${numj}00V${fcsti} ne'
+'set lat ${lat0[${inw10}]} ${lat1[${inw10}]}'
+'set lon ${lon0[${inw10}]} ${lon1[${inw10}]}'
+'${gs_dir}/draw2.aqm.${typ[${ptyp}]}.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${i} ${date}/${numj}00V${fcsti} nw'
+'set lat ${lat0[${ise10}]} ${lat1[${ise10}]}'
+'set lon ${lon0[${ise10}]} ${lon1[${ise10}]}'
+'${gs_dir}/draw2.aqm.${typ[${ptyp}]}.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${i} ${date}/${numj}00V${fcsti} se'
+'set lat ${lat0[${iswse}]} ${lat1[${iswse}]}'
+'set lon ${lon0[${iswse}]} ${lon1[${iswse}]}'
+'${gs_dir}/draw2.aqm.${typ[${ptyp}]}.gs ${gs_dir} ${outdir} ${exp} ${capexp} ${NOW} ${cychr} ${i} ${date}/${numj}00V${fcsti} sw'
+'quit'
+EOF
+               grads -d Cairo -h GD -blc "run aqm.plots"
+            fi
+            ((numi++))
+         done
+      fi
+      ((ptyp++))
+   done
+   if [ ${flag_scp} == 'yes' ]; then  # for RZDM maintainence
+      ##
+      ## TRANSFER PLOTS TO RZDM
+      ##
+      remote_dir=/home/people/emc/www/htdocs/mmb/hchuang/web/fig
+      remote_host=emcrzdm.ncep.noaa.gov
+      remote_user=hchuang
+
+      scp ${outdir}/aqm*.gif ${remote_user}@${remote_host}:${remote_dir}/${Y1}/${NOW}/${cychr}
+   fi
+   cdate=${NOW}"00"
+   NOW=$(/nwprod/util/exec/ndate +24 ${cdate}| cut -c1-8)
+done
+
+## style.batch.ftp.txt
+## Prepare RZDM ftp batch script and submit
+##    For daily non-cycle file, let FTPCYCLHR=no
+## Need the follwing two linseif current day (NOW) advance pass last day  is the LOOP (for, while,...)
+cdate=${NOW}"00"
+NOW=$(/nwprod/util/exec/ndate -24 ${cdate}| cut -c1-8)
+##
+
+JOBHR=00
+JOBMIN=29
+FTPDAY=${NOW}
+FTPCYCLHR=${cychr}
+FTPDATADIR=${outdir}
+FTPFLAGUPDATE=${flag_update}
+FTPFILEHD=aqm
+FTPFILEDESC=gif
+
+##
+## 12/19/2014
+## For someday, 00:29 is not enought to transfer all of the figures, regional speciated PM e, sw, and w
+## Thus, split the task into two transfer job
+## Note all *base used default output to /ptmpp1/Ho-Chun.Huang/batch.logs
+## need to makdir -p /ptmpp1/Ho-Chun.Huang/batch.logs in case machine switch and directory can not be found for the beginning
+mkdir -p /ptmpp1/${USER}/batch.logs
+##
+if [ 1 -eq 2 ]; then  ## *pm25*
+JOBHDR=trans2_${NOW}${cychr}_cmaq_pm1_${exp}
+basefile=${HOME}/cronjob/batch.ftp.cmaq.pm1.base
+jobscript=${HOME}/cronjob/job2_cmaq_pm1_ftp.sh
+if [ -e ${jobscript} ]; then /bin/rm -f ${jobscript}; fi
+   sed -e "s!JOBHDR!${JOBHDR}!" -e "s!JOBHR!${JOBHR}!" -e "s!JOBMIN!${JOBMIN}!" -e "s!FTPDAY!${FTPDAY}!" -e "s!FTPDATADIR!${FTPDATADIR}!" -e "s!FTPCYCLHR!${FTPCYCLHR}!" -e "s!FTPFLAGUPDATE!${FTPFLAGUPDATE}!" -e "s!FTPFILEHD!${FTPFILEHD}!" -e "s!FTPFILEDESC!${FTPFILEDESC}!" ${basefile} > ${jobscript}
+
+if [ ${flag_ftp} == 'yes' ]; then bsub < ${jobscript}; fi
+fi
+
+if [ 1 -eq 1 ]; then  ## speciated PM
+JOBHDR=trans2_${NOW}${cychr}_cmaq_pm2_${exp}
+JOBMIN=59
+basefile=${HOME}/cronjob/batch.ftp.cmaq.pm2.base
+jobscript=${HOME}/cronjob/job2_cmaq_pm2_ftp.sh
+if [ -e ${jobscript} ]; then /bin/rm -f ${jobscript}; fi
+   sed -e "s!JOBHDR!${JOBHDR}!" -e "s!JOBHR!${JOBHR}!" -e "s!JOBMIN!${JOBMIN}!" -e "s!FTPDAY!${FTPDAY}!" -e "s!FTPDATADIR!${FTPDATADIR}!" -e "s!FTPCYCLHR!${FTPCYCLHR}!" -e "s!FTPFLAGUPDATE!${FTPFLAGUPDATE}!" -e "s!FTPFILEHD!${FTPFILEHD}!" -e "s!FTPFILEDESC!${FTPFILEDESC}!" ${basefile} > ${jobscript}
+
+if [ ${flag_ftp} == 'yes' ]; then bsub < ${jobscript}; fi
+fi
+
+exit

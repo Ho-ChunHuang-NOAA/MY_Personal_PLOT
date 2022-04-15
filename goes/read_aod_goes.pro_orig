@@ -1,0 +1,42 @@
+function read_abi_var,filename,var_name, scaled
+   print, filename
+   id = ncdf_open(filename)
+   v_id = ncdf_varid(id, var_name)
+   
+   if (v_id eq -1) then begin
+   print, var_name + " does not exist"
+   return, -1
+   endif
+   
+   long_name = ' '
+   
+   ;ncdf_attget,id, v_id, 'long_name', long_name
+   print, "Getting " + string(var_name)
+   
+   ncdf_varget,id, v_id, unscaled ; stored data
+   test = NCDF_VARINQ(id, v_id)
+   
+   ; now we need to see if 'scale_factor' is any of the attributes
+   
+   num_attr = test.Natts
+   data_type = test.datatype
+   
+   if (scaled eq 1) then begin
+       ncdf_attget,id, v_id, 'scale_factor', scale_factor
+       ncdf_attget,id, v_id, 'add_offset', add_offset
+       ncdf_attget,id, v_id, '_FillValue', Fill_value
+   
+       temp =unscaled
+           unscaled = (temp * scale_factor) + add_offset
+           index = where(temp eq Fill_value, count)
+           if (count gt 0) then unscaled(index) = -999.0
+   endif
+   
+   ncdf_close, id
+   return, unscaled
+end
+pro read_aod,fname,aod,dqf
+   aod=read_abi_var(fname,'AOD',1)
+   dqf=read_abi_var(fname,'DQF',0)
+end
+

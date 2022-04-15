@@ -1,0 +1,59 @@
+function draw_o3_plot(args)
+
+if (args='')
+  prompt 'input arguments gs_dir outdir exp capexp yyyymmdd cycl_hr fcsthr vldhr area'
+  return
+endif
+
+gdir=subwrd(args,1)
+odir=subwrd(args,2)
+run=subwrd(args,3)
+exp=subwrd(args,4)
+days=subwrd(args,5)
+cyclhr=subwrd(args,6)
+fcsthr=subwrd(args,7)
+vldhr=subwrd(args,8)
+area=subwrd(args,9)
+
+* O3=>o3   0 t,z,y,x  (ppmV)
+* CO=>co   0 t,z,y,x  (ppmV)
+* NO=>no   0 t,z,y,x  (ppmV)
+* NO2=>no2   0 t,z,y,x  (ppmV)
+* NOY=>noy   0 t,z,y,x  (ppmV)
+* VOC=>voc   0 t,z,y,x  (ppmC)
+* PM25_TOT=>o3_tot   0 t,z,y,x  (micrograms/m**3)
+* PM25_CL=>o3_cl   0 t,z,y,x  (micrograms/m**3)
+* PM25_EC=>o3_ec   0 t,z,y,x  (micrograms/m**3)
+* PM25_NA=>o3_na   0 t,z,y,x  (micrograms/m**3)
+* PM25_MG=>o3_mg   0 t,z,y,x  (micrograms/m**3)
+* PM25_K=>o3_k   0 t,z,y,x  (micrograms/m**3)
+* PM25_CA=>o3_ca   0 t,z,y,x  (micrograms/m**3)
+* PM25_NH4=>o3_nh4   0 t,z,y,x  (micrograms/m**3)
+* PM25_NO3=>o3_no3   0 t,z,y,x  (micrograms/m**3)
+* PM25_OC=>o3_oc   0 t,z,y,x  (micrograms/m**3)
+* PM25_SOIL=>o3_soil   0 t,z,y,x  (micrograms/m**3)
+* PM25_SO4=>o3_so4   0 t,z,y,x  (micrograms/m**3)
+* PMC_TOT=>pmc_tot   0 t,z,y,x  (micrograms/m**3)
+
+
+if (area='st')
+  xsize=650
+  ysize=400
+else
+  xsize=800
+  ysize=600
+endif
+
+'set z 1'
+'set font 1'
+*'set clevs 1. 9. 12. 15. 18. 35. 55. 100. 200.'
+'set clevs 3  6  9  12 25 35 45 55 65 75 85 95 105'
+'set ccols 79 20 19 18 17  5  3 10  7 12  8  2   6 98'
+'d 1000*o3'
+gdir'/cbar.gs'
+'draw title 'exp' 'days' 'cyclhr'\'vldhr' O3 Total sfc_conc (ppbV)'
+if(area='st')
+'draw.cmaq.box.st.gs'
+endif
+'printim 'odir'/aqm.'area'.'run'.'days'.'cyclhr'.'fcsthr'.o3.k1.gif gif x'xsize' y'ysize' white'
+'c'
