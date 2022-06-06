@@ -78,7 +78,7 @@ run_root=stmp_dir+"/run_python_script"
 if not os.path.exists(run_root):
     os.mkdir(run_root)
 ## working_dir=os.path.join(run_root,envir,sel_var,sel_cyc,start_date)
-working_dir=os.path.join(run_root,envir,start_date)
+working_dir=os.path.join(run_root,envir,start_date,sel_cyc)
 if os.path.exists(working_dir):
     os.chdir(working_dir)
 else:
