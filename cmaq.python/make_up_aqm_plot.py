@@ -25,7 +25,7 @@ print("Script directory is "+script_dir)
 ###     shutil.rmtree(figdir)
 ### os.makedirs(figdir)`
 
-run_root="/gpfs/dell1/stmp/Ho-Chun.Huang/working/run_python"
+run_root="/lfs/h2/emc/stmp/"+user+"/working/run_python"
 working_dir=os.path.join(run_root,envir,sel_var,sel_cyc,start_date)
 if os.path.exists(working_dir):
     shutil.rmtree(working_dir)

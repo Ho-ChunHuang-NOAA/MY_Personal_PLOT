@@ -20,7 +20,7 @@ model="aqm"
 envir = [ "para6" ]
 print("Current location = "+current_dir)
 data_dir="/gpfs/hps3/emc/meso/noscrub/"+user+"/com"
-log_dir="/gpfs/dell1/ptmp/"+user+"/batch_logs"
+log_dir="/lfs/h2/emc/ptmp/"+user+"/batch_logs"
 working_dir="/gpfs/dell2/"+user+"/transfer"
 if not os.path.exists(working_dir):
     os.mkdir(working_dir)
@@ -64,14 +64,14 @@ while date <= edate:
         with open(transfer_file, 'a') as sh:
             root_dir=data_dir+"/"+model+"/"+exp
             sh.write("#!/bin/bash -l\n")
-            sh.write("#BSUB -o "+log_dir+"/"+model+"_"+icnt+"_scp.out\n")
-            sh.write("#BSUB -e "+log_dir+"/"+model+"_"+icnt+"_scp.out\n")
-            sh.write("#BSUB -n 1\n")
-            sh.write("#BSUB -J j"+model+"_"+icnt+"_scp\n")
-            sh.write("#BSUB -q dev_transfer\n")
-            sh.write("#BSUB -P CMAQ-T2O\n")
-            sh.write("#BSUB -W 04:30\n")
-            sh.write("#BSUB -R affinity[core(1)]\n")
+            sh.write("#PBS -o "+log_dir+"/"+model+"_"+icnt+"_scp.out\n")
+            sh.write("#PBS -e "+log_dir+"/"+model+"_"+icnt+"_scp.out\n")
+            sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4GB\n")
+            sh.write("#PBS -N j"+model+"_"+icnt+"_scp\n")
+            sh.write("#PBS -q dev_transfer\n")
+            sh.write("#PBS -A AQM-DEV\n")
+            sh.write("#PBS -l walltime="+task_cpu+"\n")
+            sh.write("# \n")
             sh.write("#BSUB -M 3000\n")
             sh.write("\n")
             ## sh.write("#%include <head.h>\n")
@@ -93,5 +93,5 @@ while date <= edate:
             sh.write("\n")
             sh.write("exit\n")
         print("submit "+transfer_file)
-        subprocess.call(["cat "+transfer_file+" | bsub"], shell=True)
+        subprocess.call(["cat "+transfer_file+" | qsub"], shell=True)
     date = date + date_inc

@@ -72,23 +72,25 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## Current operational CMAQ does include runs for AK and HI domain
 ## Current EMC development CMAQ does not include runs for AK and HI domain
 ##
+aqm_ver="v6.1"
 find_dir=[
-          "/gpfs/hps/nco/ops/com/aqm/"+envir,
-          "/gpfs/hps3/ptmp/Ho-Chun.Huang/com/aqm/"+envir,
-          "/gpfs/hps/ptmp/Ho-Chun.Huang/com/aqm/"+envir,
-          "/gpfs/hps3/ptmp/Ho-Chun.Huang/com/aqm/"+envir+".met",
-          "/gpfs/hps3/emc/meso/noscrub/Ho-Chun.Huang/com/aqm/"+envir,
-          "/gpfs/hps3/emc/naqfc/noscrub/Ho-Chun.Huang/com/aqm/"+envir,
-          "/gpfs/dell2/emc/modeling/noscrub/Ho-Chun.Huang/com/aqm/"+envir
+          "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir,
+          "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir+".met",
+          "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir
          ]
 sub_met_dir=[
-            "aqm."+sdate.strftime(YMD_date_format),
-            "aqm."+sdate.strftime(YMD_date_format)+".met"
+            "cs."+sdate.strftime(YMD_date_format),
+            "cs."+sdate.strftime(YMD_date_format)+".met"
             ]
-metout="/gpfs/hps/nco/ops/com/aqm/prod"
+metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
 flag_find_idir="no"
 for idir in find_dir:
-    comout=idir
+    if envir == "prod":
+        comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
+    elif envir == "ncopara":
+        comout="/lfs/h1/ops/para/com/aqm/"+aqm_ver
+    else:
+        comout=idir
     print("check "+idir)
     flag_find_sdir="no"
     for sdir in sub_met_dir:
@@ -140,7 +142,7 @@ else:
     flag_ak = "no"
     flag_hi = "no"
 
-figout="/gpfs/dell1/stmp/Ho-Chun.Huang"
+figout="/lfs/h2/emc/stmp/"+user
 
 flag_proj="LambertConf"
 if flag_proj == "LambertConf":
@@ -177,7 +179,7 @@ while date <= edate:
         s1_title=envir.upper()+" "+date.strftime(YMD_date_format)+" "+cyc
         fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[1:3]))
 
-        metfilein=metout+"/aqm."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
+        metfilein=metout+"/cs."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
         if os.path.exists(metfilein):
             print(metfilein+" exists")
             model_data = netcdf.Dataset(metfilein)
@@ -188,9 +190,9 @@ while date <= edate:
             print("Can not find "+metfilein)
 
         if subdir_marker == "met":
-            aqmfilein=comout+"/aqm."+date.strftime(YMD_date_format)+"."+subdir_marker+"/aqm."+cyc+".metcro2d.ncf"
+            aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"."+subdir_marker+"/aqm."+cyc+".metcro2d.ncf"
         else:
-            aqmfilein=comout+"/aqm."+date.strftime(YMD_date_format)+"/aqm."+cyc+".metcro2d.ncf"
+            aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cyc+".metcro2d.ncf"
         if os.path.exists(aqmfilein):
             print(aqmfilein+" exists")
             cs_aqm = netcdf.Dataset(aqmfilein)
@@ -213,9 +215,9 @@ while date <= edate:
                 iplot[num_reg-3] = 0
 
             if subdir_marker == "met":
-                aqmfilein=comout+"/AK."+date.strftime(YMD_date_format)+"."+subdir_marker+"/aqm."+cyc+".metcro2d.ncf"
+                aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"."+subdir_marker+"/aqm."+cyc+".metcro2d.ncf"
             else:
-                aqmfilein=comout+"/AK."+date.strftime(YMD_date_format)+"/aqm."+cyc+".metcro2d.ncf"
+                aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/aqm."+cyc+".metcro2d.ncf"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
                 ak_aqm = netcdf.Dataset(aqmfilein)
@@ -243,9 +245,9 @@ while date <= edate:
                 iplot[num_reg-2] = 0
     
             if subdir_marker == "met":
-                aqmfilein=comout+"/HI."+date.strftime(YMD_date_format)+"."+subdir_marker+"/aqm."+cyc+".metcro2d.ncf"
+                aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"."+subdir_marker+"/aqm."+cyc+".metcro2d.ncf"
             else:
-                aqmfilein=comout+"/HI."+date.strftime(YMD_date_format)+"/aqm."+cyc+".metcro2d.ncf"
+                aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/aqm."+cyc+".metcro2d.ncf"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
                 hi_aqm = netcdf.Dataset(aqmfilein)

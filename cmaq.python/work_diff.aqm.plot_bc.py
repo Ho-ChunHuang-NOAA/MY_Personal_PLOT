@@ -94,13 +94,13 @@ if envir1 != envir2:
 
 find_dir=[
           "/gpfs/hps/nco/ops/com/aqm/",
-          "/gpfs/hps3/ptmp/Ho-Chun.Huang/com/aqm/",
-          "/gpfs/hps3/emc/meso/noscrub/Ho-Chun.Huang/com/aqm/",
-          "/gpfs/hps3/emc/naqfc/noscrub/Ho-Chun.Huang/com/aqm/",
-          "/gpfs/dell2/emc/modeling/noscrub/Ho-Chun.Huang/com/aqm/"
+          "/lfs/h2/emc/ptmp/"+user+"/com/aqm/",
+          "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/",
+          "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/",
+          "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"
          ]
-metout1="/gpfs/hps/nco/ops/com/aqm/prod"
-metout2="/gpfs/hps/nco/ops/com/aqm/prod"
+metout1="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
+metout2="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
 flag_find_idir="no"
 for idir in find_dir:
     comout1=idir+envir1
@@ -108,7 +108,7 @@ for idir in find_dir:
     flag_find_cyc="yes"
     for cyc in cycle:
         check_file="aqm."+cyc+".aconc_sfc.ncf"
-        aqmfilein=comout1+"/aqm."+sdate.strftime(YMD_date_format)+"/"+check_file
+        aqmfilein=comout1+"/cs."+sdate.strftime(YMD_date_format)+"/"+check_file
         if os.path.exists(aqmfilein):
             print(aqmfilein+" exists")
         else:
@@ -138,8 +138,8 @@ for idir in find_dir:
     for cyc in cycle:
         check_file1="ozone.corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
         check_file2="pm2.5.corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
-        aqmfilein1=comout2+"/aqm."+sdate.strftime(YMD_date_format)+"/"+check_file1
-        aqmfilein2=comout2+"/aqm."+sdate.strftime(YMD_date_format)+"/"+check_file2
+        aqmfilein1=comout2+"/cs."+sdate.strftime(YMD_date_format)+"/"+check_file1
+        aqmfilein2=comout2+"/cs."+sdate.strftime(YMD_date_format)+"/"+check_file2
         if os.path.exists(aqmfilein1) and os.path.exists(aqmfilein2):
             print(aqmfilein1+" exists")
             print(aqmfilein2+" exists")
@@ -160,7 +160,7 @@ if envir2 != "prod":
     flag_ak = "no"
     flag_hi = "no"
 
-figout="/gpfs/dell1/stmp/Ho-Chun.Huang"
+figout="/lfs/h2/emc/stmp/"+user
 
 sys.exit()
 
@@ -198,7 +198,7 @@ while date <= edate:
         s1_title=title_id+" "+date.strftime(YMD_date_format)+" "+cyc
         fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[1:3]))
 
-        metfilein=metout1+"/aqm."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
+        metfilein=metout1+"/cs."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
         if os.path.exists(metfilein):
             print(metfilein+" exists")
             model_data = netcdf.Dataset(metfilein)
@@ -208,7 +208,7 @@ while date <= edate:
         else:
             print("Can not find "+metfilein)
 
-        aqmfilein=comout1+"/aqm."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
+        aqmfilein=comout1+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
         if os.path.exists(aqmfilein):
             print(aqmfilein+" exists")
             cs_aqm = netcdf.Dataset(aqmfilein)
@@ -221,7 +221,7 @@ while date <= edate:
                     pm_cs1 = cs_aqm.variables['PM25_TOT'][:,0,:,:]
             cs_aqm.close()
         else:
-            aqmfilein=usrout1+"/aqm."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
+            aqmfilein=usrout1+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
                 cs_aqm = netcdf.Dataset(aqmfilein)
@@ -237,7 +237,7 @@ while date <= edate:
                 print("Can not find "+aqmfilein)
                 sys.exit()
 
-        model_filein=comout2+"/aqm."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+        model_filein=comout2+"/cs."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
         if os.path.exists(model_filein):
             print(model_filein+" exists")
             model_data = netcdf.Dataset(model_filein)
@@ -246,7 +246,7 @@ while date <= edate:
             o3_cs2  = model_data.variables['O3'][:,0,:,:] * 1000.
             model_data.close()
         else:
-            model_filein=usrout2+"/aqm."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+            model_filein=usrout2+"/cs."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
             if os.path.exists(model_filein):
                 print(model_filein+" exists")
                 model_data = netcdf.Dataset(model_filein)
@@ -258,7 +258,7 @@ while date <= edate:
                 print("Can not find "+model_filein)
                 sys.exit()
 
-        model_filein=comout2+"/aqm."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+        model_filein=comout2+"/cs."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
         if os.path.exists(model_filein):
             print(model_filein+" exists")
             model_data = netcdf.Dataset(model_filein)
@@ -267,7 +267,7 @@ while date <= edate:
             pm_cs2 = model_data.variables['pm25'][:,0,:,:]
             model_data.close()
         else:
-            model_filein=usrout2+"/aqm."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+            model_filein=usrout2+"/cs."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
             if os.path.exists(model_filein):
                 print(model_filein+" exists")
                 model_data = netcdf.Dataset(model_filein)
@@ -290,7 +290,7 @@ while date <= edate:
             else:
                 print("Can not find "+metfilein)
     
-            aqmfilein=comout1+"/AK."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
+            aqmfilein=comout1+"/ak."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
                 ak_aqm = netcdf.Dataset(aqmfilein)
@@ -306,7 +306,7 @@ while date <= edate:
                         pm_ak1 = ak_aqm.variables['PM25_TOT'][:,0,:,:]
                 ak_aqm.close()
             else:
-                aqmfilein=usrout1+"/AK."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
+                aqmfilein=usrout1+"/ak."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
                     ak_aqm = netcdf.Dataset(aqmfilein)
@@ -325,7 +325,7 @@ while date <= edate:
                     print("Can not find "+aqmfilein)
                     sys.exit()
     
-            model_filein=comout2+"/AK."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+            model_filein=comout2+"/ak."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
             if os.path.exists(model_filein):
                 print(model_filein+" exists")
                 model_data = netcdf.Dataset(model_filein)
@@ -334,7 +334,7 @@ while date <= edate:
                 o3_ak2  = model_data.variables['O3'][:,0,:,:] * 1000.
                 model_data.close()
             else:
-                model_filein=usrout2+"/AK."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                model_filein=usrout2+"/ak."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
                 if os.path.exists(model_filein):
                     print(model_filein+" exists")
                     model_data = netcdf.Dataset(model_filein)
@@ -346,7 +346,7 @@ while date <= edate:
                     print("Can not find "+model_filein)
                     sys.exit()
         
-            model_filein=comout2+"/AK."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+            model_filein=comout2+"/ak."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
             if os.path.exists(model_filein):
                 print(model_filein+" exists")
                 model_data = netcdf.Dataset(model_filein)
@@ -355,7 +355,7 @@ while date <= edate:
                 pm_ak2 = model_data.variables['pm25'][:,0,:,:]
                 model_data.close()
             else:
-                model_filein=usrout2+"/AK."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                model_filein=usrout2+"/ak."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
                 if os.path.exists(model_filein):
                     print(model_filein+" exists")
                     model_data = netcdf.Dataset(model_filein)
@@ -378,7 +378,7 @@ while date <= edate:
             else:
                 print("Can not find "+metfilein)
     
-            aqmfilein=comout1+"/HI."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
+            aqmfilein=comout1+"/hi."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
                 hi_aqm = netcdf.Dataset(aqmfilein)
@@ -395,7 +395,7 @@ while date <= edate:
                         pm_hi2 = hi_aqm.variables['PM25_TOT'][:,0,:,:]
                 hi_aqm.close()
             else:
-                aqmfilein=usrout1+"/HI."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
+                aqmfilein=usrout1+"/hi."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
                     hi_aqm = netcdf.Dataset(aqmfilein)
@@ -415,7 +415,7 @@ while date <= edate:
                     print("Can not find "+aqmfilein)
                     sys.exit()
     
-            model_filein=comout2+"/HI."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+            model_filein=comout2+"/hi."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
             if os.path.exists(model_filein):
                 print(model_filein+" exists")
                 model_data = netcdf.Dataset(model_filein)
@@ -424,7 +424,7 @@ while date <= edate:
                 o3_hi2  = model_data.variables['O3'][:,0,:,:] * 1000.
                 model_data.close()
             else:
-                model_filein=usrout2+"/HI."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                model_filein=usrout2+"/hi."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
                 if os.path.exists(model_filein):
                     print(model_filein+" exists")
                     model_data = netcdf.Dataset(model_filein)
@@ -436,7 +436,7 @@ while date <= edate:
                     print("Can not find "+model_filein)
                     sys.exit()
         
-            model_filein=comout2+"/HI."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+            model_filein=comout2+"/hi."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
             if os.path.exists(model_filein):
                 print(model_filein+" exists")
                 model_data = netcdf.Dataset(model_filein)
@@ -445,7 +445,7 @@ while date <= edate:
                 pm_hi2 = model_data.variables['pm25'][:,0,:,:]
                 model_data.close()
             else:
-                model_filein=usrout2+"/HI."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                model_filein=usrout2+"/hi."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
                 if os.path.exists(model_filein):
                     print(model_filein+" exists")
                     model_data = netcdf.Dataset(model_filein)

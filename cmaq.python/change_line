@@ -24,7 +24,7 @@ else:
     print("System name not defined for this script")
     sys.exit()
 
-1,$s/"\/gpfs\/dell1\/stmp\/Ho-Chun.Huang"/stmp_dir/g
+1,$s/"\/gpfs\/dell1\/stmp\/${USER}"/stmp_dir/g
 
 run_root=stmp_dir+"/run_python_script"
 if not os.path.exists(run_root):

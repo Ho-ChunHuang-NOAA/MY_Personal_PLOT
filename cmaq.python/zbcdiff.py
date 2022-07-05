@@ -29,12 +29,12 @@ else:
     start_date = sys.argv[4]
     end_date = sys.argv[5]
 
-## set proper stmp and ptmp location.  can not access /gpfs/dell1 and  /gpfs/dell3 on production machine
-working_dir="/gpfs/dell2/stmp/"+user
+## set proper stmp and ptmp location.
+working_dir="/lfs/h2/emc/stmp/"+user
 if not os.path.exists(working_dir):
     os.mkdir(working_dir)
 
-working_dir="/gpfs/dell2/stmp/"+user+"/test"
+working_dir="/lfs/h2/emc/stmp/"+user+"/test"
 if not os.path.exists(working_dir):
     os.mkdir(working_dir)
 
@@ -49,19 +49,19 @@ if os.path.isfile(msg_file):
 if dev_machine != "":
     if site.lower() == dev_machine.lower():
         print("DEV machine is "+dev_machine+"  Current machine is develop machine")
-        stmp_dir="/gpfs/dell1/stmp/"+user
+        stmp_dir="/lfs/h2/emc/stmp/"+user
         if not os.path.exists(stmp_dir):
             os.mkdir(stmp_dir)
-        ptmp_dir="/gpfs/dell1/ptmp/"+user
+        ptmp_dir="/lfs/h2/emc/ptmp/"+user
         if not os.path.exists(ptmp_dir):
             os.mkdir(ptmp_dir)
         log_dir=ptmp_dir+"/batch_logs"
     else:
         print("DEV machine is "+dev_machine+"  Current machine is production machine")
-        stmp_dir="/gpfs/dell2/stmp/"+user
+        stmp_dir="/lfs/h2/emc/stmp/"+user
         if not os.path.exists(stmp_dir):
             os.mkdir(stmp_dir)
-        ptmp_dir="/gpfs/dell2/ptmp/"+user
+        ptmp_dir="/lfs/h2/emc/ptmp/"+user
         if not os.path.exists(ptmp_dir):
             os.mkdir(ptmp_dir)
         log_dir=ptmp_dir+"/batch_logs"

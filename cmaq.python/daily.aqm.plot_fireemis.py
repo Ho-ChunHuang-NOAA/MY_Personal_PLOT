@@ -17,17 +17,6 @@ import shutil
 import subprocess
 ### Read data of all time step in once, then print one at a time
 ### PASSED AGRUEMENTS
-user=os.environ['USER']
-site=os.environ['SITE']
-current_dir=os.getcwd()
-if site.upper() == 'MARS':
-    remote="venus"
-elif site.upper() == 'VENUS':
-    remote="mars"
-else:
-    print("System name not defined for this script")
-    sys.exit()
-
 if len(sys.argv) < 5:
     print("# arguments ="+str(len(sys.argv)))
     print("you must set 4 arguments as model[prod|para|...] cycle[06|12|all]  start_date end_date")
@@ -43,44 +32,57 @@ if envir.lower() == "para":
 else:
     fig_exp=envir.lower()
 
-## set proper stmp and ptmp location.  can not access /gpfs/dell1 and  /gpfs/dell3 on production machine
-working_dir="/gpfs/dell2/stmp/"+user
-if not os.path.exists(working_dir):
-    os.mkdir(working_dir)
+script_dir=os.getcwd()
+print("Script directory is "+script_dir)
 
-working_dir="/gpfs/dell2/stmp/"+user+"/test"
-if not os.path.exists(working_dir):
-    os.mkdir(working_dir)
+user=os.environ['USER']
+
+stmp_dir="/lfs/h2/emc/stmp/"+user
+if not os.path.exists(stmp_dir):
+    os.mkdir(stmp_dir)
+
+ptmp_dir="/lfs/h2/emc/ptmp/"+user
+if not os.path.exists(ptmp_dir):
+    os.mkdir(ptmp_dir)
+
+log_dir=ptmp_dir+"/batch_logs"
+if not os.path.exists(log_dir):
+    os.mkdir(log_dir)
+
+working_dir=stmp_dir+"/aqm_plot_working"
+if os.path.exists(working_dir):
+    os.chdir(working_dir)
+else:
+    os.makedirs(working_dir)
+    os.chdir(working_dir)
 
 msg_file=working_dir+"/devmachine"
-subprocess.call(["cat /etc/dev > "+msg_file], shell=True)
+subprocess.call(["cat /etc/cluster_name > "+msg_file], shell=True)
 if os.path.isfile(msg_file):
     with open(msg_file, 'r') as sh:
         line=sh.readline()
         dev_machine=line.rstrip()
-    sh.close()
+        print("currently on "+dev_machine)
+        sh.close()
 
-if dev_machine != "":
-    if site.lower() == dev_machine.lower():
-        print("DEV machine is "+dev_machine+"  Current machine is develop machine")
-        stmp_dir="/gpfs/dell1/stmp/"+user
-        if not os.path.exists(stmp_dir):
-            os.mkdir(stmp_dir)
-        ptmp_dir="/gpfs/dell1/ptmp/"+user
-        if not os.path.exists(ptmp_dir):
-            os.mkdir(ptmp_dir)
-        log_dir=ptmp_dir+"/batch_logs"
-    else:
-        print("DEV machine is "+dev_machine+"  Current machine is production machine")
-        stmp_dir="/gpfs/dell2/stmp/"+user
-        if not os.path.exists(stmp_dir):
-            os.mkdir(stmp_dir)
-        ptmp_dir="/gpfs/dell2/ptmp/"+user
-        if not os.path.exists(ptmp_dir):
-            os.mkdir(ptmp_dir)
-        log_dir=ptmp_dir+"/batch_logs"
-if not os.path.exists(log_dir):
-    os.mkdir(log_dir)
+msg_file=working_dir+"/prodmachine"
+subprocess.call(["cat /lfs/h1/ops/prod/config/prodmachinefile > "+msg_file], shell=True)
+if os.path.isfile(msg_file):
+    with open(msg_file, 'r') as sh:
+        prod_machine="99"
+        line=sh.readline()
+        line1=line.rstrip()
+        abc=line1.split(':')
+        if abc[0] == 'primary':
+            prod_machine=abc[1]
+        else:
+            line=sh.readline()
+            line1=line.rstrip()
+            abc=line1.split(':')
+            if abc[0] == 'primary':
+                prod_machine=abc[1]
+        print(prod_machine)
+        sh.close()
 
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]))
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]))
@@ -131,15 +133,13 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## Current operational CMAQ does include runs for AK and HI domain
 ## Current EMC development CMAQ does not include runs for AK and HI domain
 ##
+aqm_ver="v6.1"
 find_dir=[
-          "/gpfs/hps/nco/ops/com/aqm/"+envir,
-          "/gpfs/hps3/ptmp/Ho-Chun.Huang/com/aqm/"+envir,
-          "/gpfs/hps/ptmp/Ho-Chun.Huang/com/aqm/"+envir,
-          "/gpfs/hps3/emc/meso/noscrub/Ho-Chun.Huang/com/aqm/"+envir,
-          "/gpfs/hps3/emc/naqfc/noscrub/Ho-Chun.Huang/com/aqm/"+envir,
-          "/gpfs/dell2/emc/modeling/noscrub/Ho-Chun.Huang/com/aqm/"+envir
+          "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
+          "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir,
+          "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir
          ]
-metout="/gpfs/hps/nco/ops/com/aqm/prod"
+metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
 
 figout=stmp_dir
 
@@ -173,7 +173,7 @@ while date <= edate:
         flag_find_cyc="yes"
         for cyc in cycle:
             check_file="aqm."+cyc+".fireemis.d1.ncf"
-            aqmfilein=comout+"/aqm."+date.strftime(YMD_date_format)+"/"+check_file
+            aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
             else:
@@ -193,7 +193,7 @@ while date <= edate:
         flag_ak = "yes"
         for cyc in cycle:
             check_file="aqm."+cyc+".fireemis.d1.ncf"
-            aqmfilein=comout+"/AK."+date.strftime(YMD_date_format)+"/"+check_file
+            aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+check_file
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
             else:
@@ -203,7 +203,7 @@ while date <= edate:
         flag_hi = "yes"
         for cyc in cycle:
             check_file="aqm."+cyc+".fireemis.d1.ncf"
-            aqmfilein=comout+"/HI."+date.strftime(YMD_date_format)+"/"+check_file
+            aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+check_file
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
             else:
@@ -226,7 +226,7 @@ while date <= edate:
         s1_title=fig_exp.upper()+" "+date.strftime(YMD_date_format)+" "+cyc
         fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[1:3]))
 
-        metfilein=metout+"/aqm."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
+        metfilein=metout+"/cs."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
         if os.path.exists(metfilein):
             print(metfilein+" exists")
             model_data = netcdf.Dataset(metfilein)
@@ -236,7 +236,7 @@ while date <= edate:
         else:
             print("Can not find "+metfilein)
 
-        aqmfilein=comout+"/aqm."+date.strftime(YMD_date_format)+"/aqm."+cyc+".fireemis.d1.ncf"
+        aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cyc+".fireemis.d1.ncf"
         if os.path.exists(aqmfilein):
             print(aqmfilein+" exists")
             cs_aqm = netcdf.Dataset(aqmfilein)
@@ -258,7 +258,7 @@ while date <= edate:
                 flag_ak = "no"
                 iplot[num_reg-3] = 0
 
-            aqmfilein=comout+"/AK."+date.strftime(YMD_date_format)+"/aqm."+cyc+".fireemis.d1.ncf"
+            aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/aqm."+cyc+".fireemis.d1.ncf"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
                 ak_aqm = netcdf.Dataset(aqmfilein)
@@ -285,7 +285,7 @@ while date <= edate:
                 flag_hi = "no"
                 iplot[num_reg-2] = 0
     
-            aqmfilein=comout+"/HI."+date.strftime(YMD_date_format)+"/aqm."+cyc+".fireemis.d1.ncf"
+            aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/aqm."+cyc+".fireemis.d1.ncf"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
                 hi_aqm = netcdf.Dataset(aqmfilein)

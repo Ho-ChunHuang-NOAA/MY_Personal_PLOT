@@ -81,13 +81,13 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## Current EMC development CMAQ does not include runs for AK and HI domain
 ##
 find_dir=[
-          "/gpfs/hps/nco/ops/com/aqm/"+envir,
-          "/gpfs/hps3/ptmp/Ho-Chun.Huang/com/aqm/"+envir,
-          "/gpfs/hps3/emc/meso/noscrub/Ho-Chun.Huang/com/aqm/"+envir,
-          "/gpfs/hps3/emc/naqfc/noscrub/Ho-Chun.Huang/com/aqm/"+envir,
-          "/gpfs/dell2/emc/modeling/noscrub/Ho-Chun.Huang/com/aqm/"+envir
+          "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
+          "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir,
+          "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir,
+          "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir,
+          "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir
          ]
-metout="/gpfs/hps/nco/ops/com/aqm/prod"
+metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
 if envir == "prod" or envir == "para6x" or envir == "para6b":
     flag_find_idir="no"
     for idir in find_dir:
@@ -96,7 +96,7 @@ if envir == "prod" or envir == "para6x" or envir == "para6b":
         for cyc in cycle:
             comout=idir
             check_file="aqm."+cyc+".aconc_sfc.ncf"
-            aqmfilein=comout+"/aqm."+sdate.strftime(YMD_date_format)+"/"+check_file
+            aqmfilein=comout+"/cs."+sdate.strftime(YMD_date_format)+"/"+check_file
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
             else:
@@ -120,7 +120,7 @@ else:
         for cyc in cycle:
             comout=idir
             check_file="aqm."+cyc+".aconc_sfc.ncf"
-            aqmfilein=comout+"/aqm."+sdate.strftime(YMD_date_format)+"/"+check_file
+            aqmfilein=comout+"/cs."+sdate.strftime(YMD_date_format)+"/"+check_file
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
             else:

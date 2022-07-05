@@ -7,17 +7,6 @@ import netCDF4 as netcdf
 import logging
 import datetime
 
-user=os.environ['USER']
-site=os.environ['SITE']
-current_dir=os.getcwd()
-if site.upper() == 'MARS':
-    remote="venus"
-elif site.upper() == 'VENUS':
-    remote="mars"
-else:
-    print("System name not defined for this script")
-    sys.exit()
-
 ### PASSED AGRUEMENTS
 if len(sys.argv) < 5:
     print("you must set 5 arguments as model[prod|para|...] cycle[06|12|all]  start_date end_date")
@@ -29,51 +18,57 @@ else:
     start_date = sys.argv[3]
     end_date = sys.argv[4]
 
-## set proper stmp and ptmp location.  can not access /gpfs/dell1 and  /gpfs/dell3 on production machine
-working_dir="/gpfs/dell2/stmp/"+user
-if not os.path.exists(working_dir):
-    os.mkdir(working_dir)
+script_dir=os.getcwd()
+print("Script directory is "+script_dir)
 
-working_dir="/gpfs/dell2/stmp/"+user+"/test"
-if not os.path.exists(working_dir):
-    os.mkdir(working_dir)
+user=os.environ['USER']
+
+stmp_dir="/lfs/h2/emc/stmp/"+user
+if not os.path.exists(stmp_dir):
+    os.mkdir(stmp_dir)
+
+ptmp_dir="/lfs/h2/emc/ptmp/"+user
+if not os.path.exists(ptmp_dir):
+    os.mkdir(ptmp_dir)
+
+log_dir=ptmp_dir+"/batch_logs"
+if not os.path.exists(log_dir):
+    os.mkdir(log_dir)
+
+working_dir=stmp_dir+"/aqm_plot_working"
+if os.path.exists(working_dir):
+    os.chdir(working_dir)
+else:
+    os.makedirs(working_dir)
+    os.chdir(working_dir)
 
 msg_file=working_dir+"/devmachine"
-subprocess.call(["cat /etc/dev > "+msg_file], shell=True)
+subprocess.call(["cat /etc/cluster_name > "+msg_file], shell=True)
 if os.path.isfile(msg_file):
     with open(msg_file, 'r') as sh:
         line=sh.readline()
         dev_machine=line.rstrip()
-    sh.close()
+        print("currently on "+dev_machine)
+        sh.close()
 
-if dev_machine != "":
-    if site.lower() == dev_machine.lower():
-        print("DEV machine is "+dev_machine+"  Current machine is develop machine")
-        stmp_dir="/gpfs/dell1/stmp/"+user
-        if not os.path.exists(stmp_dir):
-            os.mkdir(stmp_dir)
-        ptmp_dir="/gpfs/dell1/ptmp/"+user
-        if not os.path.exists(ptmp_dir):
-            os.mkdir(ptmp_dir)
-        log_dir=ptmp_dir+"/batch_logs"
-    else:
-        print("DEV machine is "+dev_machine+"  Current machine is production machine")
-        stmp_dir="/gpfs/dell2/stmp/"+user
-        if not os.path.exists(stmp_dir):
-            os.mkdir(stmp_dir)
-        ptmp_dir="/gpfs/dell2/ptmp/"+user
-        if not os.path.exists(ptmp_dir):
-            os.mkdir(ptmp_dir)
-        log_dir=ptmp_dir+"/batch_logs"
-if not os.path.exists(log_dir):
-    os.mkdir(log_dir)
-
-script_dir=os.getcwd()
-print("Script directory is "+script_dir)
-
-### if os.path.exists(figdir):
-###     shutil.rmtree(figdir)
-### os.makedirs(figdir)`
+msg_file=working_dir+"/prodmachine"
+subprocess.call(["cat /lfs/h1/ops/prod/config/prodmachinefile > "+msg_file], shell=True)
+if os.path.isfile(msg_file):
+    with open(msg_file, 'r') as sh:
+        prod_machine="99"
+        line=sh.readline()
+        line1=line.rstrip()
+        abc=line1.split(':')
+        if abc[0] == 'primary':
+            prod_machine=abc[1]
+        else:
+            line=sh.readline()
+            line1=line.rstrip()
+            abc=line1.split(':')
+            if abc[0] == 'primary':
+                prod_machine=abc[1]
+        print(prod_machine)
+        sh.close()
 
 run_root=stmp_dir+"/run_python_script"
 if not os.path.exists(run_root):

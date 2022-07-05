@@ -17,17 +17,6 @@ import shutil
 import subprocess
 ### Read data of all time step in once, then print one at a time
 ### PASSED AGRUEMENTS
-user=os.environ['USER']
-site=os.environ['SITE']
-current_dir=os.getcwd()
-if site.upper() == 'MARS':
-    remote="venus"
-elif site.upper() == 'VENUS':
-    remote="mars"
-else:
-    print("System name not defined for this script")
-    sys.exit()
-
 if len(sys.argv) < 5:
     print("you must set 5 arguments as model[prod|para|...] variabels[o3|pm25|all] cycle[06|12|all]  start_date end_date")
     sys.exit()
@@ -43,44 +32,57 @@ if envir.lower() == "para":
 else:
     fig_exp=envir.lower()
 
-## set proper stmp and ptmp location.  can not access /gpfs/dell1 and  /gpfs/dell3 on production machine
-working_dir="/gpfs/dell2/stmp/"+user
-if not os.path.exists(working_dir):
-    os.mkdir(working_dir)
+script_dir=os.getcwd()
+print("Script directory is "+script_dir)
 
-working_dir="/gpfs/dell2/stmp/"+user+"/test"
-if not os.path.exists(working_dir):
-    os.mkdir(working_dir)
+user=os.environ['USER']
+
+stmp_dir="/lfs/h2/emc/stmp/"+user
+if not os.path.exists(stmp_dir):
+    os.mkdir(stmp_dir)
+
+ptmp_dir="/lfs/h2/emc/ptmp/"+user
+if not os.path.exists(ptmp_dir):
+    os.mkdir(ptmp_dir)
+
+log_dir=ptmp_dir+"/batch_logs"
+if not os.path.exists(log_dir):
+    os.mkdir(log_dir)
+
+working_dir=stmp_dir+"/aqm_plot_working"
+if os.path.exists(working_dir):
+    os.chdir(working_dir)
+else:
+    os.makedirs(working_dir)
+    os.chdir(working_dir)
 
 msg_file=working_dir+"/devmachine"
-subprocess.call(["cat /etc/dev > "+msg_file], shell=True)
+subprocess.call(["cat /etc/cluster_name > "+msg_file], shell=True)
 if os.path.isfile(msg_file):
     with open(msg_file, 'r') as sh:
         line=sh.readline()
         dev_machine=line.rstrip()
-    sh.close()
+        print("currently on "+dev_machine)
+        sh.close()
 
-if dev_machine != "":
-    if site.lower() == dev_machine.lower():
-        print("DEV machine is "+dev_machine+"  Current machine is develop machine")
-        stmp_dir="/gpfs/dell1/stmp/"+user
-        if not os.path.exists(stmp_dir):
-            os.mkdir(stmp_dir)
-        ptmp_dir="/gpfs/dell1/ptmp/"+user
-        if not os.path.exists(ptmp_dir):
-            os.mkdir(ptmp_dir)
-        log_dir=ptmp_dir+"/batch_logs"
-    else:
-        print("DEV machine is "+dev_machine+"  Current machine is production machine")
-        stmp_dir="/gpfs/dell2/stmp/"+user
-        if not os.path.exists(stmp_dir):
-            os.mkdir(stmp_dir)
-        ptmp_dir="/gpfs/dell2/ptmp/"+user
-        if not os.path.exists(ptmp_dir):
-            os.mkdir(ptmp_dir)
-        log_dir=ptmp_dir+"/batch_logs"
-if not os.path.exists(log_dir):
-    os.mkdir(log_dir)
+msg_file=working_dir+"/prodmachine"
+subprocess.call(["cat /lfs/h1/ops/prod/config/prodmachinefile > "+msg_file], shell=True)
+if os.path.isfile(msg_file):
+    with open(msg_file, 'r') as sh:
+        prod_machine="99"
+        line=sh.readline()
+        line1=line.rstrip()
+        abc=line1.split(':')
+        if abc[0] == 'primary':
+            prod_machine=abc[1]
+        else:
+            line=sh.readline()
+            line1=line.rstrip()
+            abc=line1.split(':')
+            if abc[0] == 'primary':
+                prod_machine=abc[1]
+        print(prod_machine)
+        sh.close()
 
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]))
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]))
@@ -135,17 +137,13 @@ msg=datetime.datetime.now()
 msg=msg - date_inc
 grdcro2d_date=msg.strftime("%Y%m%d")
 
-metout="/gpfs/hps/nco/ops/com/aqm/prod"
-
+aqm_ver="v6.1"
 find_dir=[
-          "/gpfs/hps/nco/ops/com/aqm/"+envir,
-          "/gpfs/hps3/ptmp/Ho-Chun.Huang/com/aqm/"+envir,
-          "/gpfs/hps/ptmp/Ho-Chun.Huang/com/aqm/"+envir,
-          "/gpfs/hps3/emc/meso/noscrub/Ho-Chun.Huang/com/aqm/"+envir,
-          "/gpfs/hps3/emc/naqfc/noscrub/Ho-Chun.Huang/com/aqm/"+envir,
-          "/gpfs/dell2/emc/modeling/noscrub/Ho-Chun.Huang/com/aqm/"+envir
+          "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
+          "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir,
+          "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir
          ]
-metout="/gpfs/hps/nco/ops/com/aqm/prod"
+metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
 
 if envir == "prod" or envir == "para6x" or envir == "para6b":
     flag_ak = "no"
@@ -191,7 +189,7 @@ while date <= edate:
                     check_file="ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
                 elif var[ivar] == "pm25":
                     check_file="pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
-                aqmfilein=comout+"/aqm."+date.strftime(YMD_date_format)+"/"+check_file
+                aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
                 else:
@@ -223,7 +221,7 @@ while date <= edate:
         s1_title=fig_exp.upper()+"_BC "+date.strftime(YMD_date_format)+" "+cyc
         fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[1:3]))
 
-        metfilein=metout+"/aqm."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
+        metfilein=metout+"/cs."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
         if os.path.exists(metfilein):
             print(metfilein+" exists")
             model_data = netcdf.Dataset(metfilein)
@@ -235,7 +233,7 @@ while date <= edate:
 
         for ivar in range(0,num_var):
             if var[ivar] == "o3":
-                model_filein=comout+"/aqm."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                model_filein=comout+"/cs."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
                 if os.path.exists(model_filein):
                     print(model_filein+" exists")
                     model_data = netcdf.Dataset(model_filein)
@@ -246,7 +244,7 @@ while date <= edate:
                     print("Can not find "+model_filein)
                     sys.exit()
             elif var[ivar] == "pm25":
-                model_filein=comout+"/aqm."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                model_filein=comout+"/cs."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
                 if os.path.exists(model_filein):
                     print(model_filein+" exists")
                     model_data = netcdf.Dataset(model_filein)
@@ -258,7 +256,7 @@ while date <= edate:
                     sys.exit()
             if flag_ak == "yes":
                 if var[ivar] == "o3":
-                    model_filein=comout+"/AK."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                    model_filein=comout+"/ak."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
                     if os.path.exists(model_filein):
                         print(model_filein+" exists")
                         model_data = netcdf.Dataset(model_filein)
@@ -270,7 +268,7 @@ while date <= edate:
                         flag_ak = "no"
                         iplot[num_reg-3] = 0
                 elif var[ivar] == "pm25":
-                    model_filein=comout+"/AK."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                    model_filein=comout+"/ak."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
                     if os.path.exists(model_filein):
                         print(model_filein+" exists")
                         model_data = netcdf.Dataset(model_filein)
@@ -283,7 +281,7 @@ while date <= edate:
                         iplot[num_reg-3] = 0
             if flag_hi == "yes":
                 if var[ivar] == "o3":
-                    model_filein=comout+"/HI."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                    model_filein=comout+"/hi."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
                     if os.path.exists(model_filein):
                         print(model_filein+" exists")
                         model_data = netcdf.Dataset(model_filein)
@@ -295,7 +293,7 @@ while date <= edate:
                         iplot[num_reg-2] = 0
                         flag_hi = "no"
                 elif var[ivar] == "pm25":
-                    model_filein=comout+"/HI."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                    model_filein=comout+"/hi."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
                     if os.path.exists(model_filein):
                         print(model_filein+" exists")
                         model_data = netcdf.Dataset(model_filein)

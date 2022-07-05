@@ -85,6 +85,8 @@ else:
     start_date = sys.argv[2]
     end_date = sys.argv[3]
 
+user=os.environ['USER']
+
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]), 00)
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]), 23)
 date_inc = datetime.timedelta(hours=24)
@@ -111,7 +113,7 @@ lat0_ref=[40.,   0.,   24.,     24.,  30.,  37.,   38.,  38.,   24.,   52.,  18.
 lat1_ref=[70.,   70.,  50.,     38.,  45.,  48.,   52.,  52.,   40.,   72.,  23.,  50.,     54.5]
 lon0_ref=[ -141., -141.,  -124.,   -95., -125, -82, -125.,-105., -105., -170.,-161.,-100.,     -128. ]
 lon1_ref=[  -60., -60.,   -70.,    -79., -105.,-67.,-103.,-85.,  -85.,  -130.,-154.,-65.,     -90. ]
-figdir="/gpfs/dell1/stmp/Ho-Chun.Huang"
+figdir="/lfs/h2/emc/stmp/"+user
 ##title = [ "dset", "conus", "east us", "west us", "ne us", "nw us", "se us", "sw us", "alaska", "hawaii", "us-can" ] 
 reg = [   "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "mds",   "ak",   "hi",  "can" ] 
 rlon0 = [ -175.0, -124.0,  -100.0, -128.0,  -82.0, -125.0,  -95.0, -125.0, -105.0, -105.0, -170.0, -161.0, -141.0 ]
@@ -122,11 +124,11 @@ iplot = [      1,      1,       1,      1,      1,      1,      1,      1,      
 ##iplot = [      0,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0 ]
 ilen=len(iplot)
 print("iplot length = "+str(ilen))
-datadir = '/gpfs/dell2/emc/modeling/noscrub/Ho-Chun.Huang/aod_smoke/fire_prod'
-datadir1 = "/gpfs/hps3/ptmp/Ho-Chun.Huang/com/aqm/"+envir
-datadir2 = "/gpfs/hps3/emc/meso/noscrub/Ho-Chun.Huang/com/aqm/"+envir
-datadir3="/gpfs/dell1/ptmp/Ho-Chun.Huang/com/aqm/"+envir,
-working_dir="/gpfs/dell1/stmp/Ho-Chun.Huang/working/gbbepx/"+envir
+datadir = '/lfs/h2/emc/physics/noscrub/${USER}/aod_smoke/fire_prod'
+datadir1 = "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir
+datadir2 = "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir
+datadir3="/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir,
+working_dir="/lfs/h2/emc/stmp/"+user+"/working/gbbepx/"+envir
 model="aqm"
 date = sdate
 while date <= edate:

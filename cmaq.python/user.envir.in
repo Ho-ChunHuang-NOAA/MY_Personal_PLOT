@@ -1,0 +1,2 @@
+user=os.environ['USER']
+

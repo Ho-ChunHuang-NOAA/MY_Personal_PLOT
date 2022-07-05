@@ -1,70 +1,3 @@
-# mark a known place to help us geo-locate ourselves
-## Markers
-## ========================================
-## character      description
-## ========================================
-## '.'            point marker
-## ','            pixel marker
-## 'o'            circle marker
-## 'v'            triangle_down marker
-## '^'            triangle_up marker
-## '<'            triangle_left marker
-## '>'            triangle_right marker
-## '1'            tri_down marker
-## '2'            tri_up marker
-## '3'            tri_left marker
-## '4'            tri_right marker
-## 's'            square marker
-## 'p'            pentagon marker
-## '*'            star marker
-## 'h'            hexagon1 marker
-## 'H'            hexagon2 marker
-## '+'            plus marker
-## 'x'            x marker
-## 'D'            diamond marker
-## 'd'            thin_diamond marker
-## '|'            vline marker
-## '_'            hline marker
-## 
-## Line Styles
-## ========================================
-## character      description
-## ========================================
-## '-'            solid line style
-## '--'           dashed line style
-## '-.'           dash-dot line style
-## ':'            dotted line style
-## 
-## Example format strings:
-## 
-## 'b'    # blue markers with default shape
-## 'or'   # red circles
-## '-g'   # green solid line
-## '--'   # dashed line with default color
-## '^k:'  # black triangle_up markers connected by a dotted line
-## 
-## Colors
-## 
-## The supported color abbreviations are the single letter codes
-## ========================================
-## character      color
-## ========================================
-## 'b'            blue
-## 'g'            green
-## 'r'            red
-## 'c'            cyan
-## 'm'            magenta
-## 'y'            yellow
-## 'k'            black
-## 'w'            white
-## from mpl_toolkits.basemap import Basemap
-import sys
-import datetime
-import shutil
-import subprocess
-import fnmatch
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
 import os
 import numpy as np
 import netCDF4 as netcdf
@@ -72,272 +5,479 @@ import re
 import maps2d_plot_util as maps2d_plot_util
 import warnings
 import logging
-import matplotlib
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.colors 
 import matplotlib.gridspec as gridspec
-
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+import sys
+import datetime
+import shutil
+import subprocess
+import fnmatch
+### Read data of all time step in once, then print one at a time
 ### PASSED AGRUEMENTS
-if len(sys.argv) < 3:
-    print("you must set 3 arguments as model_exp [prod|para1...#] start_date end_date in yyyymmdd")
+if len(sys.argv) < 5:
+    print("you must set 5 arguments as model[prod|para|...] variabels[o3|pm25|all] cycle[06|12|all]  start_date end_date")
     sys.exit()
 else:
     envir = sys.argv[1]
-    start_date = sys.argv[2]
-    end_date = sys.argv[3]
+    sel_var = sys.argv[2]
+    sel_cyc = sys.argv[3]
+    start_date = sys.argv[4]
+    end_date = sys.argv[5]
 
-sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]), 00)
-edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]), 23)
-date_inc = datetime.timedelta(hours=24)
-hour_inc = datetime.timedelta(hours=1)
+if envir.lower() == "para":
+    fig_exp="ncopara"
+else:
+    fig_exp=envir.lower()
+
+script_dir=os.getcwd()
+print("Script directory is "+script_dir)
+
+user=os.environ['USER']
+
+stmp_dir="/lfs/h2/emc/stmp/"+user
+if not os.path.exists(stmp_dir):
+    os.mkdir(stmp_dir)
+
+ptmp_dir="/lfs/h2/emc/ptmp/"+user
+if not os.path.exists(ptmp_dir):
+    os.mkdir(ptmp_dir)
+
+log_dir=ptmp_dir+"/batch_logs"
+if not os.path.exists(log_dir):
+    os.mkdir(log_dir)
+
+working_dir=stmp_dir+"/aqm_plot_working"
+if os.path.exists(working_dir):
+    os.chdir(working_dir)
+else:
+    os.makedirs(working_dir)
+    os.chdir(working_dir)
+
+msg_file=working_dir+"/devmachine"
+subprocess.call(["cat /etc/cluster_name > "+msg_file], shell=True)
+if os.path.isfile(msg_file):
+    with open(msg_file, 'r') as sh:
+        line=sh.readline()
+        dev_machine=line.rstrip()
+        print("currently on "+dev_machine)
+        sh.close()
+
+msg_file=working_dir+"/prodmachine"
+subprocess.call(["cat /lfs/h1/ops/prod/config/prodmachinefile > "+msg_file], shell=True)
+if os.path.isfile(msg_file):
+    with open(msg_file, 'r') as sh:
+        prod_machine="99"
+        line=sh.readline()
+        line1=line.rstrip()
+        abc=line1.split(':')
+        if abc[0] == 'primary':
+            prod_machine=abc[1]
+        else:
+            line=sh.readline()
+            line1=line.rstrip()
+            abc=line1.split(':')
+            if abc[0] == 'primary':
+                prod_machine=abc[1]
+        print(prod_machine)
+        sh.close()
+
+sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]))
+edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]))
+YMDH_date_format = "%Y%m%d/%H"
 YMD_date_format = "%Y%m%d"
 YM_date_format = "%Y%m"
-MD_date_format = "%m%d"
 Y_date_format = "%Y"
 M_date_format = "%m"
 D_date_format = "%d"
 H_date_format = "%H"
+date_inc = datetime.timedelta(hours=24)
+hour_inc = datetime.timedelta(hours=1)
+
+if sel_var == "all":
+   var=[ "o3", "pm25" ]
+elif sel_var == "o3":
+   var=[ "o3" ]
+elif sel_var == "pm25":
+   var=[ "pm25" ]
+else:
+    print("input variable "+sel_var+" can not be recongized.")
+    sys.exit()
+num_var=len(var)
+print("var length = "+str(num_var))
+
+if sel_cyc == "all":
+   cycle=[ "t06z", "t12z" ]
+   cycle=[ "06", "12" ]
+elif sel_cyc == "06":
+   cycle=[ "t06z" ]
+   cycle=[ "06" ]
+elif sel_cyc == "12":
+   cycle=[ "t12z" ]
+   cycle=[ "12" ]
+else:
+    print("seletced cycle"+sel_cyc+" can not be recongized.")
+    sys.exit()
+
+warnings.filterwarnings('ignore')
+plt.rcParams['font.weight'] = 'bold'
+plt.rcParams['axes.labelsize'] = 10
+plt.rcParams['axes.labelweight'] = 'bold'
+plt.rcParams['xtick.labelsize'] = 10
+plt.rcParams['ytick.labelsize'] = 10
+plt.rcParams['axes.titlesize'] = 15
+plt.rcParams['axes.titleweight'] = 'bold'
+plt.rcParams['axes.formatter.useoffset'] = False
+cbar_num_format = "%d"
+plt.close('all') # close all figures
 
 msg=datetime.datetime.now()
 msg=msg - date_inc
 grdcro2d_date=msg.strftime("%Y%m%d")
+##
+## Current operational CMAQ does include runs for AK and HI domain
+## Current EMC development CMAQ does not include runs for AK and HI domain
+##
+## ilen=len(envir)
+## print("experiment is "+envir[0:ilen])
+## sys.exit()
+aqm_ver="v7.0"
+if envir == "v70a1":
+    comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.a1"
+elif envir =="v70b1":
+    comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.b1"
+elif envir =="v70b2":
+    comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.b2"
+else:
+    print("Experiment is not recognized or defined in this program")
+    sys.exit()
 
-warnings.filterwarnings('ignore')
-plt.rcParams['font.weight'] = 'bold'
-plt.rcParams['axes.labelsize'] = 15
-plt.rcParams['axes.labelweight'] = 'bold'
-plt.rcParams['xtick.labelsize'] = 15
-plt.rcParams['ytick.labelsize'] = 15
-plt.rcParams['axes.titlesize'] = 15
-plt.rcParams['axes.titleweight'] = 'bold'
-plt.rcParams['axes.formatter.useoffset'] = False
-area_ref=['can',  'na', 'conus', 'se', 'sw', 'ne',  'nw', 'mdn', 'mds', 'ak', 'hi', 'east', 'west']
-lat0_ref=[40.,   0.,   24.,     24.,  30.,  37.,   38.,  38.,   24.,   52.,  18.,  24.,     24.5]
-lat1_ref=[70.,   70.,  50.,     38.,  45.,  48.,   52.,  52.,   40.,   72.,  23.,  50.,     54.5]
-lon0_ref=[ -141., -141.,  -124.,   -95., -125, -82, -125.,-105., -105., -170.,-161.,-100.,     -128. ]
-lon1_ref=[  -60., -60.,   -70.,    -79., -105.,-67.,-103.,-85.,  -85.,  -130.,-154.,-65.,     -90. ]
-figdir="/gpfs/dell1/stmp/Ho-Chun.Huang"
-##title = [ "dset", "conus", "east us", "west us", "ne us", "nw us", "se us", "sw us", "alaska", "hawaii", "us-can" ] 
-reg = [   "jl", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "mds",   "ak",   "hi",  "can" ] 
-rlon0 = [ -126.5, -124.0,  -100.0, -128.0,  -82.0, -125.0,  -95.0, -125.0, -105.0, -105.0, -170.0, -161.0, -141.0 ]
-rlon1 = [ -117.0,  -70.0,   -65.0,  -90.0,  -67.0, -103.0,  -79.0, -105.0,  -85.0,  -85.0, -130.0, -154.0,  -60.0 ]
-rlat0 = [   35.5,   22.0,    22.0,   24.5,   37.0,   38.0,   24.0,   30.0,   38.0,   24.0,   52.0,   18.0,   38.0 ]
-rlat1 = [   42.1,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   72.0,   23.0,   70.0 ]
-##iplot = [      1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1 ]
-iplot = [      1,      0,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0 ]
-ilen=len(iplot)
-print("iplot length = "+str(ilen))
+figout=stmp_dir
 
-model="aqm"
-cycle=[ "12" ]
-working_dir="/gpfs/dell1/stmp/Ho-Chun.Huang/working/fireemis/"+envir
-metout="/gpfs/hps/nco/ops/com/aqm/prod/"+model+"."+grdcro2d_date
-date = sdate
+flag_proj="LambertConf"
+## from 22.574179720000018 to 51.47512722912568
+## from 228.37073225113136 to 296.6273160909873
+# old -70.6 to -120.4
+#     22.2 to 50.7
+if flag_proj == "LambertConf":
+    regname = [   "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",   "ak",   "hi",  "can" ] 
+    rlon0 = [ -161.0, -120.4,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0, -166.0, -161.5, -141.0 ]
+    rlon1 = [  -73.0,  -70.6,   -67.0,  -95.0,  -67.0, -103.0,  -74.0, -100.0,  -83.0,  -78.0, -132.0, -153.1,  -60.0 ]
+    rlat0 = [   14.0,   22.2,    21.9,   24.5,   37.0,   38.0,   24.0,   30.0,   35.0,   23.5,   53.2,   17.8,   38.0 ]
+    rlat1 = [   72.0,   50.7,    50.0,   52.0,   48.0,   52.0,   40.0,   45.0,   50.0,   38.0,   71.2,   23.1,   70.0 ]
+else:
+    regname = [   "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",   "ak",   "hi",  "can" ] 
+    rlon0 = [ -175.0, -124.0,  -100.0, -128.0,  -82.0, -125.0,  -95.0, -125.0, -105.0, -105.0, -170.0, -161.0, -141.0 ]
+    rlon1 = [  -55.0,  -70.0,   -65.0,  -90.0,  -67.0, -103.0,  -79.0, -105.0,  -85.0,  -85.0, -130.0, -154.0,  -60.0 ]
+    rlat0 = [    0.0,   22.0,    22.0,   24.5,   37.0,   38.0,   24.0,   30.0,   38.0,   24.0,   52.0,   18.0,   38.0 ]
+    rlat1 = [   70.0,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   72.0,   23.0,   70.0 ]
+xsize = [     10,     10,       8,      8,      8,      8,      8,      8,      8,      8,      8,      8,     10 ]
+ysize = [      8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      8,      8,      8 ]
+if 1 == 2:
+    iplot = [      1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      0,      0,      0 ]
+else:
+    iplot = [      0,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0 ]
+num_reg=len(iplot)
+
+date=sdate
 while date <= edate:
-    find_dir=[
-              "/gpfs/hps3/ptmp/Ho-Chun.Huang/com/aqm/"+envir+"/aqm."+date.strftime(YMD_date_format),
-              "/gpfs/hps/ptmp/Ho-Chun.Huang/com/aqm/"+envir+"/aqm."+date.strftime(YMD_date_format),
-              "/gpfs/hps3/emc/meso/noscrub/Ho-Chun.Huang/com/aqm/"+envir+"/aqm."+date.strftime(YMD_date_format),
-              "/gpfs/dell2/ptmp/Ho-Chun.Huang/com/aqm/"+envir+"/aqm."+date.strftime(YMD_date_format)
-             ]
-    flag_find_idir="no"
-    for idir in find_dir:
-        datadir=idir
-        print("check "+idir)
-        flag_find_cyc="no"
-        for cyc in cycle:
-            check_file=model+".t"+cyc+"z.fireemis.d1.ncf"
-            aqmfilein=datadir+"/"+check_file
-            if os.path.exists(aqmfilein):
-                print(aqmfilein+" exists")
-                cycfind=cyc
-                flag_find_cyc="yes"
-            else:
-                print("Can not find "+aqmfilein)
-        if flag_find_cyc == "yes":
-            flag_find_idir="yes"
-            break
-    if flag_find_idir == "yes":
-        print("datadir set to "+datadir)
-    else:
-        ## try 12z data, may not work in near realtime since 12Z has not been run
-        ## but good for manauel re-run this graphic routine
-        cycle = [ "12" ]
-        flag_find_idir="no"
-        for idir in find_dir:
-            datadir=idir
-            print("check "+idir)
-            flag_find_cyc="no"
-            for cyc in cycle:
-                check_file=model+".t"+cyc+"z.fireemis.d1.ncf"
-                aqmfilein=datadir+"/"+check_file
-                if os.path.exists(aqmfilein):
-                    print(aqmfilein+" exists")
-                    cycfind=cyc
-                    flag_find_cyc="yes"
-                else:
-                    print("Can not find "+aqmfilein)
-            if flag_find_cyc == "yes":
-                flag_find_idir="yes"
-                break
-        if flag_find_idir == "yes":
-            print("datadir set to "+datadir)
-        else:
-            sys.exit()
+    flag_find_idir = "yes"
 
-    figout=figdir+"/fireemis_"+envir+"_"+date.strftime(YMD_date_format)
-    if os.path.exists(figout):
-        shutil.rmtree(figout)
-    os.mkdir(figout)
+    if flag_find_idir == "yes":
+        print("comout set to "+comout)
+    else:
+        date = date + date_inc
+        continue
+    
+    flag_ak = "no"
+    flag_hi = "no"
 
     for cyc in cycle:
-        filein=metout+"/"+model+".t"+cyc+"z.grdcro2d.ncf"
-        if os.path.exists(filein):
-            print(filein+" exists")
-            model_data = netcdf.Dataset(filein)
-            mdl_lat = model_data.variables['LAT'][0,0,:,:]
-            mdl_lon = model_data.variables['LON'][0,0,:,:]
-            model_data.close()
-            i=mdl_lat.shape[0]
-            j=mdl_lat.shape[1]
-            mdl_pts=i*j
-            print('"Total number of grid is %d"' % (mdl_pts))
-        else:
-            print('"Can not find %s"' % (filein))
-            sys.exit()
+        cycle_time="t"+cyc+"z"
+        msg=datetime.datetime.now()
+        print("Start processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+        s1_title="Online CMAQ "+fig_exp.upper()+" "+date.strftime(YMD_date_format)+" t"+cyc+"z"
+        fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[0:2]))
 
-        aqmfilein=datadir+"/"+model+".t"+cyc+"z.fireemis.d1.ncf"
-        if os.path.exists(aqmfilein):
-            print(aqmfilein+" exists")
-            cs_aqm = netcdf.Dataset(aqmfilein)
-            cs_var = cs_aqm.variables['TFLAG'][:,0,:]
-            fire_cs = cs_aqm.variables['AECJ'][:,0,:,:]
-            cs_aqm.close()
-            nstep=len(cs_var)
-            FEi58j285=[]
-            for n in range(0,nstep):
-                nrow=[]
-                ncol=[]
-                pvar_cs = fire_cs[n,:,:]
-                FEi58j285.append(fire_cs[n,58,285])
-                current_max_fire=np.amax(pvar_cs)
-                current_min_fire=np.amin(pvar_cs)
-                result = np.where(pvar_cs == np.amax(pvar_cs))
-                ## print('( %d , %d )' % (result[0],result[1]))
-                idx_rows=result[0]
-                idx_cols=result[1]
-                ## print('( %d , %d )' % (result[0],result[1]))
-                if current_max_fire > 1.0E+20:
-                    if date.strftime(YMD_date_format) == "20201207" or date.strftime(YMD_date_format) == "20201208" or date.strftime(YMD_date_format) == "20201212":
-                        print("maximum fire emission at step "+str(format(n,'02d'))+" is "+str(format(current_max_fire,'02f')))
-                        continue
-                else:
-                    if n == 0:
-                        max_fire=current_max_fire
-                        max_rows=idx_rows
-                        max_cols=idx_cols
+        ## metfilein=metout+"/cs."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
+        ## if os.path.exists(metfilein):
+        ##     print(metfilein+" exists")
+        ##     model_data = netcdf.Dataset(metfilein)
+        ##     cs_lat = model_data.variables['LAT'][0,0,:,:]
+        ##     cs_lon = model_data.variables['LON'][0,0,:,:]
+        ##     model_data.close()
+        ## else:
+        ##     print("Can not find "+metfilein)
+
+        fcst_hour=fcst_ini
+        for ivar in range(0,num_var):
+            figdir = figout+"/aqm"+"_"+envir+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cycle_time
+            print(figdir)
+            if os.path.exists(figdir):
+                shutil.rmtree(figdir)
+            os.makedirs(figdir)
+            print("working on "+date.strftime(YMD_date_format)+" t"+cyc+"z "+var[ivar])
+            for fcst_hr in range(0,73):
+                str_fcst_hr=str(fcst_hr)
+                ## fhh=str_pad(fcst_hr,3,'0',STR_PAD_LEFT)
+                fhh=str_fcst_hr.zfill(3)
+                if var[ivar] == "pm25":
+                    aqmfilein=comout+"/"+date.strftime(YMD_date_format)+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    if os.path.exists(aqmfilein):
+                        ## print(aqmfilein+" exists")
+                        cs_aqm = netcdf.Dataset(aqmfilein)
+                        if fcst_hr == 0:
+                            cs_lat = cs_aqm.variables['lat'][:,:]
+                            cs_lon = cs_aqm.variables['lon'][:,:]
+                            latmax=np.amax(cs_lat)
+                            latmin=np.amin(cs_lat)
+                            lonmax=np.amax(cs_lon)
+                            lonmin=np.amin(cs_lon)
+                            ## print("from "+str(latmin)+" to "+str(latmax))
+                            ## print("from "+str(lonmin)+" to "+str(lonmax))
+                        else:
+                            pm_cs = cs_aqm.variables['PM25_TOT'][0,:,:]
+                        cs_aqm.close()
                     else:
-                        if current_max_fire > max_fire:
-                            max_fire=current_max_fire
-                            max_rows=idx_rows
-                            max_cols=idx_cols
-                ## print("maximum fire emission at step "+str(format(n,'02d'))+" is "+str(format(max_fire,'02f')))
-                ## print("maximum fire emission at step "+str(format(n,'02d'))+" is "+str(format(current_max_fire,'02f')))
-                ## print("minimum fire emission at step "+str(format(n,'02d'))+" is "+str(format(current_min_fire,'02f')))
-                xnonzero=[]
-                xnonzero=np.nonzero(pvar_cs)
-                ## print(xnonzero)
-                nrow=xnonzero[0]
-                ncol=xnonzero[1]
-                nx=len(nrow)
-                print('number of fire emission at step %d is %d' % (n, nx))
-                if n == 0:
-                    plotrow=[]
-                    plotcol=[]
-                    for ii in range(0,nx):
-                        ## print('( %d , %d )' % (nrow[ii],ncol[ii]) )
-                        plotrow.append(nrow[ii])
-                        plotcol.append(ncol[ii])
-                    print('initial number of fire is %d ' % (nx) )
-                else:
-                    nplot=len(plotrow)
-                    if nplot >= mdl_pts:
-                       print('( "full domain with fire emission reached" %d , %d )' % (mdl_pts, nplot ) )
-                       break
-                    for ii in range(0,nx):
-                        find_new_fire=1
-                        for ij in range(0,nplot):
-                            if plotrow[ij] == nrow[ii] and plotcol[ij] == ncol[ii]:
-                               find_new_fire=0
-                               break
-                        if find_new_fire == 1:
-                            ## print('%s %d %d' % ("found new fire loc", nrow[ii], ncol[ii]))
-                            plotrow.append(nrow[ii])
-                            plotcol.append(ncol[ii])
-                            nplotnow=len(plotrow)
-                            ## print('current number of fire is %d'% (nplotnow))
-                    num_pts=len(plotrow)
-                    ## print('time step %d # of fire is %d' % (n,num_pts))
-            num_pts=len(plotrow)
-            print('final   number of fire is %d' % (num_pts))
-            if num_pts >= mdl_pts:
-                sys.exit()
-            cs_lat=[]
-            cs_lon=[]
-            for i in range(0,num_pts):
-                cs_lat.append(mdl_lat[plotrow[i],plotcol[i]])
-                cs_lon.append(mdl_lon[plotrow[i],plotcol[i]])
-            
-            print('maximum fire emission occurred at %s z is %f at grid ( %d , %d ) ' % ( cyc, max_fire, max_rows[0], max_cols[0]) )
-            ## for n in range(0,nstep):
-            ##  print( '%d, %s' % (n, FEi58j285[n]) )
-        plt.figure(figsize=(12, 6))
-        for i in range(0,ilen):
-            if int(iplot[i]) == 1: 
-                ## print("plot "+title[i])
-                figarea=reg[i]
-                extent = [ rlon0[i], rlon1[i], rlat0[i], rlat1[i] ]
-                clon=0.5*(rlon0[i]+rlon1[i])
-                clat=0.5*(rlat0[i]+rlat1[i])
-                ## ax = plt.axes(projection=ccrs.LambertConformal(central_longitude=-120.628, central_latitude=21.821, false_easting=-58.775, false_northing=48.772, standard_parallels=(33, 45), globe=None))
-                if figarea == "ak":
-                    aqmproj=ccrs.LambertConformal(central_longitude=clon, central_latitude=clat, false_easting=-58.775, false_northing=48.772, standard_parallels=(57, 63), globe=None)
-                elif figarea == "hi":
-                    aqmproj=ccrs.LambertConformal(central_longitude=clon, central_latitude=clat, standard_parallels=(19, 21), globe=None)
-                else:
-                    aqmproj=ccrs.LambertConformal(central_longitude=clon, central_latitude=clat, standard_parallels=(33, 45), globe=None)
-                ax = plt.axes(projection=aqmproj)
-                ## ax = plt.axes(projection=ccrs.PlateCarree())
-                ax.set_extent(extent)
-                states_provinces = cfeature.NaturalEarthFeature(
-                    category='cultural',
-                    name='admin_1_states_provinces_lines',
-                    scale='50m',
-                    facecolor='none')
-                rivers_50m = cfeature.NaturalEarthFeature('physical', 'rivers_lake_centerlines', '50m')
-                ax.add_feature(states_provinces, edgecolor='gray')
-                ## ax.coastlines('50m')
-                ax.add_feature(cfeature.BORDERS, linestyle=':')
-                ax.add_feature(cfeature.OCEAN)
-                ax.add_feature(cfeature.LAND, edgecolor='black')
-                ax.add_feature(cfeature.LAKES, edgecolor='black')
-                ax.set_title(date.strftime(YMD_date_format)+" "+envir.upper()+" run fire location")
-                ## ax.add_feature(rivers_50m, facecolor='None', edgecolor='b')
-                ## ax.add_feature(cfeature.RIVERS)
-                ## plt.show()
-                for x in range(0,num_pts):
-                  ## ax.plot(lon[x], lat[x], 'ro', markersize=3, transform=ccrs.Geodetic())
-                  ax.plot(cs_lon[x], cs_lat[x], 'ro', markersize=3, transform=ccrs.PlateCarree())
-                ##ax.text(-117, 33, 'San Diego', transform=ccrs.Geodetic())
-                fileout=figout+"/fireemisfire."+figarea+"."+envir+"."+date.strftime(YMD_date_format)+".t06z.location.day0.k1.png"
-                plt.savefig(fileout, bbox_inches='tight') 
-                for j in range(1,3):
-                    newfile=figout+"/fireemisfire."+figarea+"."+envir+"."+date.strftime(YMD_date_format)+".t06z.location.day"+str(j)+".k1.png"
-                    shutil.copyfile(fileout,newfile)
-            ## else:
-                ## print("skip "+title[i])
-        os.chdir(figout)
-        parta=os.path.join("/usr", "bin", "scp")
-        partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), "t06z" )
-        ##partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
-        subprocess.call(["scp -p * "+partb], shell=True)
+                        aqmfilein=comout+"/"+date.strftime(YMD_date_format)+cyc+"/pm25/aqm.t"+cyc+"z.pm25_sfc.f"+fhh+".nc"
+                        if os.path.exists(aqmfilein):
+                            ## print(aqmfilein+" exists")
+                            cs_aqm = netcdf.Dataset(aqmfilein)
+                            if fcst_hr == 1:
+                                cs_lat = cs_aqm.variables['lat'][:,:]
+                                cs_lon = cs_aqm.variables['lon'][:,:]
+                                latmax=np.amax(cs_lat)
+                                latmin=np.amin(cs_lat)
+                                lonmax=np.amax(cs_lon)
+                                lonmin=np.amin(cs_lon)
+                                ## print("from "+str(latmin)+" to "+str(latmax))
+                                ## print("from "+str(lonmin)+" to "+str(lonmax))
+                            pm_cs = cs_aqm.variables['PM25_TOT'][0,0,:,:]
+                            cs_aqm.close()
+                        else:
+                            print("Can not find "+aqmfilein)
+                ## in ppm
+                if var[ivar] == "o3":
+                    aqmfilein=comout+"/"+date.strftime(YMD_date_format)+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    if os.path.exists(aqmfilein):
+                        ## print(aqmfilein+" exists")
+                        cs_aqm = netcdf.Dataset(aqmfilein)
+                        if fcst_hr == 0:
+                            cs_lat = cs_aqm.variables['lat'][:,:]
+                            cs_lon = cs_aqm.variables['lon'][:,:]
+                            latmax=np.amax(cs_lat)
+                            latmin=np.amin(cs_lat)
+                            lonmax=np.amax(cs_lon)
+                            lonmin=np.amin(cs_lon)
+                            ## print("from "+str(latmin)+" to "+str(latmax))
+                            ## print("from "+str(lonmin)+" to "+str(lonmax))
+                        else:
+                            o3_cs = cs_aqm.variables['o3'][0,:,:]
+                            scale= 1.
+                        cs_aqm.close()
+                    else:
+                        aqmfilein=comout+"/"+date.strftime(YMD_date_format)+cyc+"/dynf"+fhh+".nc"
+                        if os.path.exists(aqmfilein):
+                            ## print(aqmfilein+" exists")
+                            cs_aqm = netcdf.Dataset(aqmfilein)
+                            if fcst_hr == 0:
+                                cs_lat = cs_aqm.variables['lat'][:,:]
+                                cs_lon = cs_aqm.variables['lon'][:,:]
+                                latmax=np.amax(cs_lat)
+                                latmin=np.amin(cs_lat)
+                                lonmax=np.amax(cs_lon)
+                                lonmin=np.amin(cs_lon)
+                                ## print("from "+str(latmin)+" to "+str(latmax))
+                                ## print("from "+str(lonmin)+" to "+str(lonmax))
+                            else:
+                                o3_cs = cs_aqm.variables['o3'][0,63,:,:]
+                                scale= 1000.
+                            cs_aqm.close()
+                        else:
+                            print("Can not find "+aqmfilein)
+                            sys.exit()
+
+            ## if flag_ak == "no" and iplot[num_reg-3] == 1:
+            ##     iplot[num_reg-3] = 0
+            ## if flag_hi == "no" and iplot[num_reg-2] == 1:
+            ##     iplot[num_reg-2] = 0
+            ## print("iplot length = "+str(num_reg))
+                if fcst_hr > 0:
+                    fcst_hour=fcst_hour+hour_inc
+                    if fcst_hr > 99:
+                        s2_title = fcst_hour.strftime(YMDH_date_format)+"00V"+str(format(fcst_hr,'03d'))
+                    else:
+                        s2_title = fcst_hour.strftime(YMDH_date_format)+"00V"+str(format(fcst_hr,'02d'))
+                    ##    for ivar in range(0,num_var):
+                    msg=datetime.datetime.now()
+                    ## print("Start processing "+var[ivar])
+                    if var[ivar] == "o3":
+                        s3_title="Ozone sfc_conc (ppbV)"
+                        clevs = [ 3., 6., 9., 12., 25., 35., 45., 55., 65., 70., 75., 85., 95., 105. ]
+                        var_cs=o3_cs*scale
+                        if flag_ak == "yes":
+                            var_ak=o3_ak*scale
+                        if flag_hi == "yes":
+                            var_hi=o3_hi*scale
+                        cmap = mpl.colors.ListedColormap([
+                              (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
+                              (0.0000,0.7490,1.0000), (0.0000,1.0000,1.0000),
+                              (0.0000,0.7060,0.0000), (0.0000,0.9060,0.0000), (0.3020,1.0000,0.3020),
+                              (1.0000,1.0000,0.4980), (1.0000,0.8745,0.0000), (1.0000,0.6471,0.0000), (0.9412,0.5098,0.1569),
+                              (1.0000,0.0000,0.0000), (0.7020,0.0000,0.0000)
+                              ])
+                        cmap.set_under((0.8627,0.8627,1.0000))
+                        cmap.set_over((0.4310,0.2780,0.7250))
+                    elif var[ivar] == "pm25":
+                        s3_title="PM25 sfc_conc ($\u03bcg/m^3$)"
+                        scale=1.
+                        clevs = [ 3., 6., 9., 12., 15., 35., 55., 75., 100., 125., 150., 250., 300., 400., 500., 600., 750. ]
+                        var_cs=pm_cs
+                        if flag_ak == "yes":
+                            var_ak=pm_ak
+                        if flag_hi == "yes":
+                            var_hi=pm_hi
+                        cmap = mpl.colors.ListedColormap([
+                              (0.0000,0.7060,0.0000), (0.0000,0.9060,0.0000), (0.3020,1.0000,0.3020),
+                              (1.0000,1.0000,0.4980), (1.0000,0.8745,0.0000), (1.0000,0.6471,0.0000),
+                              (1.0000,0.3840,0.3840), (1.0000,0.0000,0.0000), (0.8000,0.0000,0.0000), (0.7020,0.0000,0.0000),
+                              (0.6120,0.5100,0.8120), (0.5180,0.3880,0.7650), (0.4310,0.2780,0.7250),(0.2980,0.1920,0.5020),
+                              (0.4706,0.4706,0.4706), (0.7843,0.7843,0.7843)
+                              ])
+                        cmap.set_under((0.8627,0.8627,1.0000))
+                        cmap.set_over((0.9412,0.9412,0.9412))
+                    elif var[ivar] == "pm25_nonseason":
+                        s3_title="PM25 sfc_conc ($\u03bcg/m^3$)"
+                        scale=1.
+                        clevs = [ 0., 3., 6., 9., 12., 25., 35., 45., 55., 65., 75., 85., 95., 105. ]
+                        var_cs=pm_cs
+                        if flag_ak == "yes":
+                            var_ak=pm_ak
+                        if flag_hi == "yes":
+                            var_hi=pm_hi
+                        cmap = mpl.colors.ListedColormap([
+                              (0.9412,0.9412,0.9412), (0.8627,0.8627,1.0000), (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
+                              (0.2157,0.2157,1.0000), (0.0000,0.7843,0.7843), (0.0000,0.8627,0.0000), (0.6275,0.9020,0.1961),
+                              (0.9020,0.8627,0.1961), (0.9020,0.6863,0.1765), (0.9412,0.5098,0.1569), (0.9804,0.2353,0.2353),
+                              (0.9412,0.0000,0.5098)
+                              ])
+                        cmap.set_over('magenta')
+                        cmap.set_under('whitesmoke')
+                    norm = mpl.colors.BoundaryNorm(boundaries=clevs, ncolors=cmap.N)
+                    gs = gridspec.GridSpec(1,1)
+
+                    title=s1_title+"\n"+s2_title+" "+s3_title
+                    pvar_cs = var_cs[:,:]
+                    if flag_ak == "yes":
+                        pvar_ak = var_ak[:,:]
+                    if flag_hi == "yes":
+                        pvar_hi = var_hi[:,:]
+                    for ireg in range(0,num_reg):
+                        if iplot[ireg] == 1:
+                            figarea=regname[ireg]
+                            extent=[ rlon0[ireg], rlon1[ireg], rlat0[ireg], rlat1[ireg] ]
+                            clat=0.5*(rlat0[ireg] + rlat1[ireg])
+                            clon=0.5*(rlon0[ireg] + rlon1[ireg])
+                            if figarea == "ak":
+                                aqmproj=ccrs.LambertConformal(central_longitude=clon, central_latitude=clat, standard_parallels=(57, 63), globe=None)
+                            elif figarea == "hi":
+                                aqmproj=ccrs.LambertConformal(central_longitude=clon, central_latitude=clat, standard_parallels=(19, 21), globe=None)
+                            else:
+                                aqmproj=ccrs.LambertConformal(central_longitude=clon, central_latitude=clat, false_easting=-58.775, false_northing=48.772, standard_parallels=(33, 45), globe=None)
+                            fig, ax = plt.subplots(figsize=(xsize[ireg],ysize[ireg]))
+    
+                            ax = plt.axes(projection=aqmproj)
+                            ax.set_extent(extent)
+                            ax.coastlines('50m')
+                            states_provinces = cfeature.NaturalEarthFeature(
+                                 category='cultural',
+                                 name='admin_1_states_provinces_lines',
+                                 scale='50m',
+                                 facecolor='none')
+                            ax.add_feature(states_provinces, facecolor='none', edgecolor='gray')
+                            ## rivers_50m = cfeature.NaturalEarthFeature('physical', 'rivers_lake_centerlines', '50m')
+                            ## ax.add_feature(cfeature.LAND, edgecolor='black')
+                            ## ax.add_feature(cfeature.OCEAN, edgecolor='black')
+                            ## ax.add_feature(cfeature.COASTLINE)
+                            ax.add_feature(cfeature.BORDERS, facecolor='none', linestyle=':')
+                            ax.add_feature(cfeature.LAKES, facecolor='None', edgecolor='black', alpha=0.5)
+                            ## ax.add_feature(cfeature.RIVERS)
+                            if figarea == "ak":
+                                cf1 = ax.contourf(
+                                         ak_lon, ak_lat, pvar_ak,
+                                         levels=clevs, cmap=cmap, norm=norm, extend='both',
+                                         transform=ccrs.PlateCarree() )
+                            elif figarea == "hi":
+                                cf1 = ax.contourf(
+                                         hi_lon, hi_lat, pvar_hi,
+                                         levels=clevs, cmap=cmap, norm=norm, extend='both',
+                                         transform=ccrs.PlateCarree() )
+                            else:
+                                cf1 = ax.contourf(
+                                         cs_lon, cs_lat, pvar_cs,
+                                         levels=clevs, cmap=cmap, norm=norm, extend='both',
+                                         transform=ccrs.PlateCarree() )
+                                if figarea == "dset":
+                                    if flag_ak == "yes":
+                                        ax.contourf(
+                                             ak_lon, ak_lat, pvar_ak,
+                                             levels=clevs, cmap=cmap, norm=norm, extend='both',
+                                             transform=ccrs.PlateCarree() )
+                                    if flag_hi == "yes":
+                                        ax.contourf(
+                                             hi_lon, hi_lat, pvar_hi,
+                                             levels=clevs, cmap=cmap, norm=norm, extend='both',
+                                             transform=ccrs.PlateCarree() )
+                            ax.set_title(title)
+                            ## cb2.set_label('Discrete intervals, some other units')
+                            fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
+                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cycle_time+"."+str(format(fcst_hr,'02d'))+"."+var[ivar]+".k1.png"
+                            plt.savefig(savefig_name, bbox_inches='tight')
+                            plt.close()
+            ##
+            ## scp by cycle and variable
+            ##
+
+        if 1 == 1 :
+            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cycle_time)
+        else:
+            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
+        os.chdir(working_dir)
+        task_cpu="01:00:00"
+        jobname=envir+"_"+sel_var+"_"+sel_cyc+"_"+date.strftime(YMD_date_format)
+        transfer_file=os.path.join(os.getcwd(),"plot_rrfs_"+jobname+".sh")
+        print("Creating transfer file "+transfer_file)
+        if os.path.exists(transfer_file):
+            os.remove(transfer_file)
+        with open(transfer_file, 'a') as sh:
+            sh.write("#!/bin/bash -l\n")
+            sh.write("#PBS -o "+log_dir+"/"+jobname+".out\n")
+            sh.write("#PBS -e "+log_dir+"/"+jobname+".out\n")
+            sh.write("#PBS -S /bin/bash\n")
+            sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4GB\n")
+            sh.write("#PBS -N j"+jobname+"\n")
+            sh.write("#PBS -q dev_transfer\n")
+            sh.write("#PBS -A AQM-DEV\n")
+            sh.write("#PBS -l walltime="+task_cpu+"\n")
+            sh.write("#PBS -l debug=true\n")
+            sh.write("\n")
+            sh.write("set -x\n")
+            sh.write("\n")
+            sh.write("   cd "+figdir+"\n")
+            sh.write("   scp -p * "+partb+"\n")
+            sh.write("   echo \"FIG DIR = "+figdir+" \"\n")
+            sh.write("\n")
+            sh.write("exit\n")
+        print("submit "+transfer_file)
+        subprocess.call(["cat "+transfer_file+" | qsub"], shell=True)
+        msg=datetime.datetime.now()
+        print("End   processing "+var[ivar])
+        print("FIG DIR = "+figdir)
+        msg=datetime.datetime.now()
+        print("End   processing "+date.strftime(YMD_date_format)+" "+cycle_time+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+    msg=datetime.datetime.now()
+    print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     date = date + date_inc
