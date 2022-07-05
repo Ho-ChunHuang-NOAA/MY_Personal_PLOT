@@ -1,21 +1,47 @@
 #!/bin/sh
-module use /gpfs/dell2/emc/verification/noscrub/emc.metplus/modulefiles ## Dell
+hname=`hostname`
 hl=`hostname | cut -c1-1`
-if [ "${hl}" == "v" ]; then
-   module load met/10.0.0
+if [ -s prod_info_list ]; then /bin/rm -f prod_info_list; fi
+cat /lfs/h1/ops/prod/config/prodmachinefile > prod_info_list
+info_line=`head -n 1 prod_info_list`
+echo ${info_line}
+prodinfo=$(echo ${info_line} | awk -F":" '{print $1}')
+if [ "${prodinfo}" == "primary" ]; then
+    prodmachine=$(echo ${info_line} | awk -F":" '{print $2}')
 else
-   module load met/10.0.0
+    info_line=`head -n 2 prod_info_list | tail -n1`
+    echo ${info_line}
+    prodinfo=$(echo ${info_line} | awk -F":" '{print $1}')
+    if [ "${prodinfo}" == "primary" ]; then
+        prodmachine=$(echo ${info_line} | awk -F":" '{print $2}')
+    else
+	prodmachine="unknown"
+    fi
 fi
-module load prod_util/1.1.6
-module load HPSS/5.0.2.5
+pm=`echo ${prodmachine} | cut -c1-1`
+if [ -s prod_info_list ]; then /bin/rm -f prod_info_list; fi
+module purge
+export HPC_OPT=/apps/ops/para/libs
+module use /apps/ops/para/libs/modulefiles/compiler/intel/19.1.3.304/
+module load intel
+module load gsl
+module load python/3.8.6
+module load netcdf/4.7.4
+if [ "${hl}" == "c" ]; then
+   module load met/10.0.1
+   module load metplus/4.0.0
+else
+   module load met/10.0.1
+   module load metplus/4.0.0
+fi
+module load prod_util
+module load prod_envir
+ 
 module list
 TODAY=`date +%Y%m%d`
 
 MSG="USAGE $0 obs_sat (default:viirs) model_grid [default:aqm|hysplit|ngac] YYYYMMDD_BEG YYYYMMDD_END"
-hl=`hostname | cut -c1-1`
-pm=`cat /etc/prod | cut -c 1-1`
 set -x
-hl=`hostname | cut -c1`
 
 TODAY=`date +%Y%m%d`
 output_root=/gpfs/dell2/emc/modeling/noscrub/${USER}/VIIRS_AOD/REGRID
@@ -31,7 +57,7 @@ mkdir -p ${log_dir}
 flag_hpss_archive=yes
 flag_hpss_archive=no
 
-if [ ${hl} != ${pm} ]; then
+if [ "${hl}" != "${pm}" ]; then
    set -x
    obs_name=viirs
    mdl_name=aqm

@@ -1,7 +1,7 @@
 #!/bin/sh
 # module load idl/8.6.1
 module load idl/8.7.3
-module load prod_util/1.1.6
+module load prod_util
 hl=`hostname | cut -c1`
 if [ "${hl}" == "v" ]; then
   phase12_id='g'

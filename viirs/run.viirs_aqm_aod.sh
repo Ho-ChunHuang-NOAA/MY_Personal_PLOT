@@ -19,28 +19,30 @@ MSG="USAGE $0 obs_sat (default:viirs) model_grid [default:aqm|hysplit|ngac] YYYY
       FIRSTDAY=$3
       LASTDAY=$4
    fi
+module purge
+export HPC_OPT=/apps/ops/para/libs
+module use /apps/ops/para/libs/modulefiles/compiler/intel/19.1.3.304/
+module load intel
+module load gsl
+module load python/3.8.6
+module load netcdf/4.7.4
+module load met/10.0.1
+module load metplus/4.0.0
 
-hl=`hostname | cut -c1-1`
-pm=`cat /etc/prod | cut -c 1-1`
-module use /gpfs/dell2/emc/verification/noscrub/emc.metplus/modulefiles ## Dell
-if [ "${hl}" == "v" ]; then
-   module load met/10.0.0
-else
-   module load met/10.0.0
-fi
-module load prod_util/1.1.6
-module load HPSS/5.0.2.5
+module load prod_util
+module load prod_envir
 module list
+
 TODAY=`date +%Y%m%d`
 
 set -x
 
 TODAY=`date +%Y%m%d`
-output_root=/gpfs/dell2/emc/modeling/noscrub/${USER}/VIIRS_AOD/REGRID
+output_root=/lfs/h2/emc/physics/noscrub/${USER}/VIIRS_AOD/REGRID
 mkdir -p ${output_root}
-OBSVDIR=/gpfs/dell2/emc/modeling/noscrub/${USER}/VIIRS_AOD/AOD
+OBSVDIR=/lfs/h2/emc/physics/noscrub/${USER}/VIIRS_AOD/AOD
 hpss_root=/5year/NCEPDEV/emc-naqfc/${USER}
-log_dir=/gpfs/dell2/ptmp/${USER}/batch_logs
+log_dir=/lfs/h2/emc/ptmp/${USER}/batch_logs
 mkdir -p ${log_dir}
 
 ## daily fron ftp includes hpss aracived of regrid output
@@ -48,19 +50,19 @@ flag_hpss_archive=yes
 flag_hpss_archive=no
 
    ## Store temporary map and G16 pixel netCDF file, e.g.,
-   ## /gpfs/dell2/ptmp/${USER}/METPLUS_TMP/CONUS_2500_1500_56_-56_-101360_128240_to_Lambert Conformal.grid_map or
+   ## /lfs/h2/emc/ptmp/${USER}/METPLUS_TMP/CONUS_2500_1500_56_-56_-101360_128240_to_Lambert Conformal.grid_map or
    ## CONUS_2500_1500_56_-56_-101360_128240_to_LatLon.grid_map
-   working_dir=/gpfs/dell1/stmp/${USER}/working/viirsaod2${mdl_name}
+   working_dir=/lfs/h2/emc/stmp/${USER}/working/viirsaod2${mdl_name}
    mkdir -p ${working_dir}
    case ${mdl_name} in
       aqm) value=4
-           mod_file=/gpfs/dell2/emc/modeling/save/${USER}/plot/parm/aqm.aot.148.grid;;
+           mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot.new/parm/aqm.aot.148.grid;;
       ak) value=4
-           mod_file=/gpfs/dell2/emc/modeling/save/${USER}/plot/parm/aqm.aot.140.grid;;
+           mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot.new/parm/aqm.aot.140.grid;;
       hi) value=4
-           mod_file=/gpfs/dell2/emc/modeling/save/${USER}/plot/parm/aqm.aot.139.grid;;
+           mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot.new/parm/aqm.aot.139.grid;;
       hysplit) value=5
-           mod_file=/gpfs/dell2/emc/modeling/save/${USER}/plot/parm/hysplit.smoke.cs.grid;;
+           mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot.news/parm/hysplit.smoke.cs.grid;;
       *) echo "model name ${mdl_name} is not defined"
          exit;;
    esac

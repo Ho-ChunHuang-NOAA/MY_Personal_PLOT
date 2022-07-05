@@ -5,8 +5,9 @@
 ## YYYYMMDD is the start day of NAQFC PM   simulation
 ## Cycle_hr is the model run starting hour
 ##
-module load prod_util/1.1.6
-module load GrADS/2.2.0
+module load prod_util
+module use /apps/test/lmodules/core/
+module load GrADS
 
 flag_test=yes
 flag_test=no
@@ -544,7 +545,7 @@ if [ "${flag_bsub}" == "yes" ]; then
 ##
 ##  Provide fix date daily Hysplit data processing
 ##
-   module load prod_uitl/1.1.3
+   module load prod_uitl
    FIRSTDAY=${FIRSTDAY}
    LASTDAY=${LASTDAY}
    ftpdir=${ftpdir}

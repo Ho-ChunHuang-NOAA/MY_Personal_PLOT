@@ -1,5 +1,5 @@
 #!/bin/sh
-module load prod_util/1.1.6
+module load prod_util
 # set -x
 MSG="$0 StartDate EndDate"
 if [ $# -lt 2 ]; then

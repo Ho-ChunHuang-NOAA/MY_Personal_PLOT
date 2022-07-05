@@ -1,11 +1,31 @@
 #!/bin/sh
-module load prod_util/1.1.6
-module load HPSS/5.0.2.5
+module load prod_util
+ 
+hname=`hostname`
+hl=`hostname | cut -c1-1`
+if [ -s prod_info_list ]; then /bin/rm -f prod_info_list; fi
+cat /lfs/h1/ops/prod/config/prodmachinefile > prod_info_list
+info_line=`head -n 1 prod_info_list`
+echo ${info_line}
+prodinfo=$(echo ${info_line} | awk -F":" '{print $1}')
+if [ "${prodinfo}" == "primary" ]; then
+    prodmachine=$(echo ${info_line} | awk -F":" '{print $2}')
+else
+    info_line=`head -n 2 prod_info_list | tail -n1`
+    echo ${info_line}
+    prodinfo=$(echo ${info_line} | awk -F":" '{print $1}')
+    if [ "${prodinfo}" == "primary" ]; then
+        prodmachine=$(echo ${info_line} | awk -F":" '{print $2}')
+    else
+	prodmachine="unknown"
+    fi
+fi
+pm=`echo ${prodmachine} | cut -c1-1`
+if [ -s prod_info_list ]; then /bin/rm -f prod_info_list; fi
+
 module list
 ## module use /gpfs/gd1/emc/global/noscrub/emc.metplus/modulefiles    ## phase I
 module use /gpfs/dell2/emc/verification/noscrub/emc.metplus/modulefiles ## Dell
-hl=`hostname | cut -c1-1`
-pm=`cat /etc/prod | cut -c 1-1`
 if [ "${hl}" == "m" ]; then
    module load met/10_beta1
 elif [ "${hl}" == "v" ]; then
@@ -31,7 +51,7 @@ export MET_GEOSTATIONARY_DATA=/gpfs/dell2/emc/modeling/noscrub/${USER}/GOES16_AO
 flag_hpss_archive=yes
 flag_hpss_archive=no
 
-if [ ${hl} != ${pm} ]; then
+if [ "${hl}" != "${pm}" ]; then
    set -x
    obs_name=g16
    mdl_name=aqm

@@ -1,6 +1,6 @@
 #!/bin/sh
 module load idl/8.7.3
-module load prod_util/1.1.6
+module load prod_util
 envir=para7
 TODAY=`date +%Y%m%d`
 if [ $# -lt 1 ]; then
