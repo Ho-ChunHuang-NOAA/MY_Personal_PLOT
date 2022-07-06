@@ -1,15 +1,15 @@
-@/u/Ho-Chun.Huang/IDL/my.idllib/is_h5f_invalid.pro
-@/u/Ho-Chun.Huang/IDL/my.idllib/isleapyear.pro
-@/u/Ho-Chun.Huang/IDL/my.idllib/calendar_date.pro
-@/u/Ho-Chun.Huang/IDL/my.idllib/dayofyear.pro
-@/u/Ho-Chun.Huang/IDL/my.idllib/sym.pro
-@/u/Ho-Chun.Huang/IDL/my.idllib/mg_h5_getdata.pro
-@/u/Ho-Chun.Huang/IDL/my.idllib/satellite_colorproductmap.pro
-@/u/Ho-Chun.Huang/IDL/my.idllib/satellite_colorscale.pro
-;;@/u/Ho-Chun.Huang/IDL/my.idllib/satellite_colorscale2.pro
-@/u/Ho-Chun.Huang/IDL/my.idllib/satellite_colorscalei_rainbow_no_purple.pro
-@/u/Ho-Chun.Huang/IDL/my.idllib/satellite_setup_display.pro
-@/u/Ho-Chun.Huang/IDL/my.idllib/colorbar.pro
+@/u/${USER}/IDL/my.idllib/is_h5f_invalid.pro
+@/u/${USER}/IDL/my.idllib/isleapyear.pro
+@/u/${USER}/IDL/my.idllib/calendar_date.pro
+@/u/${USER}/IDL/my.idllib/dayofyear.pro
+@/u/${USER}/IDL/my.idllib/sym.pro
+@/u/${USER}/IDL/my.idllib/mg_h5_getdata.pro
+@/u/${USER}/IDL/my.idllib/satellite_colorproductmap.pro
+@/u/${USER}/IDL/my.idllib/satellite_colorscale.pro
+;;@/u/${USER}/IDL/my.idllib/satellite_colorscale2.pro
+@/u/${USER}/IDL/my.idllib/satellite_colorscalei_rainbow_no_purple.pro
+@/u/${USER}/IDL/my.idllib/satellite_setup_display.pro
+@/u/${USER}/IDL/my.idllib/colorbar.pro
 
 function read_abi_var,filename,var_name, scaled
    print, filename
@@ -167,7 +167,7 @@ pro plot_goes_smk_dust_aod_conus
    ny=1500L
    lat2km=fltarr(nx,ny)
    lon2km=fltarr(nx,ny)
-   llfname='/gpfs/dell2/emc/modeling/noscrub/Ho-Chun.Huang/GOES16_AOD/g16_conus_latlon_2km_20180620.dat'
+   llfname='/gpfs/dell2/emc/modeling/noscrub/${USER}/GOES16_AOD/g16_conus_latlon_2km_20180620.dat'
 
    openr,ilun,llfname,/get_lun,/compress
    readu,ilun,lat2km
@@ -177,7 +177,7 @@ pro plot_goes_smk_dust_aod_conus
    nfile=n_elements(aod_files)
    FOR ifile = 0L, nfile-1L DO BEGIN
       fname=idir_aod+aod_files[ifile]
-      ;; ' /gpfs/${phase12_id}d3/emc/meso/noscrub/Ho-Chun.Huang/GOES16_AOD/AOD/DR_ABI-L2-AODC-M3_G16_s20180211802203_e20180211804576_c20180211807552.nc'
+      ;; ' /gpfs/${phase12_id}d3/emc/meso/noscrub/${USER}/GOES16_AOD/AOD/DR_ABI-L2-AODC-M3_G16_s20180211802203_e20180211804576_c20180211807552.nc'
       IF ~ File_Test(fname) THEN BEGIN
          print, 'Can not find '+fname
          continue

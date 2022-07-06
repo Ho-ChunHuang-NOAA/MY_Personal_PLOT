@@ -46,14 +46,14 @@ pro plot_goes_aod_conus
    ny=1500L
    lat2km=fltarr(nx,ny)
    lon2km=fltarr(nx,ny)
-   llfname='/gpfs/dell2/emc/modeling/noscrub/Ho-Chun.Huang/GOES16_GEO/g16_conus_latlon_2km_20180620.dat'
+   llfname='/gpfs/dell2/emc/modeling/noscrub/${USER}/GOES16_GEO/g16_conus_latlon_2km_20180620.dat'
 
    openr,ilun,llfname,/get_lun,/compress
    readu,ilun,lat2km
    readu,ilun,lon2km
    free_lun,ilun
 
-   fname=' /gpfs/${phase12_id}d3/emc/meso/noscrub/Ho-Chun.Huang/GOES16_AOD/AOD/20180514/OR_ABI-L2-AODC-M3_G16_s20181341702215_e20181341704588_c20181341711418.nc'
+   fname=' /gpfs/${phase12_id}d3/emc/meso/noscrub/${USER}/GOES16_AOD/AOD/20180514/OR_ABI-L2-AODC-M3_G16_s20181341702215_e20181341704588_c20181341711418.nc'
    IF ~ File_Test(fname) THEN BEGIN
       print, 'Can not find '+fname
       continue

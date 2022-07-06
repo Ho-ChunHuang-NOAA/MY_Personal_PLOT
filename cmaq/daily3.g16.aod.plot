@@ -101,9 +101,9 @@ NOW=${FIRSTDAY}
 while [ ${NOW} -le ${LASTDAY} ]; do
 
    if [ ${obssat} == 'g16' ]; then
-      comdir=/gpfs/dell2/emc/modeling/noscrub/Ho-Chun.Huang/GOES16_AOD/REGRID/${mdlname}.${NOW}
+      comdir=/gpfs/dell2/emc/modeling/noscrub/${USER}/GOES16_AOD/REGRID/${mdlname}.${NOW}
    else
-      comdir=/gpfs/dell2/emc/modeling/noscrub/Ho-Chun.Huang/GOES16_AOD/REGRID/${mdlname}.${NOW}
+      comdir=/gpfs/dell2/emc/modeling/noscrub/${USER}/GOES16_AOD/REGRID/${mdlname}.${NOW}
    fi
    if [ ! -d ${comdir} ]; then
       echo "////////////////////////////////////////"

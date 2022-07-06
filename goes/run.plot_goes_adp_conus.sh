@@ -30,7 +30,7 @@ flag_ftp=yes
 flag_test=yes
 flag_test=no
 
-working_dir=/gpfs/dell1/stmp/Ho-Chun.Huang/plot_goes_aod_adp
+working_dir=/gpfs/dell1/stmp/${USER}/plot_goes_aod_adp
 mkdir -p ${working_dir}
 ##
 ##      echo "${idir_adp}/OR_ABI-L2-AODC-M6_G16_s20190411002137_e20190411004510_c20190411005261.nc" > flist
@@ -41,16 +41,16 @@ while [[ ${NOW} -le ${LASTDAY} ]]; do
    YY=`echo ${NOW} | cut -c1-4`
    YM=`echo ${NOW} | cut -c1-6`
    cdate=${NOW}"00"
-   ## calday=`bash /u/Ho-Chun.Huang/bin/jday2cald ${NOW}`
-   jday=`bash /u/Ho-Chun.Huang/bin/cald2jday ${NOW}`
+   ## calday=`bash /u/${USER}/bin/jday2cald ${NOW}`
+   jday=`bash /u/${USER}/bin/cald2jday ${NOW}`
    ## number of separator / is 8 print 8+2 in awk command below, arrary is from 1-10 with filename
-   idir_adp=/gpfs/hps3/emc/meso/noscrub/Ho-Chun.Huang/GOES16/AOD      ## switch to print $10
+   idir_adp=/gpfs/hps3/emc/meso/noscrub/${USER}/GOES16/AOD      ## switch to print $10
    ## number of separator / is 8 print 8+2 in awk command below, arrary is from 1-8 with filename
-   idir_adp=/gpfs/gd1/emc/meso/noscrub/Ho-Chun.Huang/GOES16_GEO/NAQFC_data ## witch to print $8
+   idir_adp=/gpfs/gd1/emc/meso/noscrub/${USER}/GOES16_GEO/NAQFC_data ## witch to print $8
    ## number of separator / is 9 print 9+2 in awk command below, arrary is from 1-8 with filename
-   idir_adp=/gpfs/${phase12_id}d3/emc/meso/noscrub/Ho-Chun.Huang/GOES16_AOD/ADP/${NOW}        ## switch to print $8
+   idir_adp=/gpfs/${phase12_id}d3/emc/meso/noscrub/${USER}/GOES16_AOD/ADP/${NOW}        ## switch to print $8
    ## number of separator / is 9 print 9+2 in awk command below, arrary is from 1-8 with filename
-   idir_adp=/gpfs/dell2/emc/modeling/noscrub/Ho-Chun.Huang/GOES16_AOD/ADP/${NOW}        ## switch to print $8
+   idir_adp=/gpfs/dell2/emc/modeling/noscrub/${USER}/GOES16_AOD/ADP/${NOW}        ## switch to print $8
    if [ -s ${working_dir}/flist.${NOW} ]; then /bin/rm -rf ${working_dir}/flist.${NOW}; fi
    if [ "${flag_test}" == "no" ]; then
       let ohr=0

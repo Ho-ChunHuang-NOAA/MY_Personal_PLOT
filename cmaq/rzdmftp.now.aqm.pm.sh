@@ -72,8 +72,8 @@ while [ ${NOW} -le ${LASTDAY} ]; do
    ## 12/19/2014
    ## For someday, 00:29 is not enought to transfer all of the figures, regional speciated PM e, sw, and w
    ## Thus, split the task into two transfer job
-## Note all *base used default output to /ptmpp1/Ho-Chun.Huang/batch_logs
-## need to makdir -p /ptmpp1/Ho-Chun.Huang/batch_logs in case machine switch and directory can not be found for the beginning
+## Note all *base used default output to /ptmpp1/${USER}/batch_logs
+## need to makdir -p /ptmpp1/${USER}/batch_logs in case machine switch and directory can not be found for the beginning
 mkdir -p /ptmpp1/${USER}/batch_logs
    ##
    JOBHDR=trans_${NOW}${cychr}_cmaq_pm1_${exp}

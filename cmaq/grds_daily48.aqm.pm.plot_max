@@ -5,7 +5,7 @@
 ## YYYYMMDD is the start day of NAQFC PM   simulation
 ## Cycle_hr is the model run starting hour
 ##
-## August 4 2020 Ho-Chun Huang Only creating plots for daily Max Ave
+## August 4 2020 ${USER} Only creating plots for daily Max Ave
 ##                             that can't be plotted by current python
 ##                             code because of the grib2 format
 ##

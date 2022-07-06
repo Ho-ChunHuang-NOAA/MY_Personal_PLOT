@@ -1,7 +1,0 @@
-   if [ -s /gpfs/dell1/ptmp/${USER}/batch_logs/${job_name}_${TDY}.out ]; then
-      /bin/rm -rf /gpfs/dell1/ptmp/${USER}/batch_logs/${job_name}_${TDY}.out
-   if [ -s /gpfs/dell1/ptmp/${USER}/batch_logs/${job_name}_${TDY}.err ]; then
-      /bin/rm -rf /gpfs/dell1/ptmp/${USER}/batch_logs/${job_name}_${TDY}.err
-   if [ ! -d /gpfs/dell1/ptmp/${USER}/batch_logs ]; then mkdir -p /ptmpp2/${USER}/batch_logs; fi
-#BSUB -o /gpfs/dell1/ptmp/${USER}/batch_logs/${job_name}_${TDY}.out
-#BSUB -e /gpfs/dell1/ptmp/${USER}/batch_logs/${job_name}_${TDY}.err

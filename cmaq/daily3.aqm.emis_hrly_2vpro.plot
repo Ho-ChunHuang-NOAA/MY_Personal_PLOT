@@ -142,7 +142,7 @@ while [ ${NOW} -le ${LASTDAY} ]; do
    elif [ ${exp1} == 'para12' ]; then
       comdir1=/gpfs/hps3/ptmp/Jianping.Huang/com/aqm/${exp1}/aqm.${NOW}
    else
-      comdir1=/gpfs/dell2/emc/modeling/noscrub/Ho-Chun.Huang/cmaq_emiss_tmp/${exp1}/aqm.${NOW}
+      comdir1=/gpfs/dell2/emc/modeling/noscrub/${USER}/cmaq_emiss_tmp/${exp1}/aqm.${NOW}
       if [ ! -d ${comdir1} ]; then
          echo " Can not find ${comdir1}, Experiments not defined for plotting schedule"
          exit
@@ -164,7 +164,7 @@ while [ ${NOW} -le ${LASTDAY} ]; do
    elif [ ${exp1} == 'para12' ]; then
       comdir2=/gpfs/hps3/ptmp/Jianping.Huang/com/aqm/${exp2}/aqm.${NOW}
    else
-      comdir2=/gpfs/dell2/emc/modeling/noscrub/Ho-Chun.Huang/cmaq_emiss_tmp/${exp2}/aqm.${NOW}
+      comdir2=/gpfs/dell2/emc/modeling/noscrub/${USER}/cmaq_emiss_tmp/${exp2}/aqm.${NOW}
       if [ ! -d ${comdir2} ]; then
          echo " Can not find ${comdir2}, Experiments not defined for plotting schedule"
          exit

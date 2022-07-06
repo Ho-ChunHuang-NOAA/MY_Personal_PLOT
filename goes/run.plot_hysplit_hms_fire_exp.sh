@@ -226,7 +226,7 @@ fi
    if [ ! -d ${data_dir} ]; then mkdir -p  ${data_dir}; fi
    chkfile=hmshysplit${HMSDAY}.prelim.txt
 if [ "${envir}" == "prod" ]; then
-   comout=/meso/noscrub/Ho-Chun.Huang/dcom/us007003/${YY}
+   comout=/meso/noscrub/${USER}/dcom/us007003/${YY}
 else
    comout=${devdir}/smokecs.${NOW}
 fi

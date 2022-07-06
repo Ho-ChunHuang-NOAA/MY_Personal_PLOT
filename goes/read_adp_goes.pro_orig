@@ -1,8 +1,8 @@
-@/u/Ho-Chun.Huang/IDL/my.idllib/is_h5f_invalid.pro
-@/u/Ho-Chun.Huang/IDL/my.idllib/isleapyear.pro
-@/u/Ho-Chun.Huang/IDL/my.idllib/calendar_date.pro
-@/u/Ho-Chun.Huang/IDL/my.idllib/dayofyear.pro
-@/u/Ho-Chun.Huang/IDL/my.idllib/mg_h5_getdata.pro
+@/u/${USER}/IDL/my.idllib/is_h5f_invalid.pro
+@/u/${USER}/IDL/my.idllib/isleapyear.pro
+@/u/${USER}/IDL/my.idllib/calendar_date.pro
+@/u/${USER}/IDL/my.idllib/dayofyear.pro
+@/u/${USER}/IDL/my.idllib/mg_h5_getdata.pro
 
 ;  call command in idl: read_adp_goes,fname,smoke_con, dust_con
 ;  where fname is file name
