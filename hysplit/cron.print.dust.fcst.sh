@@ -1,8 +1,9 @@
 #!/bin/sh 
 #source ~/.bashrc
-module load GrADS/2.2.0
-module load prod_util/1.1.0
-module load prod_envir/1.1.0
+module use /apps/test/lmodules/core/
+module load GrADS/2.2.2
+module load prod_util
+module load prod_envir
 hl=`hostname | cut -c1`
 if [ "${hl}" == "v" ]; then
   phase12_id='g'
@@ -87,7 +88,7 @@ else
 fi
 
 gctl=${MYBIN}/grib2ctl.pl
-idir=/gpfs/dell2/emc/modeling/noscrub/${USER}/aod_${aerosol[${iaero}]}/conc
+idir=/lfs/h2/emc/physics/noscrub/${USER}/aod_${aerosol[${iaero}]}/conc
 
 declare -a mchr=( JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC )
 
@@ -136,7 +137,7 @@ while [ ${NOW} -le ${LASTDAY} ]; do
    icyl=0
    while [ ${icyl} -lt ${#cycle[@]} ]; do
       if [ ${idir}/${aqm}.${NOW} ]; then
-         data_dir=/gpfs/dell1/stmp/${USER}/${aerosol[${iaero}]}/${aqm}.${NOW}.${cycle[${icyl}]}
+         data_dir=/lfs/h2/emc/stmp/${USER}/${aerosol[${iaero}]}/${aqm}.${NOW}.${cycle[${icyl}]}
          if [ -d ${data_dir} ]; then
             /bin/rm -f ${data_dir}/*
          else

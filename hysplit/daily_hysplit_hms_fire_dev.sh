@@ -1,6 +1,6 @@
 #!/bin/sh
-#BSUB -o /gpfs/dell2/ptmp/${USER}/batch_logs/hyspt_hms_fire_dev_20170414.out
-#BSUB -e /gpfs/dell2/ptmp/${USER}/batch_logs/hyspt_hms_fire_dev_20170414.err
+#BSUB -o /lfs/h2/emc/ptmp/${USER}/batch_logs/hyspt_hms_fire_dev_20170414.out
+#BSUB -e /lfs/h2/emc/ptmp/${USER}/batch_logs/hyspt_hms_fire_dev_20170414.err
 #BSUB -n 1
 #BSUB -J jhyspt_hms_fire_dev
 #BSUB -q debug
@@ -15,6 +15,6 @@
 ##
    echo "submit job on dev machine t21a3"
    . ~/.bashrc
-   cd /gpfs/dell2/emc/modeling/save/${USER}/IDL/hysplit_fire
+   cd /lfs/h2/emc/physics/noscrub/${USER}/IDL/hysplit_fire
    bash run.cron_hysplit_hms_fire_dev.sh 20170414 20170414 x x title
 exit

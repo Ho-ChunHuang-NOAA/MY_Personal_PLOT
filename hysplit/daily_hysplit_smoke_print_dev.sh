@@ -1,6 +1,6 @@
 #!/bin/sh
-#BSUB -o /gpfs/dell1/ptmp/${USER}/print_hyspt_smoke_conus_dev_dev.out
-#BSUB -e /gpfs/dell1/ptmp/${USER}/print_hyspt_smoke_conus_dev_dev.err
+#BSUB -o /lfs/h2/emc/ptmp/${USER}/print_hyspt_smoke_conus_dev_dev.out
+#BSUB -e /lfs/h2/emc/ptmp/${USER}/print_hyspt_smoke_conus_dev_dev.err
 #BSUB -n 1
 #BSUB -J jprint_hyspt_smoke_conus_dev
 #BSUB -q debug

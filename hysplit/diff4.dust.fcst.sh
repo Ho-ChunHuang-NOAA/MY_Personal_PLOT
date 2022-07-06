@@ -1,8 +1,9 @@
 #!/bin/sh 
-module load GrADS/2.2.0
-module load prod_util/1.1.6
-module load grib_util/1.1.1
-module load prod_envir/1.1.0
+module use /apps/test/lmodules/core/
+module load GrADS/2.2.2
+module load prod_util
+module load grib_util
+module load prod_envir
 hl=`hostname | cut -c1`
 if [ "${hl}" == "v" ]; then
   phase12_id='g'
@@ -56,7 +57,7 @@ fi
 if [ "${LASTDAY}" == "${TODAY}" ]; then flag_update=yes; fi
 flag_update=no
 
-working_dir=/gpfs/dell1/stmp/${USER}/job_submit
+working_dir=/lfs/h2/emc/stmp/${USER}/job_submit
 mkdir -p ${working_dir}
 #
 aqm=hysplit
@@ -76,11 +77,11 @@ capexp1=${capopt}
 exp1=${smlopt}
 comdir=${COMROOT}/${smlaqm}/${exp1}
 comdir2=${comdir}
-mydir=/gpfs/dell2/emc/modeling/noscrub/${USER}/com/${smlaqm}/${exp1}
-mydir2=/gpfs/dell1/ptmp/${USER}/com/${smlaqm}/${exp1}
+mydir=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp1}
+mydir2=/lfs/h2/emc/ptmp/${USER}/com/${smlaqm}/${exp1}
 ## special setting
 if [ ${exp1} == 'prod' ]; then
-   mydir=/gpfs/dell2/emc/modeling/noscrub/${USER}/com/${smlaqm}/${exp1}
+   mydir=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp1}
    mydir2=${mydir}
 elif [ ${exp1} == 'ncopara' ]; then
    comdir=${COMROOT}/${smlaqm}/para
@@ -107,11 +108,11 @@ capexp2=${capopt}
 exp2=${smlopt}
 comdir=${COMROOT}/${smlaqm}/${exp2}
 comdir2=${comdir}
-mydir=/gpfs/dell2/emc/modeling/noscrub/${USER}/com/${smlaqm}/${exp2}
-mydir2=/gpfs/dell1/ptmp/${USER}/com/${smlaqm}/${exp2}
+mydir=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp2}
+mydir2=/lfs/h2/emc/ptmp/${USER}/com/${smlaqm}/${exp2}
 ## special setting
 if [ ${exp2} == 'prod' ]; then
-   mydir=/gpfs/dell2/emc/modeling/noscrub/${USER}/${smlaqm}/${exp2}
+   mydir=/lfs/h2/emc/physics/noscrub/${USER}/${smlaqm}/${exp2}
    mydir2=${mydir}
 elif [ ${exp2} == 'ncopara' ]; then
    comdir=${COMROOT}/${smlaqm}/para
@@ -267,7 +268,7 @@ while [ ${NOW} -le ${LASTDAY} ]; do
       i=`expr ${k} + 1`
       cycp1=`printf %2.2d ${i}`
 
-      data_dir=/gpfs/dell1/stmp/${USER}/diff_${aero}_${exp2}m${exp1}/${aqm}_${area}.${NOW}.${cycle}
+      data_dir=/lfs/h2/emc/stmp/${USER}/diff_${aero}_${exp2}m${exp1}/${aqm}_${area}.${NOW}.${cycle}
       if [ -d ${data_dir} ]; then
          /bin/rm -f ${data_dir}/*
       else
@@ -475,7 +476,7 @@ if [ "${flag_bsub}" == "yes" ]; then
    batch_script=prtdst_${smlaqm}_${exp}.sh
    if [ -e ${batch_script} ]; then /bin/rm -f ${batch_script}; fi
 
-   logdir=/gpfs/dell2/ptmp/${USER}/batch_logs
+   logdir=/lfs/h2/emc/ptmp/${USER}/batch_logs
    if [ ! -d ${logdir} ]; then mkdir -p ${logdir}; fi
 
    logfile=${logdir}/${job_name}_${TODAY}.out
@@ -525,14 +526,14 @@ source ~/.bashrc
 
       for i in "${cyc[@]}"; do
          cycle=t${i}z
-         ## data_dir=/gpfs/dell1/stmp/${USER}/${aero}_${exp}/${aqm}_${area}.${NOW}.${cycle}
+         ## data_dir=/lfs/h2/emc/stmp/${USER}/${aero}_${exp}/${aqm}_${area}.${NOW}.${cycle}
          scp ${data_dir}/${aqm}*${ftype} ${remote_user}@${remote_host}:${remote_dir}/${YY}/${NOW}/${cycle}
       done  ## cycle time
       cdate=${NOW}"00"
       NOW=$(${NDATE} +24 ${cdate}| cut -c1-8)
    done
    if [ "${flag_update}" == "yes" ]; then
-      script_dir=/gpfs/dell2/emc/modeling/save/${USER}/WEB/base
+      script_dir=/lfs/h2/emc/physics/noscrub/${USER}/WEB/base
       cd ${script_dir}
 
       script_name=wcoss.run.hysplit_emc_tcomp.sh

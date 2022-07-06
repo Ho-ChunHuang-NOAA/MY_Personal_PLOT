@@ -1,7 +1,8 @@
 #!/bin/sh 
-module load GrADS/2.2.0
-module load prod_util/1.1.0
-module load prod_envir/1.1.0
+module use /apps/test/lmodules/core/
+module load GrADS/2.2.2
+module load prod_util
+module load prod_envir
 hl=`hostname | cut -c1`
 MSG="USAGE $0 YYYYMMDD_BEG YYYYMMDD_END aero_type[0:dust, 1:smoke, 2:all]"
 if [ $# -lt 2 ]; then
@@ -81,7 +82,7 @@ else
 fi
 
 gctl=${MYBIN}/grib2ctl.pl
-idir=/gpfs/dell2/emc/modeling/noscrub/${USER}/aod_${aerosol[${iaero}]}/conc
+idir=/lfs/h2/emc/physics/noscrub/${USER}/aod_${aerosol[${iaero}]}/conc
 
 declare -a mchr=( JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC )
 
@@ -127,7 +128,7 @@ while [ ${NOW} -le ${LASTDAY} ]; do
 ## PLOT NESDIS SMOKE HOURLY
 ## 
 ilay=0     ## PBL only
-data_dir=/gpfs/dell1/stmp/${USER}/${aerosol[${iaero}]}/${satellite}.${NOW}
+data_dir=/lfs/h2/emc/stmp/${USER}/${aerosol[${iaero}]}/${satellite}.${NOW}
 if [ -d ${data_dir} ]; then
   /bin/rm -f ${data_dir}/*
 else

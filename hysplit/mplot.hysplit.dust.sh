@@ -1,5 +1,5 @@
 #!/bin/sh
-module load prod_util/1.1.6
+module load prod_util
 #set -x
 MSG="$0 EXP [prod|para5|...] cycle [all|06|12] StartDate EndDate"
 if [ $# -lt 4 ]; then
@@ -14,7 +14,7 @@ if [ $# -gt 3 ]; then
 else
    LASTDAY=${FIRSTDAY}
 fi
-working_dir=/gpfs/dell2/ptmp/${USER}/batch_logs
+working_dir=/lfs/h2/emc/ptmp/${USER}/batch_logs
 mkdir -p ${working_dir}
 scr=`pwd`
 cd ${scr}

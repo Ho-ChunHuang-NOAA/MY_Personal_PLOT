@@ -1,6 +1,5 @@
 #!/bin/sh
-module load idl/8.6.1
-module load prod_util/1.1.0
+module load prod_util
 envir=para7
 TODAY=`date +%Y%m%d`
 if [ $# -lt 1 ]; then
@@ -69,9 +68,9 @@ end_date=${LASTDAY}
 
 idlexe=`which idl`
 script_dir=`pwd`
-devdir=/gpfs/dell2/emc/modeling/noscrub/${USER}/com/hysplit/${envir}
+devdir=/lfs/h2/emc/physics/noscrub/${USER}/com/hysplit/${envir}
 idir=/gpfs/dell2/emc/verification/noscrub/${USER}/gyre_hysplit_plot/fire_${envir}/
-odir=/gpfs/dell1/ptmp/${USER}/fire_plot/
+odir=/lfs/h2/emc/ptmp/${USER}/fire_plot/
 mkdir -p ${odir} ${idir}
 flag_dark=no
 smlexp=`echo ${envir} | tr '[:upper:]' '[:lower:]'`
@@ -201,7 +200,7 @@ while [[ ${NOW} -le ${LASTDAY} ]]; do
    for i in "${regid[@]}"
    do
 if [ "${envir}" == "prod" ]; then
-   comout=/gpfs/dell2/emc/modeling/noscrub/${USER}/com/hysplit/prod/smoke${i}.${NOW}
+   comout=/lfs/h2/emc/physics/noscrub/${USER}/com/hysplit/prod/smoke${i}.${NOW}
 else
    comout=${devdir}/smoke${i}.${NOW}
 fi
@@ -224,7 +223,7 @@ fi
    if [ ! -d ${data_dir} ]; then mkdir -p  ${data_dir}; fi
    chkfile=hmshysplit${HMSDAY}.prelim.txt
 if [ "${envir}" == "prod" ]; then
-   comout=/gpfs/dell2/emc/modeling/noscrub/${USER}/dcom/${YY}
+   comout=/lfs/h2/emc/physics/noscrub/${USER}/dcom/${YY}
 else
    comout=${devdir}/smokecs.${NOW}
 fi

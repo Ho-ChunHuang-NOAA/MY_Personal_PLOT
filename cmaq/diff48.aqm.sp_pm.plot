@@ -5,9 +5,10 @@
 ## YYYYMMDD is the start day of NAQFC PM   simulation
 ## Cycle_hr is the model run starting hour
 ##
-module load GrADS/2.2.0
-module load prod_util/1.1.6
-module load prod_envir/1.1.0
+module use /apps/test/lmodules/core/
+module load GrADS/2.2.2
+module load prod_util
+module load prod_envir
 wgrib=/gpfs/dell1/nco/ops/nwprod/grib_util.v1.1.1/exec/wgrib
 wgrib2=/gpfs/dell1/nco/ops/nwprod/grib_util.v1.1.1/exec/wgrib2
 hl=`hostname | cut -c1`
@@ -514,7 +515,7 @@ if [ "${flag_bsub}" == "yes" ]; then
 ##
 ##  Provide fix date daily Hysplit data processing
 ##
-   module load prod_util/1.1.6
+   module load prod_util
 
    FIRSTDAY=${FIRSTDAY}
    LASTDAY=${LASTDAY}

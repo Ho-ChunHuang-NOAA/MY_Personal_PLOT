@@ -1,6 +1,6 @@
 #!/bin/sh
-#BSUB -o /gpfs/dell2/ptmp/${USER}/batch_logs/gasp_all_aod_and_smoke_20171013.out
-#BSUB -e /gpfs/dell2/ptmp/${USER}/batch_logs/gasp_all_aod_and_smoke_20171013.err
+#BSUB -o /lfs/h2/emc/ptmp/${USER}/batch_logs/gasp_all_aod_and_smoke_20171013.out
+#BSUB -e /lfs/h2/emc/ptmp/${USER}/batch_logs/gasp_all_aod_and_smoke_20171013.err
 #BSUB -n 1
 #BSUB -J jgasp_all_aod_and_smoke
 #BSUB -q debug

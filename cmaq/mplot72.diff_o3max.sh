@@ -1,5 +1,5 @@
 #!/bin/sh
-module load prod_util/1.1.6
+module load prod_util
 ## set -x
 MSG="$0 EXP1 [prod|para5|...] EXP2 [prod|para5|...] CYC [all\06\12] StartDate EndDate"
 if [ $# -lt 5 ]; then
