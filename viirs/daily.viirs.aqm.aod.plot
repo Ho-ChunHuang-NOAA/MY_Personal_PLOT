@@ -94,13 +94,13 @@ declare -a qc_flag=( high medium )
 declare -a type=( ${mdlname} )
 ntyp=${#type[@]}
 
-ftpdir=/gpfs/dell1/stmp/${USER}/daily_plot_${obssat}_${mdlname}_aod
+ftpdir=/lfs/h2/emc/stmp/${USER}/daily_plot_${obssat}_${mdlname}_aod
 mkdir -p ${ftpdir}
    
 NOW=${FIRSTDAY}
 while [ ${NOW} -le ${LASTDAY} ]; do
 
-   comdir=/gpfs/dell2/emc/modeling/noscrub/${USER}/VIIRS_AOD/REGRID/${mdlname}.${NOW}
+   comdir=/lfs/h2/emc/physics/noscrub/${USER}/VIIRS_AOD/REGRID/${mdlname}.${NOW}
    if [ ! -d ${comdir} ]; then
       echo "////////////////////////////////////////"
       echo "${comdir} does not existed, program stop"
@@ -119,7 +119,7 @@ while [ ${NOW} -le ${LASTDAY} ]; do
       mkdir -p ${outdir}
    fi
    
-   tmpdir=/gpfs/dell1/stmp/${USER}/com_aod_${obssat}_${mdlname}.${NOW}
+   tmpdir=/lfs/h2/emc/stmp/${USER}/com_aod_${obssat}_${mdlname}.${NOW}
    if [ -d ${tmpdir} ]; then
       /bin/rm -f ${tmpdir}/*
    else
@@ -512,7 +512,7 @@ done
 echo "${outdir}"
 
 if [ "${flag_bsub}" == "yes" ]; then
-   working_dir=/gpfs/dell1/stmp/${USER}/job_submit
+   working_dir=/lfs/h2/emc/stmp/${USER}/job_submit
    mkdir -p ${working_dir}
    cd ${working_dir}
 
@@ -521,7 +521,7 @@ if [ "${flag_bsub}" == "yes" ]; then
    batch_script=trans_${mdlname}_${obssat}.sh
    if [ -e ${batch_script} ]; then /bin/rm -f ${batch_script}; fi
 
-   logdir=/gpfs/dell2/ptmp/${USER}/batch_logs
+   logdir=/lfs/h2/emc/ptmp/${USER}/batch_logs
    if [ ! -d ${logdir} ]; then mkdir -p ${logdir}; fi
 
    logfile=${logdir}/${job_name}_${FIRSTDAY}_${LASTDAY}.out

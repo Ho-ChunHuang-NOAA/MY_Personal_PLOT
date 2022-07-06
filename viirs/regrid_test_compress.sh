@@ -44,11 +44,11 @@ MSG="USAGE $0 obs_sat (default:viirs) model_grid [default:aqm|hysplit|ngac] YYYY
 set -x
 
 TODAY=`date +%Y%m%d`
-output_root=/gpfs/dell2/emc/modeling/noscrub/${USER}/VIIRS_AOD/REGRID
+output_root=/lfs/h2/emc/physics/noscrub/${USER}/VIIRS_AOD/REGRID
 mkdir -p ${output_root}
-OBSVDIR=/gpfs/dell2/emc/modeling/noscrub/${USER}/VIIRS_AOD/AOD
+OBSVDIR=/lfs/h2/emc/physics/noscrub/${USER}/VIIRS_AOD/AOD
 hpss_root=/5year/NCEPDEV/emc-naqfc/${USER}
-log_dir=/gpfs/dell2/ptmp/${USER}/batch_logs
+log_dir=/lfs/h2/emc/ptmp/${USER}/batch_logs
 mkdir -p ${log_dir}
 ## mod_file=/naqfc/save/${USER}/plot/cmaq/parm/aqm.t06z.aot.f06.148.grib2
 ## Define G16 pixel Coordinate, without it MET will compute the coordinate in ${MET_TMP_DIR} from information contains AOD file 
@@ -80,9 +80,9 @@ if [ "${hl}" != "${pm}" ]; then
    fi
 echo "processing begin `date`"
    ## Store temporary map and G16 pixel netCDF file, e.g.,
-   ## /gpfs/dell2/ptmp/${USER}/METPLUS_TMP/CONUS_2500_1500_56_-56_-101360_128240_to_Lambert Conformal.grid_map or
+   ## /lfs/h2/emc/ptmp/${USER}/METPLUS_TMP/CONUS_2500_1500_56_-56_-101360_128240_to_Lambert Conformal.grid_map or
    ## CONUS_2500_1500_56_-56_-101360_128240_to_LatLon.grid_map
-   working_dir=/gpfs/dell1/stmp/${USER}/working/viirsaod2${mdl_name}
+   working_dir=/lfs/h2/emc/stmp/${USER}/working/viirsaod2${mdl_name}
    mkdir -p ${working_dir}
    case ${mdl_name} in
       aqm) mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot/parm/aqm.aot.148.grid;;
@@ -93,7 +93,7 @@ echo "processing begin `date`"
    esac
    NOW=${FIRSTDAY}
    while [ ${NOW} -le ${LASTDAY} ]; do
-      export MET_TMP_DIR=/gpfs/dell1/stmp/${USER}/METPLUS_TMP_${mdl_name}/${NOW}
+      export MET_TMP_DIR=/lfs/h2/emc/stmp/${USER}/METPLUS_TMP_${mdl_name}/${NOW}
       if [ -d ${MET_TMP_DIR} ]; then
          /bin/rm -f ${MET_TMP_DIR}/*
       else

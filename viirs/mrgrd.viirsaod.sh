@@ -8,7 +8,7 @@ if [ $# -lt 2 ]; then
 fi
 FIRSTDAY=$1
 LASTDAY=$2
-log_dir=/gpfs/dell2/ptmp/${USER}/batch_logs
+log_dir=/lfs/h2/emc/ptmp/${USER}/batch_logs
 mkdir -p ${log_dir}
 scr=`pwd`
 cd ${scr}
