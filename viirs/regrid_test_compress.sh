@@ -85,9 +85,9 @@ echo "processing begin `date`"
    working_dir=/gpfs/dell1/stmp/${USER}/working/viirsaod2${mdl_name}
    mkdir -p ${working_dir}
    case ${mdl_name} in
-      aqm) mod_file=/gpfs/dell2/emc/modeling/save/${USER}/plot/parm/aqm.aot.148.grid;;
-      hysplit) mod_file=/gpfs/dell2/emc/modeling/save/${USER}/plot/parm/hysplit.smoke.cs.grid;;
-      ngac) mod_file=/gpfs/dell2/emc/modeling/save/${USER}/plot/parm/ngac.aot.550nm.grid;;
+      aqm) mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot/parm/aqm.aot.148.grid;;
+      hysplit) mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot/parm/hysplit.smoke.cs.grid;;
+      ngac) mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot/parm/ngac.aot.550nm.grid;;
       *) echo "model name ${mdl_name} is not defined"
          exit;;
    esac

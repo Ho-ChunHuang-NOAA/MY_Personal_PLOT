@@ -55,7 +55,7 @@ remote_user=hchuang
 ## flag_update=no
 ## if [ "${LASTDAY}" == "${TODAY}" ]; then flag_update=yes; fi
 
-gs_dir=/gpfs/dell2/emc/modeling/save/${USER}/plot/viirs
+gs_dir=/lfs/h2/emc/physics/noscrub/${USER}/plot/viirs
 
 declare -a reg=( dset conus east west  ne10  nw10  se10  swse  ak   hi   nyc   md    mdatl )
 declare -a lon0=( -175 -133 -100 -130  -81   -125  -91   -125  -170 -161 -74.7 -79.3 -82   )
