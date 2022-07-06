@@ -8,16 +8,16 @@ if [ $# -lt 2 ]; then
 fi
 FIRSTDAY=$1
 LASTDAY=$2
-data_dir=/gpfs/dell2/emc/modeling/noscrub/${USER}/GOES16_AOD
+data_dir=/lfs/h2/emc/physics/noscrub/${USER}/GOES16_AOD
 declare -a goes_prod=( AOD ADP )
-logdir=/gpfs/dell2/ptmp/${USER}/batch_logs
+logdir=/lfs/h2/emc/ptmp/${USER}/batch_logs
 mkdir -p ${logdir}
 scr=`pwd`
 cd ${scr}
 declare -a adp=( smk dust )
 declare -a mdl=(aqm hysplit)
 declare -a satid=( g16 )
-script_dir=/gpfs/dell2/emc/modeling/save/${USER}/plot/goes
+script_dir=/lfs/h2/emc/physics/noscrub/${USER}/plot/goes
 flag_get_hpssdata=no
 flag_get_hpssdata=yes
 NOW=${FIRSTDAY}
@@ -25,7 +25,7 @@ while [ ${NOW} -le ${LASTDAY} ]; do
    YY=` echo ${NOW} | cut -c1-4`
    for k in "${satid[@]}"; do
       id=`echo ${k} | cut -c2-3`
-      hpssroot=/NCEPDEV/emc-naqfc/5year/${USER}/${YY}_GOES_${id}_AOD_ADP
+      hpssroot=/NCEPDEV/emc-naqfc/5year/Ho-Chun.Huang/${YY}_GOES_${id}_AOD_ADP
       if [ "${flag_get_hpssdata}" == "yes" ]; then
          for i in "${goes_prod[@]}"; do
             odir=${data_dir}/${i}

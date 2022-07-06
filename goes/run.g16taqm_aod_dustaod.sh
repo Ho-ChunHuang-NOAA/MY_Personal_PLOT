@@ -25,28 +25,35 @@ pm=`echo ${prodmachine} | cut -c1-1`
 if [ -s prod_info_list ]; then /bin/rm -f prod_info_list; fi
 ##set -x
 
+module purge
+export HPC_OPT=/apps/ops/para/libs
+module use /apps/ops/para/libs/modulefiles/compiler/intel/19.1.3.304/
+module load intel
+module load gsl
+module load python/3.8.6
+module load netcdf/4.7.4
+module load met/10.1.1
+module load metplus/4.1.1
+export MET_BASE=/apps/ops/para/libs/intel/19.1.3.304/met/10.1.1/share/met
+export MET_ROOT=/apps/ops/para/libs/intel/19.1.3.304/met/10.1.1
+export PATH=/apps/ops/para/libs/intel/19.1.3.304/met/10.1.1/bin:${PATH}
 ## module use /gpfs/gd1/emc/global/noscrub/emc.metplus/modulefiles    ## phase I
 module use /gpfs/dell2/emc/verification/noscrub/emc.metplus/modulefiles ## Dell
-if [ "${hl}" == "m" ]; then
-   module load met/10.0.0
-elif [ "${hl}" == "v" ]; then
-   module load met/10.0.0
-fi
 module load prod_util
  
 module list
 TODAY=`date +%Y%m%d`
-output_root=/gpfs/dell2/emc/modeling/noscrub/${USER}/GOES16_AOD/REGRID
+output_root=/lfs/h2/emc/physics/noscrub/${USER}/GOES16_AOD/REGRID
 mkdir -p ${output_root}
-OBSVDIR=/gpfs/dell2/emc/modeling/noscrub/${USER}/GOES16_AOD/AOD
-OBSVDIR_ADP=/gpfs/dell2/emc/modeling/noscrub/${USER}/GOES16_AOD/ADP
+OBSVDIR=/lfs/h2/emc/physics/noscrub/${USER}/GOES16_AOD/AOD
+OBSVDIR_ADP=/lfs/h2/emc/physics/noscrub/${USER}/GOES16_AOD/ADP
 hpss_root=/5year/NCEPDEV/emc-naqfc/${USER}
-log_dir=/gpfs/dell2/ptmp/${USER}/batch_logs
+log_dir=/lfs/h2/emc/ptmp/${USER}/batch_logs
 mkdir -p ${log_dir}
 ## mod_file=/naqfc/save/${USER}/plot/cmaq/parm/aqm.t06z.aot.f06.148.grib2
 ## Define G16 pixel Coordinate, without it MET will compute the coordinate in ${MET_TMP_DIR} from information contains AOD file 
 ## Take a minute to create, e.g., CONUS_2500_1500_56_-56_-101360_128240.nc
-export MET_GEOSTATIONARY_DATA=/gpfs/dell2/emc/modeling/noscrub/${USER}/GOES16_AOD/g16_conus_latlon_2km_20180620.dat
+export MET_GEOSTATIONARY_DATA=/lfs/h2/emc/physics/noscrub/${USER}/GOES16_AOD/g16_conus_latlon_2km_20180620.dat
 
 flag_hpss_archive=yes
 flag_hpss_archive=no
@@ -72,14 +79,14 @@ if [ "${hl}" != "${pm}" ]; then
       LASTDAY=$4
    fi
    ## Store temporary map and G16 pixel netCDF file, e.g.,
-   ## /gpfs/dell2/ptmp/${USER}/METPLUS_TMP/CONUS_2500_1500_56_-56_-101360_128240_to_Lambert Conformal.grid_map or
+   ## /lfs/h2/emc/ptmp/${USER}/METPLUS_TMP/CONUS_2500_1500_56_-56_-101360_128240_to_Lambert Conformal.grid_map or
    ## CONUS_2500_1500_56_-56_-101360_128240_to_LatLon.grid_map
-   working_dir=/gpfs/dell1/stmp/${USER}/working/g16aod2${mdl_name}
+   working_dir=/lfs/h2/emc/stmp/${USER}/working/g16aod2${mdl_name}
    mkdir -p ${working_dir}
    case ${mdl_name} in
-      aqm) mod_file=/gpfs/dell2/emc/modeling/save/${USER}/plot/parm/aqm.aot.148.grid;;
-      hysplit) mod_file=/gpfs/dell2/emc/modeling/save/${USER}/plot/parm/hysplit.smoke.cs.grid;;
-      ngac) mod_file=/gpfs/dell2/emc/modeling/save/${USER}/plot/parm/ngac.aot.550nm.grid;;
+      aqm) mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot/parm/aqm.aot.148.grid;;
+      hysplit) mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot/parm/hysplit.smoke.cs.grid;;
+      ngac) mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot/parm/ngac.aot.550nm.grid;;
       *) echo "model name ${mdl_name} is not defined"
          exit;;
    esac
@@ -87,7 +94,7 @@ if [ "${hl}" != "${pm}" ]; then
    declare -a qc_flag=( all )
    declare -a qc_flag=( high medium low )
    while [ ${NOW} -le ${LASTDAY} ]; do
-      export MET_TMP_DIR=/gpfs/dell1/stmp/${USER}/METPLUS_TMP_${mdl_name}/${NOW}
+      export MET_TMP_DIR=/lfs/h2/emc/stmp/${USER}/METPLUS_TMP_${mdl_name}/${NOW}
       if [ -d ${MET_TMP_DIR} ]; then
          /bin/rm -f ${MET_TMP_DIR}/*
       else

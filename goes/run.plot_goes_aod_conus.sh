@@ -1,20 +1,8 @@
 #!/bin/sh
 # module load idl/8.6.1
-module load idl/8.7.3
+  
 module load prod_util
 hl=`hostname | cut -c1`
-if [ "${hl}" == "v" ]; then
-  phase12_id='g'
-else
-  phase12_id='t'
-fi
-
-hl=`hostname | cut -c1`
-if [ "${hl}" == "v" ]; then
-  phase12_id='g'
-else
-  phase12_id='t'
-fi
 
 TODAY=`date +%Y%m%d`
 if [ $# -lt 1 ]; then
@@ -48,7 +36,7 @@ while [[ ${NOW} -le ${LASTDAY} ]]; do
    ## calday=`bash /u/${USER}/bin/jday2cald ${NOW}`
    jday=`bash /u/${USER}/bin/cald2jday ${NOW}`
    ## number of separator / is 8 print 8+2 in awk command below, arrary is from 1-10 with filename
-   idir_aod=/gpfs/hps3/emc/meso/noscrub/${USER}/GOES16/AOD      ## switch to print $10
+   idir_aod=/lfs/h2/emc/physics/noscrub/${USER}/GOES16/AOD      ## switch to print $10
    ## number of separator / is 6 print 6+2 in awk command below, arrary is from 1-8 with filename
    idir_aod=/gpfs/${phase12_id}d3/emc/meso/noscrub/${USER}/GOES16_AOD/AOD/${NOW}        ## switch to print $8
    if [ "${flag_test}" == "no" ]; then
@@ -99,7 +87,7 @@ while [[ ${NOW} -le ${LASTDAY} ]]; do
    
    idlexe=`which idl`
    script_dir=`pwd`
-   odir=/gpfs/dell1/ptmp/${USER}/goes_16_plot/
+   odir=/lfs/h2/emc/ptmp/${USER}/goes_16_plot/
    
    remote_host=emcrzdm.ncep.noaa.gov
    remote_user=hchuang

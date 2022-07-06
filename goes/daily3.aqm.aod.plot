@@ -68,7 +68,7 @@ grid_id=227
 flag_update=no
 if [ "${LASTDAY}" == "${TODAY}" ]; then flag_update=yes; fi
 
-gs_dir=/gpfs/dell2/emc/modeling/save/${USER}/plot/goes
+gs_dir=/lfs/h2/emc/physics/noscrub/${USER}/plot/goes
 
 declare -a reg=( dset conus east west  ne10  nw10  se10  swse  ak   hi   nyc   md    mdatl )
 declare -a lon0=( -175 -133 -100 -130  -81   -125  -91   -125  -170 -161 -74.7 -79.3 -82   )
@@ -101,14 +101,14 @@ declare -a qc_flag=( high medium low )
 declare -a type=( ${mdlname} )
 ntyp=${#type[@]}
 
-ftpdir=/gpfs/dell1/stmp/${USER}/daily_plot_${mdlname}_aod
+ftpdir=/lfs/h2/emc/stmp/${USER}/daily_plot_${mdlname}_aod
 mkdir -p ${ftpdir}
    
 NOW=${FIRSTDAY}
 while [ ${NOW} -le ${LASTDAY} ]; do
 
    if [ ${obssat} == 'g16' ]; then
-      comdir=/gpfs/dell2/emc/modeling/noscrub/${USER}/GOES16_AOD/REGRID/${mdlname}.${NOW}
+      comdir=/lfs/h2/emc/physics/noscrub/${USER}/GOES16_AOD/REGRID/${mdlname}.${NOW}
    else
       comdir=/gpfs/${phase12_id}d3/emc/meso/noscrub/${USER}/GOES16_AOD/REGRID/${mdlname}.${NOW}
    fi
@@ -130,7 +130,7 @@ while [ ${NOW} -le ${LASTDAY} ]; do
       mkdir -p ${outdir}
    fi
    
-   tmpdir=/gpfs/dell1/stmp/${USER}/com2_aod_${obssat}_${mdlname}.${NOW}
+   tmpdir=/lfs/h2/emc/stmp/${USER}/com2_aod_${obssat}_${mdlname}.${NOW}
    if [ -d ${tmpdir} ]; then
       /bin/rm -f ${tmpdir}/*
    else
@@ -394,7 +394,7 @@ done
 echo "${outdir}"
 
 if [ "${flag_bsub}" == "yes" ]; then
-   working_dir=/gpfs/dell1/stmp/${USER}/job_submit
+   working_dir=/lfs/h2/emc/stmp/${USER}/job_submit
    mkdir -p ${working_dir}
    cd ${working_dir}
 
@@ -403,7 +403,7 @@ if [ "${flag_bsub}" == "yes" ]; then
    batch_script=trans_cmaqaod_${obssat}.sh
    if [ -e ${batch_script} ]; then /bin/rm -f ${batch_script}; fi
 
-   logdir=/gpfs/dell2/ptmp/${USER}/batch_logs
+   logdir=/lfs/h2/emc/ptmp/${USER}/batch_logs
    if [ ! -d ${logdir} ]; then mkdir -p ${logdir}; fi
 
    logfile=${logdir}/${job_name}_${FIRSTDAY}_${LASTDAY}.out

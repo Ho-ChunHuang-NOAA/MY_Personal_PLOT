@@ -31,14 +31,14 @@ module load intel
 module load gsl
 module load python/3.8.6
 module load netcdf/4.7.4
-module load met/10.0.1
-module load metplus/4.0.0
+module load met/10.1.1
+module load metplus/4.1.1
+export MET_BASE=/apps/ops/para/libs/intel/19.1.3.304/met/10.1.1/share/met
+export MET_ROOT=/apps/ops/para/libs/intel/19.1.3.304/met/10.1.1
+export PATH=/apps/ops/para/libs/intel/19.1.3.304/met/10.1.1/bin:${PATH}
 
-module load prod_util/2.0.13
-module load prod_envir/2.0.6
-## module use /gpfs/gd1/emc/global/noscrub/emc.metplus/modulefiles    ## phase I
-## module use /gpfs/dell2/emc/verification/noscrub/emc.metplus/modulefiles ## Dell
-##    module load met/10.0.0
+module load prod_util
+module load prod_envir
 module list
 set -x
 TODAY=`date +%Y%m%d`
@@ -78,7 +78,7 @@ if [ "${hl}" != "${pm}" ]; then
       LASTDAY=$4
    fi
    ## Store temporary map and G16 pixel netCDF file, e.g.,
-   ## /gpfs/dell2/ptmp/${USER}/METPLUS_TMP/CONUS_2500_1500_56_-56_-101360_128240_to_Lambert Conformal.grid_map or
+   ## /lfs/h2/emc/ptmp/${USER}/METPLUS_TMP/CONUS_2500_1500_56_-56_-101360_128240_to_Lambert Conformal.grid_map or
    ## CONUS_2500_1500_56_-56_-101360_128240_to_LatLon.grid_map
    working_dir=/lfs/h2/emc/stmp/${USER}/working/g16aod2${mdl_name}
    mkdir -p ${working_dir}

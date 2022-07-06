@@ -165,7 +165,7 @@ pro plot_goes_aod_conus
    ny=1500L
    lat2km=fltarr(nx,ny)
    lon2km=fltarr(nx,ny)
-   llfname='/gpfs/dell2/emc/modeling/noscrub/${USER}/GOES16_GEO/g16_conus_latlon_2km_20180620.dat'
+   llfname='/lfs/h2/emc/physics/noscrub/${USER}/GOES16_GEO/g16_conus_latlon_2km_20180620.dat'
 
    openr,ilun,llfname,/get_lun,/compress
    readu,ilun,lat2km

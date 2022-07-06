@@ -1,12 +1,7 @@
 #!/bin/sh
-module load idl/8.7.3
+  
 module load prod_util
 hl=`hostname | cut -c1`
-if [ "${hl}" == "v" ]; then
-  phase12_id='g'
-else
-  phase12_id='t'
-fi
 
 TODAY=`date +%Y%m%d`
 if [ $# -lt 1 ]; then
@@ -30,7 +25,7 @@ flag_ftp=yes
 flag_test=yes
 flag_test=no
 
-working_dir=/gpfs/dell1/stmp/${USER}/plot_goes_aod_adp
+working_dir=/lfs/h2/emc/stmp/${USER}/plot_goes_aod_adp
 mkdir -p ${working_dir}
 ##
 ##      echo "${idir_adp}/OR_ABI-L2-AODC-M6_G16_s20190411002137_e20190411004510_c20190411005261.nc" > flist
@@ -44,14 +39,14 @@ while [[ ${NOW} -le ${LASTDAY} ]]; do
    ## calday=`bash /u/${USER}/bin/jday2cald ${NOW}`
    jday=`bash /u/${USER}/bin/cald2jday ${NOW}`
    ## number of separator / is 8 print 8+2 in awk command below, arrary is from 1-10 with filename
-   idir_adp=/gpfs/hps3/emc/meso/noscrub/${USER}/GOES16/AOD      ## switch to print $10
+   idir_adp=/lfs/h2/emc/physics/noscrub/${USER}/GOES16/AOD      ## switch to print $10
    ## number of separator / is 8 print 8+2 in awk command below, arrary is from 1-8 with filename
    idir_adp=/gpfs/gd1/emc/meso/noscrub/${USER}/GOES16_GEO/NAQFC_data ## witch to print $8
    ## number of separator / is 9 print 9+2 in awk command below, arrary is from 1-8 with filename
    idir_adp=/gpfs/${phase12_id}d3/emc/meso/noscrub/${USER}/GOES16_AOD/ADP/${NOW}        ## switch to print $8
    ## number of separator / is 9 print 9+2 in awk command below, arrary is from 1-8 with filename
-   idir_aod=/gpfs/dell2/emc/modeling/noscrub/${USER}/GOES16_AOD/AOD/${NOW}        ## switch to print $8
-   idir_adp=/gpfs/dell2/emc/modeling/noscrub/${USER}/GOES16_AOD/ADP/${NOW}        ## switch to print $8
+   idir_aod=/lfs/h2/emc/physics/noscrub/${USER}/GOES16_AOD/AOD/${NOW}        ## switch to print $8
+   idir_adp=/lfs/h2/emc/physics/noscrub/${USER}/GOES16_AOD/ADP/${NOW}        ## switch to print $8
    fhd_aod=OR_ABI-L2-AODC-M6_G16
    fhd_adp=OR_ABI-L2-ADPC-M6_G16
    if [ -s ${working_dir}/flist_aod.${NOW} ]; then /bin/rm -rf ${working_dir}/flist_aod.${NOW}; fi
@@ -158,7 +153,7 @@ while [[ ${NOW} -le ${LASTDAY} ]]; do
    
    idlexe=`which idl`
    script_dir=`pwd`
-   odir=/gpfs/dell1/ptmp/${USER}/goes_16_plot/
+   odir=/lfs/h2/emc/ptmp/${USER}/goes_16_plot/
    mkdir -p ${odir}
    
    remote_host=emcrzdm.ncep.noaa.gov

@@ -1,5 +1,5 @@
 #!/bin/sh
-module load idl/8.7.3
+  
 module load prod_util
 envir=para7
 TODAY=`date +%Y%m%d`
@@ -71,7 +71,7 @@ idlexe=`which idl`
 script_dir=`pwd`
 devdir=/meso2/noscrub/${USER}/com2/hysplit/${envir}
 idir=/naqfc/noscrub/${USER}/aod_smoke/fire_${envir}/
-odir=/gpfs/dell2/ptmp/${USER}/fire_plot/
+odir=/lfs/h2/emc/ptmp/${USER}/fire_plot/
 mkdir -p ${odir} ${idir}
 flag_dark=no
 smlexp=`echo ${envir} | tr '[:upper:]' '[:lower:]'`
