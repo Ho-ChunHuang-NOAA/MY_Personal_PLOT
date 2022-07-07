@@ -17,14 +17,15 @@ import shutil
 import subprocess
 ### Read data of all time step in once, then print one at a time
 ### PASSED AGRUEMENTS
-if len(sys.argv) < 4:
-    print("you must set 4 arguments as model[prod|para|...] cycle[06|12|all]  start_date end_date")
+if len(sys.argv) < 5:
+    print("you must set 5 arguments as model[prod|para|...] variabels[o3|pm25|all] cycle[06|12|all]  start_date end_date")
     sys.exit()
 else:
     envir = sys.argv[1]
-    sel_cyc = sys.argv[2]
-    start_date = sys.argv[3]
-    end_date = sys.argv[4]
+    sel_var = sys.argv[2]
+    sel_cyc = sys.argv[3]
+    start_date = sys.argv[4]
+    end_date = sys.argv[5]
 
 if envir.lower() == "para":
     fig_exp="ncopara"
@@ -95,11 +96,15 @@ H_date_format = "%H"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
-## var=[ "pbl", "wspd10", "rn" ] 
-## figid=[ "pbl2", "wspd", "rn" ]
-
-var=[ "pbl" ]
-figid=[ "pbl2" ]
+if sel_var == "all":
+   var=[ "o3", "pm25" ]
+elif sel_var == "o3":
+   var=[ "o3" ]
+elif sel_var == "pm25":
+   var=[ "pm25" ]
+else:
+    print("input variable "+sel_var+" can not be recongized.")
+    sys.exit()
 num_var=len(var)
 print("var length = "+str(num_var))
 
@@ -122,7 +127,7 @@ plt.rcParams['ytick.labelsize'] = 10
 plt.rcParams['axes.titlesize'] = 15
 plt.rcParams['axes.titleweight'] = 'bold'
 plt.rcParams['axes.formatter.useoffset'] = False
-cbar_num_format = "%.d"
+cbar_num_format = "%d"
 plt.close('all') # close all figures
 
 msg=datetime.datetime.now()
@@ -157,41 +162,29 @@ else:
     rlat1 = [   70.0,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   72.0,   23.0,   70.0 ]
 xsize = [     10,     10,       8,      8,      8,      8,      8,      8,      8,      8,      8,      8,     10 ]
 ysize = [      8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      8,      8,      8 ]
-if 1 == 2:
-    iplot = [      0,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0 ]
+if 1 == 1:
+    iplot = [      1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1 ]
 else:
-    iplot = [      1,      1,       1,      1,      1,      1,      1,      1,      0,      0,      1,      1,      0 ]
+    iplot = [      1,      0,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0 ]
 num_reg=len(iplot)
-
 
 date=sdate
 while date <= edate:
-    sub_met_dir=[
-                "cs."+date.strftime(YMD_date_format),
-                "cs."+date.strftime(YMD_date_format)+".met"
-                ]
     flag_find_idir="no"
     for idir in find_dir:
         comout=idir
         print("check "+idir)
-        flag_find_sdir="no"
-        for sdir in sub_met_dir:
-            subout=sdir
-            flag_find_cyc="yes"
-            for cyc in cycle:
-                check_file="aqm."+cyc+".metcro2d.ncf"
-                aqmfilein=comout+"/"+sdir+"/"+check_file
-                if os.path.exists(aqmfilein):
-                    print(aqmfilein+" exists")
-                else:
-                    flag_find_cyc="no"
-                    break
-            if flag_find_cyc == "yes":
-                flag_find_sdir="yes"
+        flag_find_cyc="yes"
+        for cyc in cycle:
+            check_file="aqm."+cyc+".aconc_sfc.ncf"
+            aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
+            if os.path.exists(aqmfilein):
+                print(aqmfilein+" exists")
+            else:
+                flag_find_cyc="no"
+                print("Can not find "+aqmfilein)
                 break
-        if flag_find_sdir== "yes":
-            slen=len(subout)
-            subdir_marker=subout[slen-3:slen]
+        if flag_find_cyc == "yes":
             flag_find_idir="yes"
             break
     if flag_find_idir == "yes":
@@ -203,7 +196,7 @@ while date <= edate:
     if envir == "prod" or envir == "para6x" or envir == "para6b":
         flag_ak = "yes"
         for cyc in cycle:
-            check_file="aqm."+cyc+".metcro2d.ncf"
+            check_file="aqm."+cyc+".aconc_sfc.ncf"
             aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+check_file
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
@@ -213,7 +206,7 @@ while date <= edate:
                 break
         flag_hi = "yes"
         for cyc in cycle:
-            check_file="aqm."+cyc+".metcro2d.ncf"
+            check_file="aqm."+cyc+".aconc_sfc.ncf"
             aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+check_file
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
@@ -225,16 +218,10 @@ while date <= edate:
         flag_ak = "no"
         flag_hi = "no"
 
-    if flag_ak == "no" and iplot[num_reg-3] == 1:
-        iplot[num_reg-3] = 0
-    if flag_hi == "no" and iplot[num_reg-2] == 1:
-        iplot[num_reg-2] = 0
-    print("iplot length = "+str(num_reg))
-
     for cyc in cycle:
         msg=datetime.datetime.now()
         print("Start processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
-        s1_title=fig_exp.upper()+" "+date.strftime(YMD_date_format)+" "+cyc
+        s1_title="CMAQ "+fig_exp.upper()+" "+date.strftime(YMD_date_format)+" "+cyc
         fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[1:3]))
 
         metfilein=metout+"/cs."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
@@ -247,17 +234,21 @@ while date <= edate:
         else:
             print("Can not find "+metfilein)
 
-        if subdir_marker == "met":
-            aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"."+subdir_marker+"/aqm."+cyc+".metcro2d.ncf"
-        else:
-            aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cyc+".metcro2d.ncf"
+        aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
         if os.path.exists(aqmfilein):
             print(aqmfilein+" exists")
             cs_aqm = netcdf.Dataset(aqmfilein)
             cs_var = cs_aqm.variables['TFLAG'][:,0,:]
             nstep=len(cs_var)
+            for ivar in range(0,num_var):
+                if var[ivar] == "o3":
+                    o3_cs = cs_aqm.variables['O3'][:,0,:,:]
+                elif var[ivar] == "pm25":
+                    pm_cs = cs_aqm.variables['PM25_TOT'][:,0,:,:]
+            cs_aqm.close()
         else:
             print("Can not find "+aqmfilein)
+            sys.exit()
 
         if flag_ak == "yes":
             metfilein=metout+"/AK."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
@@ -272,10 +263,7 @@ while date <= edate:
                 flag_ak = "no"
                 iplot[num_reg-3] = 0
 
-            if subdir_marker == "met":
-                aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"."+subdir_marker+"/aqm."+cyc+".metcro2d.ncf"
-            else:
-                aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/aqm."+cyc+".metcro2d.ncf"
+            aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
                 ak_aqm = netcdf.Dataset(aqmfilein)
@@ -284,6 +272,12 @@ while date <= edate:
                 if nstep_ak != nstep:
                     print("time step of AK domain "+str(nstep_ak)+" is different from CONUS domain "+str(nstep))
                     sys.exit()
+                for ivar in range(0,num_var):
+                    if var[ivar] == "o3":
+                        o3_ak = ak_aqm.variables['O3'][:,0,:,:]
+                    elif var[ivar] == "pm25":
+                        pm_ak = ak_aqm.variables['PM25_TOT'][:,0,:,:]
+                ak_aqm.close()
             else:
                 print("Can not find "+aqmfilein)
                 flag_ak = "no"
@@ -302,10 +296,7 @@ while date <= edate:
                 flag_hi = "no"
                 iplot[num_reg-2] = 0
     
-            if subdir_marker == "met":
-                aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"."+subdir_marker+"/aqm."+cyc+".metcro2d.ncf"
-            else:
-                aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/aqm."+cyc+".metcro2d.ncf"
+            aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
                 hi_aqm = netcdf.Dataset(aqmfilein)
@@ -315,203 +306,92 @@ while date <= edate:
                 if nstep_hi != nstep:
                     print("time step of HI domain "+str(nstep_hi)+" is different from CONUS domain "+str(nstep))
                     sys.exit()
+                for ivar in range(0,num_var):
+                    if var[ivar] == "o3":
+                        o3_hi = hi_aqm.variables['O3'][:,0,:,:]
+                    elif var[ivar] == "pm25":
+                        pm_hi = hi_aqm.variables['PM25_TOT'][:,0,:,:]
+                hi_aqm.close()
             else:
                 print("Can not find "+aqmfilein)
                 flag_hi = "no"
                 iplot[num_reg-2] = 0
+
+        if flag_ak == "no" and iplot[num_reg-3] == 1:
+            iplot[num_reg-3] = 0
+        if flag_hi == "no" and iplot[num_reg-2] == 1:
+            iplot[num_reg-2] = 0
+        print("iplot length = "+str(num_reg))
+
         for ivar in range(0,num_var):
-            if var[ivar] == "cfracp":
-                data_var="cfrac"
-            else:
-                data_var=var[ivar]
-            plot_var=figid[ivar]
             msg=datetime.datetime.now()
-            print("Start processing "+plot_var)
-            figdir = figout+"/aqm"+"_"+envir+"_"+date.strftime(YMD_date_format)+"_"+plot_var+"_"+cyc+"_metv6"
+            print("Start processing "+var[ivar])
+            jobid="aqm"+"_"+envir+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"_"+cyc
+            figdir = figout+"/"+jobid
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)
             os.makedirs(figdir)
-            print("working on "+date.strftime(YMD_date_format)+" "+cyc+" "+plot_var)
-            read_var=data_var.upper()
-            var_cs = cs_aqm.variables[read_var][:,0,:,:]
-            if flag_ak == "yes":
-                var_ak = ak_aqm.variables[read_var][:,0,:,:]
-            if flag_hi == "yes":
-                var_hi = hi_aqm.variables[read_var][:,0,:,:]
-
-            ##    s3_title=plot_var.upper()+" sfc_conc ($\u03bcg/m^3$)"
-            ##  var=[ "pbl", "rn", "rc", "rgrnd", "cfrac", "cfracp", "snocov", "veg", "lai" ]
-            if plot_var == "pbl2":
-                s3_title="GFS PBL height (M)"
-                scale=1.
-                clevs = [ 250., 500., 1000., 1500., 2000., 2500., 3000., 3500., 4000., 4500. ]
-                cbar_num_format = "%.d"
-##                      (0.9020,0.8627,0.1961), (0.9412,0.5098,0.1569), (0.9804,0.2353,0.2353),
-## (1.0000,0.5490,0.0000), 
-                cmap = mpl.colors.ListedColormap([
-                       (0.0000,0.8000,0.8000), (0.4314,0.4314,1.0000), (0.0000,0.5020,0.0000), (0.0000,0.8627,0.0000),
-                       (1.0000,1.0000,0.0000), (1.0000,0.6500,0.0000), (0.9412,0.5098,0.1569), (0.9804,0.2353,0.2353),
-                       (0.8627,0.0784,0.2353)
-                      ])
-                cmap.set_over('magenta')
-                var_cs=var_cs*scale
+            print("figdir = "+figdir)
+            print("working on "+date.strftime(YMD_date_format)+" "+cyc+" "+var[ivar])
+            if var[ivar] == "o3":
+                s3_title="Ozone sfc_conc (ppbV)"
+                scale=1000.
+                clevs = [ 3., 6., 9., 12., 25., 35., 45., 55., 65., 70., 75., 85., 95., 105. ]
+                var_cs=o3_cs*scale
                 if flag_ak == "yes":
-                    var_ak=var_ak*scale
+                    var_ak=o3_ak*scale
                 if flag_hi == "yes":
-                    var_hi=var_hi*scale
-            elif plot_var == "wspd":
-                s3_title="Wind speed at 10 m (m/s)"
-                scale=1.
-                clevs = [ 1, 2, 4, 6, 8, 10, 12, 15, 18, 20, 25, 30 ]
-                cbar_num_format = "%.1f"
-                cmap = mpl.colors.ListedColormap([
-                      (0.8627,0.8627,1.0000), (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
-                      (0.2157,0.2157,1.0000), (0.0000,0.7843,0.7843), (0.0000,0.8627,0.0000), (0.6275,0.9020,0.1961),
-                      (0.9020,0.8627,0.1961), (0.9020,0.6863,0.1765), (0.9412,0.5098,0.1569), (0.9804,0.2353,0.2353)
-                      ])
-                cmap.set_over('magenta')
-                var_cs=var_cs*scale
-                if flag_ak == "yes":
-                    var_ak=var_ak*scale
-                if flag_hi == "yes":
-                    var_hi=var_hi*scale
-            elif plot_var == "rn":
-                s3_title="Nonconvective Precipitation (cm)"
-                scale=1.
-                clevs = [ 0.1, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.5, 1.8, 2.0, 2.5, 3.0 ]
-                cbar_num_format = "%.1f"
-                cmap = mpl.colors.ListedColormap([
-                      (0.8627,0.8627,1.0000), (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
-                      (0.2157,0.2157,1.0000), (0.0000,0.7843,0.7843), (0.0000,0.8627,0.0000), (0.6275,0.9020,0.1961),
-                      (0.9020,0.8627,0.1961), (0.9020,0.6863,0.1765), (0.9412,0.5098,0.1569), (0.9804,0.2353,0.2353)
-                      ])
-                cmap.set_over('magenta')
-                var_cs=var_cs*scale
-                if flag_ak == "yes":
-                    var_ak=var_ak*scale
-                if flag_hi == "yes":
-                    var_hi=var_hi*scale
-            elif plot_var == "rc":
-                s3_title="Convective Precipitation (cm)"
-                scale=1.
-                clevs = [ 0.1, 0.2, 0.4, 0.6, 0.8, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0 ]
-                cbar_num_format = "%.2f"
-                cmap = mpl.colors.ListedColormap([
-                      (0.8627,0.8627,1.0000), (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
-                      (0.2157,0.2157,1.0000), (0.0000,0.7843,0.7843), (0.0000,0.8627,0.0000), (0.6275,0.9020,0.1961),
-                      (0.9020,0.8627,0.1961), (0.9020,0.6863,0.1765), (0.9412,0.5098,0.1569), (0.9804,0.2353,0.2353)
-                      ])
-                cmap.set_over('magenta')
-                var_cs=var_cs*scale
-                if flag_ak == "yes":
-                    var_ak=var_ak*scale
-                if flag_hi == "yes":
-                    var_hi=var_hi*scale
-            elif plot_var == "swrad":
-                s3_title="Solar Rad reaching SFC ($Watts/M^2$)"
-                scale=1.
-                clevs = [ 150., 300., 450., 600., 750., 900., 1050., 1200. ]
-                cbar_num_format = "%.d"
-                cmap = mpl.colors.ListedColormap([
-                      (0.9020,0.9020,0.0000), (1.0000,1.0000,0.0000), (1.0000,0.8431,0.0000), (1.0000,0.5490,0.0000),
-                      (0.9804,0.2353,0.2353), (0.8627,0.0784,0.2353), (0.5451,0.0000,0.0000)
-                      ])
-                cmap.set_over('magenta')
-                var_cs=var_cs*scale
-                if flag_ak == "yes":
-                    var_ak=var_ak*scale
-                if flag_hi == "yes":
-                    var_hi=var_hi*scale
-            elif plot_var == "cfrac":
-                s3_title="Total Cloud Fraction (unitless)"
-                scale=1.
-                clevs = [ 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9 ]
-                cbar_num_format = "%.1f"
-                cmap = mpl.colors.ListedColormap([
-                      (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000), (0.0000,0.7843,0.7843),
-                      (0.9020,0.9020,0.0000), (0.9020,0.6863,0.1765), (0.5569,0.9882,0.0000), (0.1961,0.8039,0.1961),
-                      (0.0000,0.5000,0.0000)
-                      ])
-                cmap.set_over((0.0000,0.3000,0.0000))
-                var_cs=var_cs*scale
-                if flag_ak == "yes":
-                    var_ak=var_ak*scale
-                if flag_hi == "yes":
-                    var_hi=var_hi*scale
-            elif plot_var == "cldc":
-                s3_title="Total Cloud Cover  (%)"
-                scale=100.
-                clevs = [ 15., 30., 45., 60., 75., 90. ]
-                cbar_num_format = "%.d"
-                ##       (1.0000,0.5490,0.0000),
-                cmap = mpl.colors.ListedColormap([
-                      (0.8039,0.5216,0.2471), (1.0000,0.7000,0.0000), (1.0000,1.0000,0.0000),
-                      (0.5569,0.9882,0.0000), (0.0000,0.8039,0.0000), (0.0000,0.5020,0.0000)
-                      ])
-                cmap.set_over((0.0000,0.2500,0.0000))
-                var_cs=var_cs*scale
-                if flag_ak == "yes":
-                    var_ak=var_ak*scale
-                if flag_hi == "yes":
-                    var_hi=var_hi*scale
-            elif plot_var == "snocov":
-                s3_title="Snow Cover Fraction (unitless)"
-                scale=1.
-                clevs = [ 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9 ]
-                cbar_num_format = "%.1f"
+                    var_hi=o3_hi*scale
                 cmap = mpl.colors.ListedColormap([
                       (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
-                      (0.0000,0.7843,0.7843), (0.0000,0.8627,0.0000), (0.6275,0.9020,0.1961),
-                      (0.9020,0.8627,0.1961), (0.9412,0.5098,0.1569), (0.9804,0.2353,0.2353),
+                      (0.0000,0.7490,1.0000), (0.0000,1.0000,1.0000),
+                      (0.0000,0.7060,0.0000), (0.0000,0.9060,0.0000), (0.3020,1.0000,0.3020),
+                      (1.0000,1.0000,0.4980), (1.0000,0.8745,0.0000), (1.0000,0.6471,0.0000), (0.9412,0.5098,0.1569),
+                      (1.0000,0.0000,0.0000), (0.7020,0.0000,0.0000)
+                      ])
+                cmap.set_under((0.8627,0.8627,1.0000))
+                cmap.set_over((0.4310,0.2780,0.7250))
+            elif var[ivar] == "pm25":
+                s3_title="PM25 sfc_conc ($\u03bcg/m^3$)"
+                scale=1.
+                clevs = [ 3., 6., 9., 12., 15., 35., 55., 75., 100., 125., 150., 250., 300., 400., 500., 600., 750. ]
+                var_cs=pm_cs
+                if flag_ak == "yes":
+                    var_ak=pm_ak
+                if flag_hi == "yes":
+                    var_hi=pm_hi
+                cmap = mpl.colors.ListedColormap([
+                      (0.0000,0.7060,0.0000), (0.0000,0.9060,0.0000), (0.3020,1.0000,0.3020),
+                      (1.0000,1.0000,0.4980), (1.0000,0.8745,0.0000), (1.0000,0.6471,0.0000),
+                      (1.0000,0.3840,0.3840), (1.0000,0.0000,0.0000), (0.8000,0.0000,0.0000), (0.7020,0.0000,0.0000),
+                      (0.6120,0.5100,0.8120), (0.5180,0.3880,0.7650), (0.4310,0.2780,0.7250),(0.2980,0.1920,0.5020),
+                      (0.4706,0.4706,0.4706), (0.7843,0.7843,0.7843)
+                      ])
+                cmap.set_under((0.8627,0.8627,1.0000))
+                cmap.set_over((0.9412,0.9412,0.9412))
+            elif var[ivar] == "pm25_nonseason":
+                s3_title="PM25 sfc_conc ($\u03bcg/m^3$)"
+                scale=1.
+                clevs = [ 0., 3., 6., 9., 12., 25., 35., 45., 55., 65., 75., 85., 95., 105. ]
+                var_cs=pm_cs
+                if flag_ak == "yes":
+                    var_ak=pm_ak
+                if flag_hi == "yes":
+                    var_hi=pm_hi
+                cmap = mpl.colors.ListedColormap([
+                      (0.9412,0.9412,0.9412), (0.8627,0.8627,1.0000), (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
+                      (0.2157,0.2157,1.0000), (0.0000,0.7843,0.7843), (0.0000,0.8627,0.0000), (0.6275,0.9020,0.1961),
+                      (0.9020,0.8627,0.1961), (0.9020,0.6863,0.1765), (0.9412,0.5098,0.1569), (0.9804,0.2353,0.2353),
+                      (0.9412,0.0000,0.5098)
                       ])
                 cmap.set_over('magenta')
-                var_cs=var_cs*scale
-                if flag_ak == "yes":
-                    var_ak=var_ak*scale
-                if flag_hi == "yes":
-                    var_hi=var_hi*scale
-            elif plot_var == "veg":
-                s3_title="Vegetation Coverage (unitless)"
-                scale=1.
-                clevs = [ 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9 ]
-                cbar_num_format = "%.1f"
-                cmap = mpl.colors.ListedColormap([
-                      (0.6000,1.0000,0.6000), (0.4000,1.0000,0.4000), (0.2000,1.0000,0.2000), (0.0000,1.0000,0.0000),
-                      (0.0000,0.8000,0.0000), (0.0000,0.6000,0.0000), (0.0000,0.4000,0.0000), (0.0000,0.2000,0.0000)
-                      ])
-                cmap.set_over((0.0000,0.0500,0.0000))
-                var_cs=var_cs*scale
-                if flag_ak == "yes":
-                    var_ak=var_ak*scale
-                if flag_hi == "yes":
-                    var_hi=var_hi*scale
-            elif plot_var == "lai":
-                s3_title="Leaf-Area Index ($m^2/m^2$)"
-                scale=1.
-                clevs = [ 0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.5, 6.0 ]
-                cbar_num_format = "%.1f"
-                cmap = mpl.colors.ListedColormap([
-                      (0.6000,1.0000,0.6000), (0.4000,1.0000,0.4000), (0.2000,1.0000,0.2000), (0.0000,1.0000,0.0000),
-                      (0.0000,0.8000,0.0000), (0.0000,0.7000,0.0000), (0.0000,0.6000,0.0000), (0.0000,0.5000,0.0000),
-                      (0.0000,0.4000,0.0000), (0.0000,0.3000,0.0000)
-                      ])
-                cmap.set_over((0.0000,0.1000,0.0000))
-                var_cs=var_cs*scale
-                if flag_ak == "yes":
-                    var_ak=var_ak*scale
-                if flag_hi == "yes":
-                    var_hi=var_hi*scale
-            else:
-                s3_title=plot_var.upper()+" undefined"
-                print(s3_title)
-                continue
-            cmap.set_under('whitesmoke')
+                cmap.set_under('whitesmoke')
             norm = mpl.colors.BoundaryNorm(boundaries=clevs, ncolors=cmap.N)
             gs = gridspec.GridSpec(1,1)
-            fcst_hour=fcst_ini-hour_inc
-            ## for n in range(nstep-1,nstep):
+            fcst_hour=fcst_ini
+            ## for n in range(0,2):
             for n in range(0,nstep):
-                nout=n
+                nout=n+1
                 fcst_hour=fcst_hour+hour_inc
                 if nstep > 99:
                     s2_title = fcst_hour.strftime(YMDH_date_format)+"00V"+str(format(nout,'03d'))
@@ -582,30 +462,54 @@ while date <= edate:
                         ax.set_title(title)
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
-                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cyc+"."+str(format(nout,'02d'))+"."+figid[ivar]+".k1.png"
+                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cyc+"."+str(format(nout,'02d'))+"."+var[ivar]+".k1.png"
                         plt.savefig(savefig_name, bbox_inches='tight')
                         plt.close()
             ##
             ## scp by cycle and variable
             ##
-            os.chdir(figdir)
-            parta=os.path.join("/usr", "bin", "scp")
-            if 1 == 1 :
-                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cyc)
-            else:
-                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
-            subprocess.call(['scp -p * '+partb], shell=True)
+            ## Need to define working_dir above this line
+            ## Need to define jobid above this line
+            ## example of modify the figdir= section above
+            ##    jobid="aqm"+"_"+envir+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"_"+cyc
+            ##    figdir = figout+"/"+jobid
+            task_cpu="02:00:00"
+            plot_script=os.path.join(working_dir,jobid+".sh")
+            print("Creating graphic script "+plot_script)
+            if os.path.exists(plot_script):
+                os.remove(plot_script)
+            with open(plot_script, 'a') as sh:
+                sh.write("#!/bin/bash -l\n")
+                sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
+                sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4GB\n")
+                sh.write("#PBS -N "+jobid+"\n")
+                sh.write("#PBS -q dev_transfer\n")
+                sh.write("#PBS -A AQM-DEV\n")
+                sh.write("#PBS -l walltime="+task_cpu+"\n")
+                sh.write("######PBS -l debug=true\n")
+                sh.write("# \n")
+                sh.write("export OMP_NUM_THREADS=1\n")
+                sh.write("\n")
+                sh.write("##\n")
+                sh.write("##  Transfer "+jobid+" figures to RZDM\n")
+                sh.write("##\n")
+                sh.write("set -x\n")
+                sh.write("\n")
+                sh.write("   cd "+figdir+"\n")
+                if 1 == 1 :
+                    sh.write("   scp *  hchuang@rzdm:/home/www/emc/htdocs/mmb/hchuang/web/fig/"+date.strftime(Y_date_format)+"/"+date.strftime(YMD_date_format)+"/"+cyc+"\n")
+                else:
+                    sh.write("   scp *  hchuang@rzdm:/home/www/emc/htdocs/mmb/hchuang/transfer\n")
+                sh.write("\n")
+                sh.write("exit\n")
+            print("submit "+plot_script)
+            subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
             msg=datetime.datetime.now()
-            print("End   processing "+plot_var)
+            print("End   processing "+var[ivar])
             print("FIG DIR = "+figdir)
-        cs_aqm.close()
-        if flag_ak == "yes":
-            ak_aqm.close()
-        if flag_hi == "yes":
-            hi_aqm.close()
         msg=datetime.datetime.now()
         print("End   processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     msg=datetime.datetime.now()
     print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     date = date + date_inc
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
