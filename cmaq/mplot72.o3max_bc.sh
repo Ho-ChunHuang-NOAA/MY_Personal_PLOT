@@ -10,7 +10,7 @@ envir=$1
 cycid=$2
 FIRSTDAY=$3
 LASTDAY=$4
-working_dir=/gpfs/dell1/ptmp/${USER}/batch_logs
+working_dir=/lfs/h2/emc/ptmp/${USER}/batch_logs
 mkdir -p ${working_dir}
 scr=`pwd`
 cd ${scr}

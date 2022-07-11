@@ -170,7 +170,7 @@ if envir == "prod" or envir == "para6x" or envir == "para6b":
     flag_ak = "yes"
     for cyc in cycle:
         check_file="aqm."+cyc+".aconc_sfc.ncf"
-        aqmfilein=comout+"/AK."+sdate.strftime(YMD_date_format)+"/"+check_file
+        aqmfilein=comout+"/ak."+sdate.strftime(YMD_date_format)+"/"+check_file
         if os.path.exists(aqmfilein):
             print(aqmfilein+" exists")
         else:
@@ -180,7 +180,7 @@ if envir == "prod" or envir == "para6x" or envir == "para6b":
     flag_hi = "yes"
     for cyc in cycle:
         check_file="aqm."+cyc+".aconc_sfc.ncf"
-        aqmfilein=comout+"/HI."+sdate.strftime(YMD_date_format)+"/"+check_file
+        aqmfilein=comout+"/hi."+sdate.strftime(YMD_date_format)+"/"+check_file
         if os.path.exists(aqmfilein):
             print(aqmfilein+" exists")
         else:
@@ -249,7 +249,7 @@ while date <= edate:
             sys.exit()
 
         if flag_ak == "yes":
-            metfilein=metout+"/AK."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
+            metfilein=metout+"/ak."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
             if os.path.exists(metfilein):
                 print(metfilein+" exists")
                 model_data = netcdf.Dataset(metfilein)
@@ -282,7 +282,7 @@ while date <= edate:
                 iplot[num_reg-3] = 0
     
         if flag_hi == "yes":
-            metfilein=metout+"/HI."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
+            metfilein=metout+"/hi."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
             if os.path.exists(metfilein):
                 print(metfilein+" exists")
                 model_data = netcdf.Dataset(metfilein)

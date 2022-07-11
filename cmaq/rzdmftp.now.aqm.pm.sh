@@ -82,7 +82,7 @@ mkdir -p /ptmpp1/${USER}/batch_logs
    if [ -e ${jobscript} ]; then /bin/rm -f ${jobscript}; fi
       sed -e "s!JOBHDR!${JOBHDR}!" -e "s!JOBHR!${JOBHR}!" -e "s!JOBMIN!${JOBMIN}!" -e "s!FTPDAY!${FTPDAY}!" -e "s!FTPDATADIR!${FTPDATADIR}!" -e "s!FTPCYCLHR!${FTPCYCLHR}!" -e "s!FTPFLAGUPDATE!${FTPFLAGUPDATE}!" -e "s!FTPFILEHD!${FTPFILEHD}!" -e "s!FTPFILEDESC!${FTPFILEDESC}!" ${basefile} > ${jobscript}
    
-   if [ ${flag_ftp} == 'yes' ]; then bsub < ${jobscript}; fi
+   if [ ${flag_ftp} == 'yes' ]; then qsub < ${jobscript}; fi
    
    JOBHDR=trans_${NOW}${cychr}_cmaq_pm2_${exp}
    JOBMIN=59
@@ -91,7 +91,7 @@ mkdir -p /ptmpp1/${USER}/batch_logs
    if [ -e ${jobscript} ]; then /bin/rm -f ${jobscript}; fi
       sed -e "s!JOBHDR!${JOBHDR}!" -e "s!JOBHR!${JOBHR}!" -e "s!JOBMIN!${JOBMIN}!" -e "s!FTPDAY!${FTPDAY}!" -e "s!FTPDATADIR!${FTPDATADIR}!" -e "s!FTPCYCLHR!${FTPCYCLHR}!" -e "s!FTPFLAGUPDATE!${FTPFLAGUPDATE}!" -e "s!FTPFILEHD!${FTPFILEHD}!" -e "s!FTPFILEDESC!${FTPFILEDESC}!" ${basefile} > ${jobscript}
    
-   if [ ${flag_ftp} == 'yes' ]; then bsub < ${jobscript}; fi
+   if [ ${flag_ftp} == 'yes' ]; then qsub < ${jobscript}; fi
 
    cdate=${NOW}"00"
    NOW=$(${NDATE} +24 ${cdate}| cut -c1-8)

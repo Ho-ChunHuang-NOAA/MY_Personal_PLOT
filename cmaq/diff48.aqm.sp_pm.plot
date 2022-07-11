@@ -9,17 +9,17 @@ module use /apps/test/lmodules/core/
 module load GrADS/2.2.2
 module load prod_util
 module load prod_envir
-wgrib=/gpfs/dell1/nco/ops/nwprod/grib_util.v1.1.1/exec/wgrib
-wgrib2=/gpfs/dell1/nco/ops/nwprod/grib_util.v1.1.1/exec/wgrib2
+wgrib=/apps/ops/prod/libs/intel/19.1.3.304/grib_util/1.2.2/bin/wgrib
+wgrib2=/apps/ops/prod/libs/intel/19.1.3.304/wgrib2/2.0.8/bin/wgrib2
 hl=`hostname | cut -c1`
 
 flag_test=yes
 flag_test=no
 
-flag_bsub=no
-flag_bsub=yes
+flag_qsub=no
+flag_qsub=yes
 
-if [ "${flag_bsub}" == "yes" ]; then
+if [ "${flag_qsub}" == "yes" ]; then
    flag_scp=no
 else
    flag_scp=yes
@@ -78,16 +78,16 @@ smlopt=`echo ${opt} | tr '[:upper:]' '[:lower:]'`
 project=naqfc
 capexp1=${capopt}
 exp1=${smlopt}
-comdir=/gpfs/hps/nco/ops/com/${smlaqm}/${exp1}
+comdir=/lfs/h1/ops/${exp1}/com/${smlaqm}/v6.1
 ## comdir2=${comdir}
-comdir2=/gpfs/dell2/emc/modeling/noscrub/${USER}/com/${smlaqm}/${exp1}
+comdir2=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp1}
 project2=meso
-mydir2=/gpfs/hps3/ptmp/${USER}/com/${smlaqm}/${exp1}
+mydir2=/lfs/h2/emc/ptmp/${USER}/com/${smlaqm}/${exp1}
 project2=meso
-mydir=/gpfs/hps3/emc/${project2}/noscrub/${USER}/com/${smlaqm}/${exp1}
-mydir=/gpfs/hps3/emc/${project}/noscrub/${USER}/com/${smlaqm}/${exp1}
-mydir2=/gpfs/dell2/emc/modeling/noscrub/${USER}/com/${smlaqm}/${exp1}
-mydir12=/gpfs/hps3/ptmp/Jianping.Huang/com/aqm/${exp1}
+mydir=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp1}
+mydir=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp1}
+mydir2=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp1}
+mydir12=/lfs/h2/emc/ptmp/Jianping.Huang/com/aqm/${exp1}
 
 ## special setting
 if [ ${smlopt} == 'prod' ]; then
@@ -118,14 +118,14 @@ capopt=`echo ${opt} | tr '[:lower:]' '[:upper:]'`
 smlopt=`echo ${opt} | tr '[:upper:]' '[:lower:]'`
 capexp2=${capopt}
 exp2=${smlopt}
-comdir=/gpfs/hps/nco/ops/com/${smlaqm}/${exp2}
+comdir=/lfs/h1/ops/${exp2}/com/${smlaqm}/v6.1
 ## comdir2=${comdir}
-comdir2=/gpfs/dell2/emc/modeling/noscrub/${USER}/com/${smlaqm}/${exp2}
-mydir2=/gpfs/hps/ptmp/${USER}/com/${smlaqm}/${exp2}
-mydir=/gpfs/hps3/emc/${project2}/noscrub/${USER}/com/${smlaqm}/${exp2}
-mydir=/gpfs/hps3/emc/${project}/noscrub/${USER}/com/${smlaqm}/${exp2}
-mydir2=/gpfs/dell2/emc/modeling/noscrub/${USER}/com/${smlaqm}/${exp2}
-mydir12=/gpfs/hps3/ptmp/Jianping.Huang/com/aqm/${exp2}
+comdir2=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp2}
+mydir2=/lfs/h2/emc/ptmp/${USER}/com/${smlaqm}/${exp2}
+mydir=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp2}
+mydir=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp2}
+mydir2=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp2}
+mydir12=/lfs/h2/emc/ptmp/Jianping.Huang/com/aqm/${exp2}
 
 ## special setting
 if [ ${smlopt} == 'prod' ]; then
@@ -197,40 +197,40 @@ NOW=${FIRSTDAY}
 while [ ${NOW} -le ${LASTDAY} ]; do
 
    flag_plot=yes
-   if [ -d  ${comdir1_s1}/aqm.${NOW} ]; then
-      idir1=${comdir1_s1}/aqm.${NOW}
+   if [ -d  ${comdir1_s1}/cs.${NOW} ]; then
+      idir1=${comdir1_s1}/cs.${NOW}
       echo "FILE 1 from ${idir1}"
-   elif [ -d ${comdir2_s1}/aqm.${NOW} ]; then
-      idir1=${comdir2_s1}/aqm.${NOW}
+   elif [ -d ${comdir2_s1}/cs.${NOW} ]; then
+      idir1=${comdir2_s1}/cs.${NOW}
       echo "FILE 1 from ${idir1}"
-   elif [ -d  ${mydir1_s1}/aqm.${NOW} ]; then
-      idir1=${mydir1_s1}/aqm.${NOW}
+   elif [ -d  ${mydir1_s1}/cs.${NOW} ]; then
+      idir1=${mydir1_s1}/cs.${NOW}
       echo "FILE 1 from ${idir1}"
-   elif [ -d ${mydir2_s1}/aqm.${NOW} ]; then
-      idir1=${mydir2_s1}/aqm.${NOW}
+   elif [ -d ${mydir2_s1}/cs.${NOW} ]; then
+      idir1=${mydir2_s1}/cs.${NOW}
       echo "FILE 1 from ${idir1}"
    else
       flag_plot=no
-      echo " ${NOW} :: NO ${comdir1_s1}/aqm.${NOW} & ${comdir2_s1}/aqm.${NOW}, skip to nexy day"
-      echo " ${NOW} :: NO ${mydir1_s1}/aqm.${NOW} & ${mydir2_s1}/aqm.${NOW}, skip to nexy day"
+      echo " ${NOW} :: NO ${comdir1_s1}/cs.${NOW} & ${comdir2_s1}/aqm.${NOW}, skip to nexy day"
+      echo " ${NOW} :: NO ${mydir1_s1}/cs.${NOW} & ${mydir2_s1}/aqm.${NOW}, skip to nexy day"
    fi
 
-   if [ -d  ${comdir1_s2}/aqm.${NOW} ]; then
-      idir2=${comdir1_s2}/aqm.${NOW}
+   if [ -d  ${comdir1_s2}/cs.${NOW} ]; then
+      idir2=${comdir1_s2}/cs.${NOW}
       echo "FILE 2 from ${idir2}"
-   elif [ -d ${comdir2_s2}/aqm.${NOW} ]; then
-      idir2=${comdir2_s2}/aqm.${NOW}
+   elif [ -d ${comdir2_s2}/cs.${NOW} ]; then
+      idir2=${comdir2_s2}/cs.${NOW}
       echo "FILE 2 from ${idir2}"
-   elif [ -d  ${mydir1_s2}/aqm.${NOW} ]; then
-      idir2=${mydir1_s2}/aqm.${NOW}
+   elif [ -d  ${mydir1_s2}/cs.${NOW} ]; then
+      idir2=${mydir1_s2}/cs.${NOW}
       echo "FILE 2 from ${idir2}"
-   elif [ -d ${mydir2_s2}/aqm.${NOW} ]; then
-      idir2=${mydir2_s2}/aqm.${NOW}
+   elif [ -d ${mydir2_s2}/cs.${NOW} ]; then
+      idir2=${mydir2_s2}/cs.${NOW}
       echo "FILE 2 from ${idir2}"
    else
       flag_plot=no
-      echo " ${NOW} :: NO ${comdir1_s2}/aqm.${NOW} & ${comdir2_s2}/aqm.${NOW}, skip to nexy day"
-      echo " ${NOW} :: NO ${mydir1_s2}/aqm.${NOW} & ${mydir2_s2}/aqm.${NOW}, skip to nexy day"
+      echo " ${NOW} :: NO ${comdir1_s2}/cs.${NOW} & ${comdir2_s2}/aqm.${NOW}, skip to nexy day"
+      echo " ${NOW} :: NO ${mydir1_s2}/cs.${NOW} & ${mydir2_s2}/aqm.${NOW}, skip to nexy day"
    fi
 
    if [ "${flag_plot}" == "no" ]; then continue; fi
@@ -277,12 +277,12 @@ while [ ${NOW} -le ${LASTDAY} ]; do
       range2=05Z${D2}${mchr[$M2-1]}${Y2}-04Z${D3}${mchr[$M3-1]}${Y3}
       range3=05Z${D3}${mchr[$M3-1]}${Y3}-04Z${D4}${mchr[$M4-1]}${Y4}
 
-      tmpdir=/gpfs/dell1/stmp/${USER}/com_aqm_${exp}_sp_pm.${NOW}${cych}
+      tmpdir=/lfs/h2/emc/stmp/${USER}/com_aqm_${exp}_sp_pm.${NOW}${cych}
       if [ -d ${tmpdir} ]; then /bin/rm -rf ${tmpdir}; fi
       mkdir -p ${tmpdir}
       cd ${tmpdir}
    
-      fig_dir=/gpfs/dell1/stmp/${USER}/diff_plot_pm25_sp/aqm_${exp}_pm_sp
+      fig_dir=/lfs/h2/emc/stmp/${USER}/diff_plot_pm25_sp/aqm_${exp}_pm_sp
 
       outdir=${fig_dir}.${NOW}${cych}
       if [ ! -d ${outdir} ]; then mkdir -p ${outdir}; fi
@@ -482,17 +482,17 @@ EOF
    cdate=${NOW}"00"
    NOW=$(${NDATE} +24 ${cdate}| cut -c1-8)
 done
-if [ "${flag_bsub}" == "yes" ]; then
-   working_dir=/gpfs/dell1/stmp/${USER}/job_submit
+if [ "${flag_qsub}" == "yes" ]; then
+   working_dir=/lfs/h2/emc/stmp/${USER}/job_submit
    mkdir -p ${working_dir}
    cd ${working_dir}
 
-   task_cpu='05:00'
+   task_cpu='05:00:00'
    job_name=cmaq_pm_sp_${exp}${sel_cyc}
    batch_script=trans_cmaqpm_sp_${exp}${FIRSTDAY}.${LASTDAY}.sh
    if [ -e ${batch_script} ]; then /bin/rm -f ${batch_script}; fi
 
-   logdir=/gpfs/dell1/ptmp/${USER}/batch_logs
+   logdir=/lfs/h2/emc/ptmp/${USER}/batch_logs
    if [ ! -d ${logdir} ]; then mkdir -p ${logdir}; fi
 
    logfile=${logdir}/${job_name}_${FIRSTDAY}_${LASTDAY}.out
@@ -502,16 +502,16 @@ if [ "${flag_bsub}" == "yes" ]; then
    file_type=png
    cat > ${batch_script} << EOF
 #!/bin/sh
-#BSUB -o ${logfile}
-#BSUB -e ${logfile}
-#BSUB -n 1
-#BSUB -J j${job_name}
-#BSUB -q "dev_transfer"
-#BSUB -P HYS-T2O
-#BSUB -W ${task_cpu}
-#BSUB -R affinity[core(1)]
-#BSUB -M 100
-####BSUB -R span[ptile=1]
+#PBS -o ${logfile}
+#PBS -e ${logfile}
+#PBS -l place=shared,select=1:ncpus=1:mem=4GB
+#PBS -N j${job_name}
+#PBS -q "dev_transfer"
+#PBS -A AQM-DEV
+#PBS -l walltime=${task_cpu}
+# 
+# 
+#### 
 ##
 ##  Provide fix date daily Hysplit data processing
 ##
@@ -552,7 +552,7 @@ EOF
       NOW=$(${NDATE} +24 ${cdate}| cut -c1-8)
    done
    if [ "${flag_update}" == "yes" ]; then
-      script_dir=/gpfs/dell2/emc/modeling/save/${USER}/WEB/base
+      script_dir=/lfs/h2/emc/physics/noscrub/${USER}/WEB/base
       cd ${script_dir}
 
       script_name=wcoss.run.cmaq_pm25.sh
@@ -568,9 +568,9 @@ EOF
    ##  Submit run scripts
    ##
    if [ "${flag_test}" == "no" ]; then
-      bsub < ${batch_script}
+      qsub < ${batch_script}
    else
-      echo "test bsub < ${batch_script} completed"
+      echo "test qsub < ${batch_script} completed"
    fi
 fi
 exit

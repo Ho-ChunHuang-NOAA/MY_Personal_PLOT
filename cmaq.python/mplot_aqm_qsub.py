@@ -83,16 +83,20 @@ else:
     os.makedirs(working_dir)
     os.chdir(working_dir)
 
+##     script_name = [
+##                   "daily.aqm.plot.py", "daily.aqm.plot_bc.py",
+##                   "daily.aqm.plot_specs1.py", "daily.aqm.plot_specs2.py",
+##                   "daily.aqm.plot_specs3.py", "daily.aqm.plot_specs4.py",
+##                   "daily.aqm.plot_met_v6s1.py", "daily.aqm.plot_met_v6s2.py",
+##                   "daily.aqm.plot_met_v6s3.py", "daily.aqm.plot_met_v6s4.py",
+##                   "daily.aqm.plot_met_v6s5.py",
+##                   "daily.aqm.plot_dustloc.py",
+##                   "gbbepx_fire_loc.py",
+##                   "diff.aqm.plot_bc.py"
+##                   ]
 if envir == "prod":
     script_name = [
                   "daily.aqm.plot.py", "daily.aqm.plot_bc.py",
-                  "daily.aqm.plot_specs1.py", "daily.aqm.plot_specs2.py",
-                  "daily.aqm.plot_specs3.py", "daily.aqm.plot_specs4.py",
-                  "daily.aqm.plot_met_v6s1.py", "daily.aqm.plot_met_v6s2.py",
-                  "daily.aqm.plot_met_v6s3.py", "daily.aqm.plot_met_v6s4.py",
-                  "daily.aqm.plot_met_v6s5.py",
-                  "daily.aqm.plot_dustloc.py",
-                  "gbbepx_fire_loc.py",
                   "diff.aqm.plot_bc.py"
                   ]
 else:

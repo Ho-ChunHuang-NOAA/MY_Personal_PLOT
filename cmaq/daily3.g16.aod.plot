@@ -12,10 +12,10 @@ module load GrADS/2.2.2
 flag_test=yes
 flag_test=no
 
-flag_bsub=no
-flag_bsub=yes
+flag_qsub=no
+flag_qsub=yes
 
-if [ "${flag_bsub}" == "yes" ]; then
+if [ "${flag_qsub}" == "yes" ]; then
    flag_scp=no
 else
    flag_scp=yes
@@ -62,7 +62,7 @@ grid_id=227
 flag_update=no
 if [ "${LASTDAY}" == "${TODAY}" ]; then flag_update=yes; fi
 
-gs_dir=/gpfs/dell2/emc/modeling/save/${USER}/plot/cmaq
+gs_dir=/lfs/h2/emc/physics/noscrub/${USER}/plot/cmaq
 
 declare -a reg=( dset conus east west  ne10  nw10  se10  swse  ak   hi   nyc   md    mdatl )
 declare -a lon0=( -175 -133 -100 -130  -81   -125  -91   -125  -170 -161 -74.7 -79.3 -82   )
@@ -95,16 +95,16 @@ declare -a qc_flag=( high medium low )
 declare -a type=( ${mdlname} )
 ntyp=${#type[@]}
 
-ftpdir=/gpfs/dell1/stmp/${USER}/daily_plot_${mdlname}_aod
+ftpdir=/lfs/h2/emc/stmp/${USER}/daily_plot_${mdlname}_aod
 mkdir -p ${ftpdir}
    
 NOW=${FIRSTDAY}
 while [ ${NOW} -le ${LASTDAY} ]; do
 
    if [ ${obssat} == 'g16' ]; then
-      comdir=/gpfs/dell2/emc/modeling/noscrub/${USER}/GOES16_AOD/REGRID/${mdlname}.${NOW}
+      comdir=/lfs/h2/emc/physics/noscrub/${USER}/GOES16_AOD/REGRID/${mdlname}.${NOW}
    else
-      comdir=/gpfs/dell2/emc/modeling/noscrub/${USER}/GOES16_AOD/REGRID/${mdlname}.${NOW}
+      comdir=/lfs/h2/emc/physics/noscrub/${USER}/GOES16_AOD/REGRID/${mdlname}.${NOW}
    fi
    if [ ! -d ${comdir} ]; then
       echo "////////////////////////////////////////"
@@ -124,7 +124,7 @@ while [ ${NOW} -le ${LASTDAY} ]; do
       mkdir -p ${outdir}
    fi
    
-   tmpdir=/gpfs/dell1/stmp/${USER}/com2_aod_${obssat}_${mdlname}.${NOW}
+   tmpdir=/lfs/h2/emc/stmp/${USER}/com2_aod_${obssat}_${mdlname}.${NOW}
    if [ -d ${tmpdir} ]; then
       /bin/rm -f ${tmpdir}/*
    else
@@ -376,17 +376,17 @@ EOF
    NOW=$(${NDATE} +24 ${cdate}| cut -c1-8)
 done
 
-if [ "${flag_bsub}" == "yes" ]; then
-   working_dir=/gpfs/dell1/stmp/${USER}/job_submit
+if [ "${flag_qsub}" == "yes" ]; then
+   working_dir=/lfs/h2/emc/stmp/${USER}/job_submit
    mkdir -p ${working_dir}
    cd ${working_dir}
 
-   task_cpu='05:00'
+   task_cpu='05:00:00'
    job_name=cmaq_aod_${obssat}
    batch_script=trans_cmaqaod_${obssat}.sh
    if [ -e ${batch_script} ]; then /bin/rm -f ${batch_script}; fi
 
-   logdir=/gpfs/dell1/ptmp/${USER}/batch_logs
+   logdir=/lfs/h2/emc/ptmp/${USER}/batch_logs
    if [ ! -d ${logdir} ]; then mkdir -p ${logdir}; fi
 
    logfile=${logdir}/${job_name}_${FIRSTDAY}_${LASTDAY}.out
@@ -396,16 +396,16 @@ if [ "${flag_bsub}" == "yes" ]; then
    file_type=gif
    cat > ${batch_script} << EOF
 #!/bin/sh
-#BSUB -o ${logfile}
-#BSUB -e ${logfile}
-#BSUB -n 1
-#BSUB -J j${job_name}
-#BSUB -q dev_transfer
-#BSUB -P HYS-T2O
-#BSUB -W ${task_cpu}
-#BSUB -R affinity[core(1)]
-#BSUB -M 100
-####BSUB -R span[ptile=1]
+#PBS -o ${logfile}
+#PBS -e ${logfile}
+#PBS -l place=shared,select=1:ncpus=1:mem=4GB
+#PBS -N j${job_name}
+#PBS -q dev_transfer
+#PBS -A AQM-DEV
+#PBS -l walltime=${task_cpu}
+# 
+# 
+#### 
 ##
 ##  Provide fix date daily Hysplit data processing
 ##
@@ -453,9 +453,9 @@ EOF
    ##  Submit run scripts
    ##
    if [ "${flag_test}" == "no" ]; then
-      bsub < ${batch_script}
+      qsub < ${batch_script}
    else
-      echo "test bsub < ${batch_script} completed"
+      echo "test qsub < ${batch_script} completed"
    fi
 fi
 exit

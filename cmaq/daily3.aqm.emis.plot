@@ -19,10 +19,10 @@ fi
 flag_test=yes
 flag_test=no
 
-flag_bsub=no
-flag_bsub=yes
+flag_qsub=no
+flag_qsub=yes
 
-if [ "${flag_bsub}" == "yes" ]; then
+if [ "${flag_qsub}" == "yes" ]; then
    flag_scp=no
 else
    flag_scp=yes
@@ -116,15 +116,15 @@ declare -a mchr=( JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC )
 declare -a type=( emission+fire  )
 ntyp=${#type[@]}
 
-ftpdir=/gpfs/dell1/stmp/${USER}/daily_plot_aqm_met
+ftpdir=/lfs/h2/emc/stmp/${USER}/daily_plot_aqm_met
 mkdir -p ${ftpdir}
    
 NOW=${FIRSTDAY}
 while [ ${NOW} -le ${LASTDAY} ]; do
 
    if [ ${exp} == 'prod' ]; then
-      comdir=/gpfs/hps/nco/ops/com/aqm/${exp}/aqm.${NOW}
-      comdir2=/gpfs/dell2/emc/modeling/noscrub/${USER}/com/${exp}/aqm.${NOW}
+      comdir=/lfs/h1/ops/${exp}/com/aqm/v6.1/cs.${NOW}
+      comdir2=/lfs/h2/emc/physics/noscrub/${USER}/com/${exp}/cs.${NOW}
       if [ ! -d ${comdir} ]; then
          if [ -d ${comdir2} ]; then
             comdir=${comdir2}
@@ -134,11 +134,11 @@ while [ ${NOW} -le ${LASTDAY} ]; do
          fi
       fi
    elif [ ${exp} == 'ncopara' ]; then
-      comdir=/gpfs/hps/nco/ops/com/aqm/${exp}/aqm.${NOW}
+      comdir=/lfs/h1/ops/${exp}/com/aqm/v6.1/cs.${NOW}
    elif [ ${exp} == 'para12' ]; then
-      comdir=/gpfs/hps3/ptmp/Jianping.Huang/com/aqm/${exp}/aqm.${NOW}
+      comdir=/lfs/h2/emc/ptmp/Jianping.Huang/com/aqm/${exp}/cs.${NOW}
    else
-      comdir=/gpfs/dell2/emc/modeling/noscrub/${USER}/cmaq_emiss_tmp/${exp}/aqm.${NOW}
+      comdir=/lfs/h2/emc/physics/noscrub/${USER}/cmaq_emiss_tmp/${exp}/cs.${NOW}
       if [ ! -d ${comdir} ]; then
          echo " Can not find ${comdir}, Experiments not defined for plotting schedule"
          exit
@@ -194,7 +194,7 @@ while [ ${NOW} -le ${LASTDAY} ]; do
       ## use ncf to plot      sp_pm)         cp ${comdir}/aqm.${cychr}.chem_sfc.f*.${grid_id2}.grib2 ${tmpdir};;
       for jfile in "${type[@]}"
       do
-         tmpdir=/gpfs/dell1/stmp/${USER}/com2_aqm_${exp}_${jfile}.${NOW}${cych}
+         tmpdir=/lfs/h2/emc/stmp/${USER}/com2_aqm_${exp}_${jfile}.${NOW}${cych}
          if [ -d ${tmpdir} ]; then
             /bin/rm -f ${tmpdir}/*
          else
@@ -396,17 +396,17 @@ EOF
    cdate=${NOW}"00"
    NOW=$(${NDATE} +24 ${cdate}| cut -c1-8)
 done
-if [ "${flag_bsub}" == "yes" ]; then
-   working_dir=/gpfs/dell1/stmp/${USER}/job_submit
+if [ "${flag_qsub}" == "yes" ]; then
+   working_dir=/lfs/h2/emc/stmp/${USER}/job_submit
    mkdir -p ${working_dir}
    cd ${working_dir}
 
-   task_cpu='05:00'
+   task_cpu='05:00:00'
    job_name=cmaq_met_${exp}${sel_cyc}
    batch_script=trans_cmaqmet_${exp}.sh
    if [ -e ${batch_script} ]; then /bin/rm -f ${batch_script}; fi
 
-   logdir=/gpfs/dell1/ptmp/${USER}/batch_logs
+   logdir=/lfs/h2/emc/ptmp/${USER}/batch_logs
    if [ ! -d ${logdir} ]; then mkdir -p ${logdir}; fi
 
    logfile=${logdir}/${job_name}_${FIRSTDAY}_${LASTDAY}.out
@@ -416,16 +416,16 @@ if [ "${flag_bsub}" == "yes" ]; then
    file_type=png
    cat > ${batch_script} << EOF
 #!/bin/sh
-#BSUB -o ${logfile}
-#BSUB -e ${logfile}
-#BSUB -n 1
-#BSUB -J j${job_name}
-#BSUB -q "dev_transfer"
-#BSUB -P HYS-T2O
-#BSUB -W ${task_cpu}
-#BSUB -R affinity[core(1)]
-#BSUB -M 100
-####BSUB -R span[ptile=1]
+#PBS -o ${logfile}
+#PBS -e ${logfile}
+#PBS -l place=shared,select=1:ncpus=1:mem=4GB
+#PBS -N j${job_name}
+#PBS -q "dev_transfer"
+#PBS -A AQM-DEV
+#PBS -l walltime=${task_cpu}
+# 
+# 
+#### 
 ##
 ##  Provide fix date daily Hysplit data processing
 ##
@@ -467,7 +467,7 @@ EOF
       NOW=$(${NDATE} +24 ${cdate}| cut -c1-8)
    done
    if [ "${flag_update}" == "yes" ]; then
-      script_dir=/gpfs/dell2/emc/modeling/save/${USER}/WEB/base
+      script_dir=/lfs/h2/emc/physics/noscrub/${USER}/WEB/base
       cd ${script_dir}
 
       script_name=wcoss.run.cmaq_pm.sh
@@ -486,9 +486,9 @@ EOF
    ##  Submit run scripts
    ##
    if [ "${flag_test}" == "no" ]; then
-      bsub < ${batch_script}
+      qsub < ${batch_script}
    else
-      echo "test bsub < ${batch_script} completed"
+      echo "test qsub < ${batch_script} completed"
    fi
 fi
 exit

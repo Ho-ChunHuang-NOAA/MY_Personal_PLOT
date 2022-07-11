@@ -173,8 +173,8 @@ old_ver='aqm."+date.strftime(YMD_date_format)'
 new_ver='cs."+date.strftime(YMD_date_format)'
 old_ver='aqm."+sdate.strftime(YMD_date_format)'
 new_ver='cs."+sdate.strftime(YMD_date_format)'
-old_ver='aqm."+grdcro2d_date'
-new_ver='cs."+grdcro2d_date'
+old_ver='\/AK.'
+new_ver='\/ak.'
 for i in "${shfile[@]}"
 do
    echo ${i}
@@ -192,4 +192,5 @@ do
       diff ${i} ${i}.bak
    fi
 done
+/bin/rm xtest1 tlist
 exit

@@ -10,10 +10,10 @@ module load GrADS/2.2.2
 module load prod_util
 module load prod_envir
 module load grib_util
-wgrib=/gpfs/dell1/nco/ops/nwprod/grib_util.v1.1.1/exec/wgrib
-wgrib2=/gpfs/dell1/nco/ops/nwprod/grib_util.v1.1.1/exec/wgrib2
-export GAUDPT=/usrx/local/dev/packages/grads/2.2.0/lib/udpt
-export GADDIR=/usrx/local/dev/packages/grads/2.2.0/lib
+wgrib=/apps/ops/prod/libs/intel/19.1.3.304/grib_util/1.2.2/bin/wgrib
+wgrib2=/apps/ops/prod/libs/intel/19.1.3.304/wgrib2/2.0.8/bin/wgrib2
+export GAUDPT=/apps/test/grads/spack/opt/spack/cray-sles15-zen2/gcc-11.2.0/grads-2.2.2-wckmyzg7qh5smosf6och6ehqtqlxoy4f/data/udpt
+export GADDIR=/apps/test/grads/spack/opt/spack/cray-sles15-zen2/gcc-11.2.0/grads-2.2.2-wckmyzg7qh5smosf6och6ehqtqlxoy4f/data
 ## set -x
 hl=`hostname | cut -c1`
 if [ "${hl}" == "v" ]; then
@@ -25,10 +25,10 @@ fi
 flag_test=yes
 flag_test=no
 
-flag_bsub=no
-flag_bsub=yes
+flag_qsub=no
+flag_qsub=yes
 
-if [ "${flag_bsub}" == "yes" ]; then
+if [ "${flag_qsub}" == "yes" ]; then
    flag_scp=no
 else
    flag_scp=yes
@@ -94,7 +94,7 @@ grid227=227
 flag_update=no
 if [ "${LASTDAY}" == "${TODAY}" ]; then flag_update=yes; fi
 
-gs_dir=/gpfs/dell2/emc/modeling/save/${USER}/plot/cmaq
+gs_dir=/lfs/h2/emc/physics/noscrub/${USER}/plot/cmaq
 gs_dir=`pwd`
 
 declare -a reg=( dset conus east west  ne10  nw10  se10  swse  ak   hi   )
@@ -141,11 +141,11 @@ NOW=${FIRSTDAY}
 while [ ${NOW} -le ${LASTDAY} ]; do
 
    if [ ${exp} == 'prod' ]; then
-      comdir=/com2/aqm/${exp}/aqm.${NOW}
-      comdir2=/gpfs/hps3/emc/naqfc/noscrub/${USER}/com/aqm/${exp}/aqm.${NOW}
-      comdir2=/gpfs/hps3/emc/meso/noscrub/${USER}/com/aqm/${exp}/aqm.${NOW}
-      comdir=/gpfs/hps/nco/ops/com/aqm/${exp}/aqm.${NOW}
-      comdir2=/gpfs/dell2/emc/modeling/noscrub/${USER}/com/aqm/${exp}/aqm.${NOW}
+      comdir=/com2/aqm/${exp}/cs.${NOW}
+      comdir2=/lfs/h2/emc/physics/noscrub/${USER}/com/aqm/${exp}/cs.${NOW}
+      comdir2=/lfs/h2/emc/physics/noscrub/${USER}/com/aqm/${exp}/cs.${NOW}
+      comdir=/lfs/h1/ops/${exp}/com/aqm/v6.1/cs.${NOW}
+      comdir2=/lfs/h2/emc/physics/noscrub/${USER}/com/aqm/${exp}/cs.${NOW}
       if [ ! -d ${comdir} ]; then
          if [ -d ${comdir2} ]; then
             comdir=${comdir2}
@@ -155,12 +155,12 @@ while [ ${NOW} -le ${LASTDAY} ]; do
          fi
       fi
    elif [ ${exp} == 'para' ]; then
-      comdir=/com2/aqm/${exp}/aqm.${NOW}
-      comdir=/gpfs/hps/nco/ops/com/aqm/${exp}/aqm.${NOW}
-      comdir=/gpfs/hps3/ptmp/${USER}/com/aqm/${exp}/aqm.${NOW}
-      comdir=/gpfs/hps3/emc/naqfc/noscrub/${USER}/com/aqm/${exp}/aqm.${NOW}
+      comdir=/com2/aqm/${exp}/cs.${NOW}
+      comdir=/lfs/h1/ops/${exp}/com/aqm/v6.1/cs.${NOW}
+      comdir=/lfs/h2/emc/ptmp/${USER}/com/aqm/${exp}/cs.${NOW}
+      comdir=/lfs/h2/emc/physics/noscrub/${USER}/com/aqm/${exp}/cs.${NOW}
    else
-      comdir=/gpfs/hps3/emc/meso/noscrub/${USER}/com/aqm/${exp}/aqm.${NOW}
+      comdir=/lfs/h2/emc/physics/noscrub/${USER}/com/aqm/${exp}/cs.${NOW}
    fi
    if [ ! -d ${comdir} ]; then
       echo "////////////////////////////////////////"
@@ -215,14 +215,14 @@ while [ ${NOW} -le ${LASTDAY} ]; do
       range2=05Z${D2}${mchr[$M2-1]}${Y2}-04Z${D3}${mchr[$M3-1]}${Y3}
       range3=05Z${D3}${mchr[$M3-1]}${Y3}-04Z${D4}${mchr[$M4-1]}${Y4}
 
-      tmpdir=/gpfs/dell1/stmp/${USER}/com2_aqm_${plotexp}_pm_max.${NOW}${cych}
+      tmpdir=/lfs/h2/emc/stmp/${USER}/com2_aqm_${plotexp}_pm_max.${NOW}${cych}
       if [ -d ${tmpdir} ]; then
          /bin/rm -f ${tmpdir}/*
       else
          mkdir -p ${tmpdir}
       fi
    
-      fig_dir=/gpfs/dell1/stmp/${USER}/daily_plot_${mfileid}/aqm_${plotexp}_pm
+      fig_dir=/lfs/h2/emc/stmp/${USER}/daily_plot_${mfileid}/aqm_${plotexp}_pm
       outdir=${fig_dir}.${NOW}${cych}
       if [ ! -d ${outdir} ]; then mkdir -p ${outdir}; fi
 
@@ -374,17 +374,17 @@ EOF
    NOW=$(${NDATE} +24 ${cdate}| cut -c1-8)
 done
 
-if [ "${flag_bsub}" == "yes" ]; then
-   working_dir=/gpfs/dell1/stmp/${USER}/job_submit
+if [ "${flag_qsub}" == "yes" ]; then
+   working_dir=/lfs/h2/emc/stmp/${USER}/job_submit
    mkdir -p ${working_dir}
    cd ${working_dir}
 
-   task_cpu='05:00'
+   task_cpu='05:00:00'
    job_name=cmaq_${mfileid}max_${exp}${sel_cyc}
    batch_script=trans_cmaq${mfileid}max_${exp}.${FIRSTDAY}.${LASTDAY}.sh
    if [ -e ${batch_script} ]; then /bin/rm -f ${batch_script}; fi
 
-   logdir=/gpfs/dell1/ptmp/${USER}/batch_logs
+   logdir=/lfs/h2/emc/ptmp/${USER}/batch_logs
    if [ ! -d ${logdir} ]; then mkdir -p ${logdir}; fi
 
    logfile=${logdir}/${job_name}_${FIRSTDAY}_${LASTDAY}.out
@@ -394,16 +394,16 @@ if [ "${flag_bsub}" == "yes" ]; then
    file_type=png
    cat > ${batch_script} << EOF
 #!/bin/sh
-#BSUB -o ${logfile}
-#BSUB -e ${logfile}
-#BSUB -n 1
-#BSUB -J j${job_name}
-#BSUB -q dev_transfer
-#BSUB -P HYS-T2O
-#BSUB -W ${task_cpu}
-#BSUB -R affinity[core(1)]
-#BSUB -M 100
-####BSUB -R span[ptile=1]
+#PBS -o ${logfile}
+#PBS -e ${logfile}
+#PBS -l place=shared,select=1:ncpus=1:mem=4GB
+#PBS -N j${job_name}
+#PBS -q dev_transfer
+#PBS -A AQM-DEV
+#PBS -l walltime=${task_cpu}
+# 
+# 
+#### 
 ##
 ##  Provide fix date daily Hysplit data processing
 ##
@@ -463,9 +463,9 @@ EOF
    ##  Submit run scripts
    ##
    if [ "${flag_test}" == "no" ]; then
-      bsub < ${batch_script}
+      qsub < ${batch_script}
    else
-      echo "test bsub < ${batch_script} completed"
+      echo "test qsub < ${batch_script} completed"
    fi
 fi
 exit

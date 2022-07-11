@@ -56,13 +56,13 @@ flag_hpss_archive=no
    mkdir -p ${working_dir}
    case ${mdl_name} in
       aqm) value=4
-           mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot.new/parm/aqm.aot.148.grid;;
+           mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot/parm/aqm.aot.148.grid;;
       ak) value=4
-           mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot.new/parm/aqm.aot.140.grid;;
+           mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot/parm/aqm.aot.140.grid;;
       hi) value=4
-           mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot.new/parm/aqm.aot.139.grid;;
+           mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot/parm/aqm.aot.139.grid;;
       hysplit) value=5
-           mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot.news/parm/hysplit.smoke.cs.grid;;
+           mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot/parm/hysplit.smoke.cs.grid;;
       *) echo "model name ${mdl_name} is not defined"
          exit;;
    esac

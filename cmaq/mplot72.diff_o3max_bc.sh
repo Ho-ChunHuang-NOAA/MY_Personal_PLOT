@@ -11,7 +11,7 @@ exp2=$2
 cycid=$3
 FIRSTDAY=$4
 LASTDAY=$5
-working_dir=/gpfs/dell1/ptmp/${USER}/batch_logs
+working_dir=/lfs/h2/emc/ptmp/${USER}/batch_logs
 mkdir -p ${working_dir}
 scr=`pwd`
 cd ${scr}

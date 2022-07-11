@@ -250,7 +250,7 @@ while date <= edate:
             print("Can not find "+aqmfilein)
 
         if flag_ak == "yes":
-            metfilein=metout1+"/AK."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
+            metfilein=metout1+"/ak."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
             if os.path.exists(metfilein):
                 print(metfilein+" exists")
                 model_data = netcdf.Dataset(metfilein)
@@ -303,7 +303,7 @@ while date <= edate:
                 iplot[num_reg-3] = 0
     
         if flag_hi == "yes":
-            metfilein=metout1+"/HI."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
+            metfilein=metout1+"/hi."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
             if os.path.exists(metfilein):
                 print(metfilein+" exists")
                 model_data = netcdf.Dataset(metfilein)
