@@ -7,17 +7,17 @@
 ##
 module load prod_util
 module use /apps/test/lmodules/core/
-module load GrADS
+module load GrADS/2.2.2
 
 set -x
 
 flag_test=yes
 flag_test=no
 
-flag_bsub=no
-flag_bsub=yes
+flag_qsub=no
+flag_qsub=yes
 
-if [ "${flag_bsub}" == "yes" ]; then
+if [ "${flag_qsub}" == "yes" ]; then
    flag_scp=no
 else
    flag_scp=yes
@@ -205,7 +205,7 @@ EOF
 ## 61 dark orange 255,140,0'
 ## 62 green        0   128 0
 ## 63 lime green   50,205,50
-## 64 lawn green   142 252 0
+## 64 lawn green   142 2.2.2
 ## 65 Dark green   0   100 0
 ## 66 Yellow 255 255 0
 ## 67 Darker Yellow 230 230 0
@@ -232,7 +232,7 @@ EOF
 'set rgb 61 255 140 0'
 'set rgb 62 0 128 0'
 'set rgb 63 50 205 50'
-'set rgb 64 142 252 0'
+'set rgb 64 142 2.2.2'
 'set rgb 65 0   100 0'
 'set rgb 66 255 255 0'
 'set rgb 67 230 230 0'
@@ -293,12 +293,12 @@ EOF
 done
 echo "${outdir}"
 
-if [ "${flag_bsub}" == "yes" ]; then
+if [ "${flag_qsub}" == "yes" ]; then
    working_dir=/lfs/h2/emc/stmp/${USER}/job_submit
    mkdir -p ${working_dir}
    cd ${working_dir}
 
-   task_cpu='05:00'
+   task_cpu='05:00:00'
    job_name=cmaq_aod_${obssat}
    batch_script=trans_cmaqaod_${obssat}.sh
    if [ -e ${batch_script} ]; then /bin/rm -f ${batch_script}; fi
@@ -313,16 +313,16 @@ if [ "${flag_bsub}" == "yes" ]; then
    file_type=png
    cat > ${batch_script} << EOF
 #!/bin/sh
-#BSUB -o ${logfile}
-#BSUB -e ${logfile}
-#BSUB -n 1
-#BSUB -J j${job_name}
-#BSUB -q "dev_transfer"
-#BSUB -P HYS-T2O
-#BSUB -W ${task_cpu}
-#BSUB -R affinity[core(1)]
-#BSUB -M 100
-####BSUB -R span[ptile=1]
+#PBS -o ${logfile}
+#PBS -e ${logfile}
+#PBS -l place=shared,select=1:ncpus=1:mem=4GB
+#PBS -N j${job_name}
+#PBS -q dev_transfer
+#PBS -A AQM-DEV
+#PBS -l walltime=${task_cpu}
+# 
+# 
+#### 
 ##
 ##  Provide fix date daily Hysplit data processing
 ##
@@ -370,9 +370,9 @@ EOF
    ##  Submit run scripts
    ##
    if [ "${flag_test}" == "no" ]; then
-      bsub < ${batch_script}
+      qsub < ${batch_script}
    else
-      echo "test bsub < ${batch_script} completed"
+      echo "test qsub < ${batch_script} completed"
    fi
 fi
 exit

@@ -1,15 +1,15 @@
 #!/bin/sh
-#BSUB -o /lfs/h2/emc/ptmp/${USER}/batch_logs/hyspt_hms_fire_dev_20170414.out
-#BSUB -e /lfs/h2/emc/ptmp/${USER}/batch_logs/hyspt_hms_fire_dev_20170414.err
-#BSUB -n 1
-#BSUB -J jhyspt_hms_fire_dev
-#BSUB -q debug
-#BSUB -P HYS-T2O
-#BSUB -W 00:29
-#BSUB -M 100
-#BSUB -x
-####BSUB -R span[ptile=1]
-###BSUB -a poe
+#PBS -o /lfs/h2/emc/ptmp/${USER}/batch_logs/hyspt_hms_fire_dev_20170414.out
+#PBS -e /lfs/h2/emc/ptmp/${USER}/batch_logs/hyspt_hms_fire_dev_20170414.err
+#PBS -l place=shared,select=1:ncpus=1:mem=4GB
+#PBS -N jhyspt_hms_fire_dev
+#PBS -q dev_transfer
+#PBS -A AQM-DEV
+#PBS -l walltime=00:29
+# 
+# 
+#### 
+# 
 ##
 ##  Provide fix date daily Hysplit data processing
 ##

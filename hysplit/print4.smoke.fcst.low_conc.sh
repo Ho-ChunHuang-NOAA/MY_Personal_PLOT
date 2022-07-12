@@ -13,10 +13,10 @@ fi
 flag_test=yes
 flag_test=no
 
-flag_bsub=no
-flag_bsub=yes
+flag_qsub=no
+flag_qsub=yes
 
-if [ "${flag_bsub}" == "yes" ]; then
+if [ "${flag_qsub}" == "yes" ]; then
    flag_scp=no
 else
    flag_scp=yes
@@ -67,7 +67,7 @@ mydir2=/lfs/h2/emc/ptmp/${USER}/com/${smlaqm}/${exp}
 ## special setting
 if [ ${exp} == 'prod' ]; then
    mydir=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp}
-   mydir2=/gpfs/dell1/nco/ops/com/hysplit/prod
+   mydir2=/lfs/h1/ops/prod/com/hysplit/v7.9
 elif [ ${exp} == 'ncopara' ]; then
    comdir=${COMROOT}/${smlaqm}/para
    comdir2=${comdir}
@@ -543,9 +543,9 @@ EOF
    NOW=$(${NDATE} +24 ${cdate}| cut -c1-8)
 done
 
-if [ "${flag_bsub}" == "yes" ]; then
+if [ "${flag_qsub}" == "yes" ]; then
    cd ${working_dir}
-   task_cpu='05:00'
+   task_cpu='05:00:00'
    job_name=prtsmk${aqm}_${exp}
    batch_script=prtsmk_${aqm}_${exp}.sh
    if [ -e ${batch_script} ]; then /bin/rm -f ${batch_script}; fi
@@ -557,16 +557,16 @@ if [ "${flag_bsub}" == "yes" ]; then
    if [ -e ${logfile} ]; then /bin/rm -f ${logfile}; fi
 cat > ${batch_script} << EOF
 #!/bin/sh
-#BSUB -o ${logfile}
-#BSUB -e ${logfile}
-#BSUB -n 1
-#BSUB -J j${job_name}
-#BSUB -q "dev_transfer"
-#BSUB -P HYS-T2O
-#BSUB -W ${task_cpu}
-#BSUB -R affinity[core(1)]
-#BSUB -M 100
-####BSUB -R span[ptile=1]
+#PBS -o ${logfile}
+#PBS -e ${logfile}
+#PBS -l place=shared,select=1:ncpus=1:mem=4GB
+#PBS -N j${job_name}
+#PBS -q dev_transfer
+#PBS -A AQM-DEV
+#PBS -l walltime=${task_cpu}
+# 
+# 
+#### 
 ##
 ##  Provide fix date daily Hysplit data processing
 ##
@@ -622,9 +622,9 @@ EOF
       ##  Submit run scripts
       ##
    if [ "${flag_test}" == "no" ]; then
-      bsub < ${batch_script}
+      qsub < ${batch_script}
    else
-      echo "test bsub < ${batch_script} completed"
+      echo "test qsub < ${batch_script} completed"
    fi
 fi
 exit

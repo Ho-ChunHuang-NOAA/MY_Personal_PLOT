@@ -50,8 +50,8 @@ flag_hpss_archive=yes
 flag_hpss_archive=no
 
    ## Store temporary map and G16 pixel netCDF file, e.g.,
-   ## /lfs/h2/emc/ptmp/${USER}/METPLUS_TMP/CONUS_2500_1500_56_-56_-101360_128240_to_Lambert Conformal.grid_map or
-   ## CONUS_2500_1500_56_-56_-101360_128240_to_LatLon.grid_map
+   ## /lfs/h2/emc/ptmp/${USER}/METPLUS_TMP/CONUS_2500_1500_56_-56_-101360_12.2.2_to_Lambert Conformal.grid_map or
+   ## CONUS_2500_1500_56_-56_-101360_12.2.2_to_LatLon.grid_map
    working_dir=/lfs/h2/emc/stmp/${USER}/working/viirsaod2${mdl_name}
    mkdir -p ${working_dir}
    case ${mdl_name} in

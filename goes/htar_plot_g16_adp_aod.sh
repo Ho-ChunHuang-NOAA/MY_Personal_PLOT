@@ -25,7 +25,7 @@ while [ ${NOW} -le ${LASTDAY} ]; do
    YY=` echo ${NOW} | cut -c1-4`
    for k in "${satid[@]}"; do
       id=`echo ${k} | cut -c2-3`
-      hpssroot=/NCEPDEV/emc-naqfc/5year/Ho-Chun.Huang/${YY}_GOES_${id}_AOD_ADP
+      hpssroot=/5year/NCEPDEV/emc-naqfc/Ho-Chun.Huang/${YY}_GOES_${id}_AOD_ADP
       if [ "${flag_get_hpssdata}" == "yes" ]; then
          for i in "${goes_prod[@]}"; do
             odir=${data_dir}/${i}

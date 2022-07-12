@@ -147,8 +147,10 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 aqm_ver="v7.0"
 if envir == "v70a1":
     comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.a1"
+    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/v70a1"
 elif envir =="v70b1":
     comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.b1"
+    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/v70b1"
 elif envir =="v70b2":
     comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.b2"
 else:
@@ -212,9 +214,10 @@ while date <= edate:
         ## else:
         ##     print("Can not find "+metfilein)
 
-        fcst_hour=fcst_ini
         for ivar in range(0,num_var):
-            figdir = figout+"/aqm"+"_"+envir+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cycle_time
+            fcst_hour=fcst_ini
+            jobid="aqm"+"_"+envir+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"_"+cycle_time
+            figdir = figout+"/"+jobid
             print(figdir)
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)
@@ -226,9 +229,25 @@ while date <= edate:
                 fhh=str_fcst_hr.zfill(3)
                 if var[ivar] == "pm25":
                     aqmfilein=comout+"/"+date.strftime(YMD_date_format)+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    aqmfilein2=usrout+"/aqm."+date.strftime(YMD_date_format)+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein)
+                        if fcst_hr == 0:
+                            cs_lat = cs_aqm.variables['lat'][:,:]
+                            cs_lon = cs_aqm.variables['lon'][:,:]
+                            latmax=np.amax(cs_lat)
+                            latmin=np.amin(cs_lat)
+                            lonmax=np.amax(cs_lon)
+                            lonmin=np.amin(cs_lon)
+                            ## print("from "+str(latmin)+" to "+str(latmax))
+                            ## print("from "+str(lonmin)+" to "+str(lonmax))
+                        else:
+                            pm_cs = cs_aqm.variables['PM25_TOT'][0,:,:]
+                        cs_aqm.close()
+                    elif os.path.exists(aqmfilein2):
+                        ## print(aqmfilein2+" exists")
+                        cs_aqm = netcdf.Dataset(aqmfilein2)
                         if fcst_hr == 0:
                             cs_lat = cs_aqm.variables['lat'][:,:]
                             cs_lon = cs_aqm.variables['lon'][:,:]
@@ -260,13 +279,31 @@ while date <= edate:
                             cs_aqm.close()
                         else:
                             print("Can not find "+aqmfilein)
-                            sys.exit()
+                            continue
+                            ## sys.exit()
                 ## in ppm
                 if var[ivar] == "o3":
                     aqmfilein=comout+"/"+date.strftime(YMD_date_format)+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    aqmfilein2=usrout+"/aqm."+date.strftime(YMD_date_format)+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein)
+                        if fcst_hr == 0:
+                            cs_lat = cs_aqm.variables['lat'][:,:]
+                            cs_lon = cs_aqm.variables['lon'][:,:]
+                            latmax=np.amax(cs_lat)
+                            latmin=np.amin(cs_lat)
+                            lonmax=np.amax(cs_lon)
+                            lonmin=np.amin(cs_lon)
+                            ## print("from "+str(latmin)+" to "+str(latmax))
+                            ## print("from "+str(lonmin)+" to "+str(lonmax))
+                        else:
+                            o3_cs = cs_aqm.variables['o3'][0,:,:]
+                            scale= 1.
+                        cs_aqm.close()
+                    elif os.path.exists(aqmfilein2):
+                        ## print(aqmfilein2+" exists")
+                        cs_aqm = netcdf.Dataset(aqmfilein2)
                         if fcst_hr == 0:
                             cs_lat = cs_aqm.variables['lat'][:,:]
                             cs_lon = cs_aqm.variables['lon'][:,:]
@@ -300,7 +337,8 @@ while date <= edate:
                             cs_aqm.close()
                         else:
                             print("Can not find "+aqmfilein)
-                            sys.exit()
+                            continue
+                            ## sys.exit()
 
             ## if flag_ak == "no" and iplot[num_reg-3] == 1:
             ##     iplot[num_reg-3] = 0
@@ -449,7 +487,7 @@ while date <= edate:
             partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
         os.chdir(working_dir)
         task_cpu="01:00:00"
-        jobname=envir+"_"+sel_var+"_"+sel_cyc+"_"+date.strftime(YMD_date_format)
+        jobname=envir+"_"+sel_var+"_"+cycle_time+"_"+date.strftime(YMD_date_format)
         transfer_file=os.path.join(os.getcwd(),"plot_rrfs_"+jobname+".sh")
         print("Creating transfer file "+transfer_file)
         if os.path.exists(transfer_file):

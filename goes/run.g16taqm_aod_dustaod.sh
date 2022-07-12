@@ -37,8 +37,6 @@ module load metplus/4.1.1
 export MET_BASE=/apps/ops/para/libs/intel/19.1.3.304/met/10.1.1/share/met
 export MET_ROOT=/apps/ops/para/libs/intel/19.1.3.304/met/10.1.1
 export PATH=/apps/ops/para/libs/intel/19.1.3.304/met/10.1.1/bin:${PATH}
-## module use /gpfs/gd1/emc/global/noscrub/emc.metplus/modulefiles    ## phase I
-module use /gpfs/dell2/emc/verification/noscrub/emc.metplus/modulefiles ## Dell
 module load prod_util
  
 module list

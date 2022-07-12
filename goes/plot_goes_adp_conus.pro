@@ -178,7 +178,7 @@ pro plot_goes_adp_conus
    nfile=n_elements(adp_files)
    FOR ifile = 0L, nfile-1L DO BEGIN
       fname=idir+adp_files[ifile]
-      ;; ' /gpfs/${phase12_id}d3/emc/meso/noscrub/${USER}/GOES16_AOD/ADP/DR_ABI-L2-ADPC-M3_G16_s20180211802203_e20180211804576_c20180211807552.nc'
+      ;; ' /lfs/h2/emc/physics/noscrub/${USER}/GOES16_AOD/ADP/DR_ABI-L2-ADPC-M3_G16_s20180211802203_e20180211804576_c20180211807552.nc'
       IF ~ File_Test(fname) THEN BEGIN
          print, 'Can not find '+fname
          continue

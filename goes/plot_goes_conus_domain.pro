@@ -161,8 +161,8 @@ pro  plot_goes_conus_domain
 
       aod2km=1.
    ENDIF ELSE BEGIN
-      fname='/gpfs/${phase12_id}d3/emc/meso/noscrub/${USER}/GOES16_GEO/ABI_GOESR_GOES-East_Full_Disk_2km_latlon_grid.nc'
-      fname='/gpfs/${phase12_id}d3/emc/meso/noscrub/${USER}/GOES16_GEO/latlon_L2_conus.nc'
+      fname='/lfs/h2/emc/physics/noscrub/${USER}/GOES16_GEO/ABI_GOESR_GOES-East_Full_Disk_2km_latlon_grid.nc'
+      fname='/lfs/h2/emc/physics/noscrub/${USER}/GOES16_GEO/latlon_L2_conus.nc'
       lat2km=read_abi_var(fname,'latitude',0)
       lon2km=read_abi_var(fname,'longitude',0)
       aod2km=lon2km

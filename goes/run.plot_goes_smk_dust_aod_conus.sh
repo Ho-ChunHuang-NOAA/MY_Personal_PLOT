@@ -41,9 +41,9 @@ while [[ ${NOW} -le ${LASTDAY} ]]; do
    ## number of separator / is 8 print 8+2 in awk command below, arrary is from 1-10 with filename
    idir_adp=/lfs/h2/emc/physics/noscrub/${USER}/GOES16/AOD      ## switch to print $10
    ## number of separator / is 8 print 8+2 in awk command below, arrary is from 1-8 with filename
-   idir_adp=/gpfs/gd1/emc/meso/noscrub/${USER}/GOES16_GEO/NAQFC_data ## witch to print $8
+   idir_adp=/lfs/h2/emc/physics/noscrub/${USER}/GOES16_GEO/NAQFC_data ## witch to print $8
    ## number of separator / is 9 print 9+2 in awk command below, arrary is from 1-8 with filename
-   idir_adp=/gpfs/${phase12_id}d3/emc/meso/noscrub/${USER}/GOES16_AOD/ADP/${NOW}        ## switch to print $8
+   idir_adp=/lfs/h2/emc/physics/noscrub/${USER}/GOES16_AOD/ADP/${NOW}        ## switch to print $8
    ## number of separator / is 9 print 9+2 in awk command below, arrary is from 1-8 with filename
    idir_aod=/lfs/h2/emc/physics/noscrub/${USER}/GOES16_AOD/AOD/${NOW}        ## switch to print $8
    idir_adp=/lfs/h2/emc/physics/noscrub/${USER}/GOES16_AOD/ADP/${NOW}        ## switch to print $8

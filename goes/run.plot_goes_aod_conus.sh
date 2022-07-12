@@ -38,7 +38,7 @@ while [[ ${NOW} -le ${LASTDAY} ]]; do
    ## number of separator / is 8 print 8+2 in awk command below, arrary is from 1-10 with filename
    idir_aod=/lfs/h2/emc/physics/noscrub/${USER}/GOES16/AOD      ## switch to print $10
    ## number of separator / is 6 print 6+2 in awk command below, arrary is from 1-8 with filename
-   idir_aod=/gpfs/${phase12_id}d3/emc/meso/noscrub/${USER}/GOES16_AOD/AOD/${NOW}        ## switch to print $8
+   idir_aod=/lfs/h2/emc/physics/noscrub/${USER}/GOES16_AOD/AOD/${NOW}        ## switch to print $8
    if [ "${flag_test}" == "no" ]; then
       ls ${idir_aod}/OR_ABI-L2-AODC-M3_G16_s${jday}*.nc > flist
    else

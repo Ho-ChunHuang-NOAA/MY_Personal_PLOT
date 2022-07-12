@@ -118,7 +118,7 @@ pro read_aod_goes
    readu,ilun,lon2km
    free_lun,ilun
 
-   fname='/gpfs/${phase12_id}d3/emc/meso/noscrub/${USER}/GOES16_AOD/AOD/DR_ABI-L2-AODC-M3_G16_s20180211802203_e20180211804576_c20180211807552.nc'
+   fname='/lfs/h2/emc/physics/noscrub/${USER}/GOES16_AOD/AOD/DR_ABI-L2-AODC-M3_G16_s20180211802203_e20180211804576_c20180211807552.nc'
    aod=read_abi_var(fname,'AOD',1)
    ;; dqf=read_abi_var(fname,'DQF',0)
    index=where(aod ne -999.0, nidx)

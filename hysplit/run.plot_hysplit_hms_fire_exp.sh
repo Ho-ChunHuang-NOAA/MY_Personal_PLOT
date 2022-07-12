@@ -69,7 +69,7 @@ end_date=${LASTDAY}
 idlexe=`which idl`
 script_dir=`pwd`
 devdir=/lfs/h2/emc/physics/noscrub/${USER}/com/hysplit/${envir}
-idir=/gpfs/dell2/emc/verification/noscrub/${USER}/gyre_hysplit_plot/fire_${envir}/
+idir=/lfs/h2/emc/physics/noscrub/${USER}/gyre_hysplit_plot/fire_${envir}/
 odir=/lfs/h2/emc/ptmp/${USER}/fire_plot/
 mkdir -p ${odir} ${idir}
 flag_dark=no

@@ -52,7 +52,7 @@ log_dir=/lfs/h2/emc/ptmp/${USER}/batch_logs
 mkdir -p ${log_dir}
 ## mod_file=/naqfc/save/${USER}/plot/cmaq/parm/aqm.t06z.aot.f06.148.grib2
 ## Define G16 pixel Coordinate, without it MET will compute the coordinate in ${MET_TMP_DIR} from information contains AOD file 
-## Take a minute to create, e.g., CONUS_2500_1500_56_-56_-101360_128240.nc
+## Take a minute to create, e.g., CONUS_2500_1500_56_-56_-101360_12.2.2.nc
 
 flag_hpss_archive=yes
 flag_hpss_archive=no
@@ -80,8 +80,8 @@ if [ "${hl}" != "${pm}" ]; then
    fi
 echo "processing begin `date`"
    ## Store temporary map and G16 pixel netCDF file, e.g.,
-   ## /lfs/h2/emc/ptmp/${USER}/METPLUS_TMP/CONUS_2500_1500_56_-56_-101360_128240_to_Lambert Conformal.grid_map or
-   ## CONUS_2500_1500_56_-56_-101360_128240_to_LatLon.grid_map
+   ## /lfs/h2/emc/ptmp/${USER}/METPLUS_TMP/CONUS_2500_1500_56_-56_-101360_12.2.2_to_Lambert Conformal.grid_map or
+   ## CONUS_2500_1500_56_-56_-101360_12.2.2_to_LatLon.grid_map
    working_dir=/lfs/h2/emc/stmp/${USER}/working/viirsaod2${mdl_name}
    mkdir -p ${working_dir}
    case ${mdl_name} in
