@@ -134,7 +134,6 @@ while date <= edate:
     find_dir=[
               "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver+"/cs."+date.strftime(YMD_date_format),
               "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format),
-              "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format),
               "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format)+".met",
               "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format)
              ]
@@ -164,6 +163,7 @@ while date <= edate:
     if os.path.exists(figout):
         shutil.rmtree(figout)
     os.mkdir(figout)
+    print(figout)
     filein=datadir+"/"+model+".t"+cycfind+"z.fire_location_cs.ncf"
     if os.path.exists(filein):
         print(filein+" exists")
@@ -179,7 +179,7 @@ while date <= edate:
         plt.figure(figsize=(12, 6))
         for i in range(0,ilen):
             if int(iplot[i]) == 1: 
-                ## print("plot "+title[i])
+                print("plot "+reg[i])
                 figarea=reg[i]
                 extent = [ rlon0[i], rlon1[i], rlat0[i], rlat1[i] ]
                 clon=0.5*(rlon0[i]+rlon1[i])
@@ -195,10 +195,10 @@ while date <= edate:
                 ## ax = plt.axes(projection=ccrs.PlateCarree())
                 ax.set_extent(extent)
                 states_provinces = cfeature.NaturalEarthFeature(
-                    category='cultural',
-                    name='admin_1_states_provinces_lines',
-                    scale='50m',
-                    facecolor='none')
+                category='cultural',
+                name='admin_1_states_provinces_lines',
+                scale='50m',
+                facecolor='none')
                 rivers_50m = cfeature.NaturalEarthFeature('physical', 'rivers_lake_centerlines', '50m')
                 ax.add_feature(states_provinces, edgecolor='gray')
                 ## ax.coastlines('50m')
@@ -210,11 +210,13 @@ while date <= edate:
                 ## ax.add_feature(rivers_50m, facecolor='None', edgecolor='b')
                 ## ax.add_feature(cfeature.RIVERS)
                 ## plt.show()
+                print(num_pts)
                 for x in range(0,num_pts):
-                  ## ax.plot(lon[x], lat[x], 'ro', markersize=3, transform=ccrs.Geodetic())
-                  ax.plot(cs_lon[x], cs_lat[x], 'ro', markersize=3, transform=ccrs.PlateCarree())
+                    ## ax.plot(lon[x], lat[x], 'ro', markersize=3, transform=ccrs.Geodetic())
+                    ax.plot(cs_lon[x], cs_lat[x], 'ro', markersize=3, transform=ccrs.PlateCarree())
                 ##ax.text(-117, 33, 'San Diego', transform=ccrs.Geodetic())
                 fileout=figout+"/gbbepxfire."+figarea+"."+envir+"."+date.strftime(YMD_date_format)+".t06z.location.day0.k1.png"
+                print(fileout)
                 plt.savefig(fileout, bbox_inches='tight') 
                 for j in range(1,3):
                     newfile=figout+"/gbbepxfire."+figarea+"."+envir+"."+date.strftime(YMD_date_format)+".t06z.location.day"+str(j)+".k1.png"

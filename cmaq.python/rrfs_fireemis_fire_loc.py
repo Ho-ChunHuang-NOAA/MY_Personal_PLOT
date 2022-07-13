@@ -53,7 +53,7 @@
 ## 'g'            green
 ## 'r'            red
 ## 'c'            cyan
-## 'm'            magenta
+## 'm'            magent
 ## 'y'            yellow
 ## 'k'            black
 ## 'w'            white
@@ -82,12 +82,12 @@ if len(sys.argv) < 4:
     sys.exit()
 else:
     envir = sys.argv[1]
-    cycin = sys.argv[2]
+    sel_cyc = sys.argv[2]
     start_date = sys.argv[3]
     end_date = sys.argv[4]
 
-sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]), int(cycin) )
-edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]), int(cycin))
+sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]), 00, 00, 00 )
+edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]), 00, 00, 00 )
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 YMD_date_format = "%Y%m%d"
@@ -117,8 +117,6 @@ lat0_ref=[40.,   0.,   24.,     24.,  30.,  37.,   38.,  38.,   24.,   52.,  18.
 lat1_ref=[70.,   70.,  50.,     38.,  45.,  48.,   52.,  52.,   40.,   72.,  23.,  50.,     54.5]
 lon0_ref=[ -141., -141.,  -124.,   -95., -125, -82, -125.,-105., -105., -170.,-161.,-100.,     -128. ]
 lon1_ref=[  -60., -60.,   -70.,    -79., -105.,-67.,-103.,-85.,  -85.,  -130.,-154.,-65.,     -90. ]
-user=os.environ['USER']
-figdir="/lfs/h2/emc/stmp/"+user
 ##title = [ "dset", "conus", "east us", "west us", "ne us", "nw us", "se us", "sw us", "alaska", "hawaii", "us-can" ] 
 reg = [   "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "mds",   "ak",   "hi",  "can" ] 
 rlon0 = [ -175.0, -124.0,  -100.0, -128.0,  -82.0, -125.0,  -95.0, -125.0, -105.0, -105.0, -170.0, -161.0, -141.0 ]
@@ -131,10 +129,26 @@ ilen=len(iplot)
 print("iplot length = "+str(ilen))
 
 model="aqm"
-cycle=[]
-cyc_in="t"+cycin+"z"
-cycle.append(cyc_in)
-working_dir="/lfs/h2/emc/stmp/"+user+"/working/rrfs_fireemis/"+envir+"_"+cycin
+
+if sel_cyc == "all":
+   cycle=[ "06", "12" ]
+   cycle=[ "t06z", "t12z" ]
+elif sel_cyc == "06":
+   cycle=[ "06" ]
+   cycle=[ "t06z" ]
+elif sel_cyc == "12":
+   cycle=[ "12" ]
+   cycle=[ "t12z" ]
+else:
+    print("seletced cycle"+sel_cyc+" can not be recongized.")
+    sys.exit()
+
+user=os.environ['USER']
+figdir="/lfs/h2/emc/stmp/"+user
+working_dir="/lfs/h2/emc/stmp/"+user+"/working_rrfs_fireemis_"+envir
+if os.path.exists(working_dir):
+    shutil.rmtree(working_dir)
+os.mkdir(working_dir)
 date = sdate
 while date <= edate:
     aqm_ver="v6.1"
@@ -165,13 +179,13 @@ while date <= edate:
     else:
         sys.exit()
 
-    figout=figdir+"/rrfs_fireemis_"+envir+"_"+date.strftime(YMD_date_format)+"_"+cyc_in
-    if os.path.exists(figout):
-        shutil.rmtree(figout)
-    os.mkdir(figout)
-
     for cyc in cycle:
-        ini_time = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]), int(cyc[1:3]) )
+        figout=working_dir+"/"+date.strftime(YMD_date_format)+"_"+cyc
+        if os.path.exists(figout):
+            shutil.rmtree(figout)
+        os.mkdir(figout)
+
+        ini_time = date.replace(int(date.year), int(date.month), int(date.day), int(cyc[1:3]), 00, 00 )
         print("initial time is "+ini_time.strftime(YMDH_date_format))
         aqmfilein=datadir+"/Hourly_Emissions_regrid_rrfs_13km_"+date.strftime(YMD_date_format)+"_"+cyc+"_h72.nc"
         if os.path.exists(aqmfilein):
