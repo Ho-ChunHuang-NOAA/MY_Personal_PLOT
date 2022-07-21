@@ -173,8 +173,8 @@ old_ver='aqm."+date.strftime(YMD_date_format)'
 new_ver='cs."+date.strftime(YMD_date_format)'
 old_ver='aqm."+sdate.strftime(YMD_date_format)'
 new_ver='cs."+sdate.strftime(YMD_date_format)'
-old_ver='\/AK.'
-new_ver='\/ak.'
+old_ver='4GB'
+new_ver='4500MB'
 for i in "${shfile[@]}"
 do
    echo ${i}

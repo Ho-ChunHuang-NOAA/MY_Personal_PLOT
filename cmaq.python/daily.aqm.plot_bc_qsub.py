@@ -456,7 +456,7 @@ while date <= edate:
                 sh.write("#!/bin/bash -l\n")
                 sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
                 sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
-                sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4GB\n")
+                sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                 sh.write("#PBS -N "+jobid+"\n")
                 sh.write("#PBS -q dev_transfer\n")
                 sh.write("#PBS -A AQM-DEV\n")
