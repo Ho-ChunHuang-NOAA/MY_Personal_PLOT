@@ -173,12 +173,18 @@ while date <= edate:
         for cyc in cycle:
             check_file="aqm."+cyc+".dustemis.d1.ncf"
             aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
+            check_file2="aqm."+cyc+".dustemis.ncf"
+            aqmfilein2=comout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file2
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
             else:
-                flag_find_cyc="no"
-                print("Can not find "+aqmfilein)
-                break
+                if os.path.exists(aqmfilein2):
+                    ## print("Can not find "+aqmfilein)
+                    print(aqmfilein2+" exists")
+                else:
+                    flag_find_cyc="no"
+                    print("Can not find "+aqmfilein+" and "+aqmfilein2)
+                    break
         if flag_find_cyc == "yes":
             flag_find_idir="yes"
             break
@@ -193,22 +199,34 @@ while date <= edate:
         for cyc in cycle:
             check_file="aqm."+cyc+".dustemis.d1.ncf"
             aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+check_file
+            check_file2="aqm."+cyc+".dustemis.ncf"
+            aqmfilein2=comout+"/ak."+date.strftime(YMD_date_format)+"/"+check_file2
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
             else:
                 flag_ak="no"
-                print("Can not find "+aqmfilein)
-                break
+                if os.path.exists(aqmfilein2):
+                    ## print("Can not find "+aqmfilein)
+                    print(aqmfilein2+" exists")
+                else:
+                    print("Can not find "+aqmfilein+" and "+aqmfilein2)
+                    break
         flag_hi = "yes"
         for cyc in cycle:
             check_file="aqm."+cyc+".dustemis.d1.ncf"
             aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+check_file
+            check_file2="aqm."+cyc+".dustemis.ncf"
+            aqmfilein2=comout+"/hi."+date.strftime(YMD_date_format)+"/"+check_file2
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
             else:
                 flag_hi="no"
-                print("Can not find "+aqmfilein)
-                break
+                if os.path.exists(aqmfilein2):
+                    ## print("Can not find "+aqmfilein)
+                    print(aqmfilein2+" exists")
+                else:
+                    print("Can not find "+aqmfilein+" and "+aqmfilein2)
+                    break
     else:
         flag_ak = "no"
         flag_hi = "no"
@@ -236,13 +254,21 @@ while date <= edate:
             print("Can not find "+metfilein)
 
         aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cyc+".dustemis.d1.ncf"
+        aqmfilein2=comout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cyc+".dustemis.ncf"
         if os.path.exists(aqmfilein):
             print(aqmfilein+" exists")
             cs_aqm = netcdf.Dataset(aqmfilein)
             cs_var = cs_aqm.variables['TFLAG'][:,0,:]
             nstep=len(cs_var)
         else:
-            print("Can not find "+aqmfilein)
+            if os.path.exists(aqmfilein2):
+                ## print("Can not find "+aqmfilein)
+                print(aqmfilein2+" exists")
+                cs_aqm = netcdf.Dataset(aqmfilein2)
+                cs_var = cs_aqm.variables['TFLAG'][:,0,:]
+                nstep=len(cs_var)
+            else:
+                print("Can not find "+aqmfilein+" and "+aqmfilein2)
 
         met3dfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cyc+".metcro3d.ncf"
         if os.path.exists(met3dfilein):
@@ -274,6 +300,7 @@ while date <= edate:
                 iplot[num_reg-3] = 0
 
             aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/aqm."+cyc+".dustemis.d1.ncf"
+            aqmfilein2=comout+"/ak."+date.strftime(YMD_date_format)+"/aqm."+cyc+".dustemis.ncf"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
                 ak_aqm = netcdf.Dataset(aqmfilein)
@@ -283,9 +310,19 @@ while date <= edate:
                     print("time step of AK domain "+str(nstep_ak)+" is different from CONUS domain "+str(nstep))
                     sys.exit()
             else:
-                print("Can not find "+aqmfilein)
-                flag_ak = "no"
-                iplot[num_reg-3] = 0
+                if os.path.exists(aqmfilein2):
+                    ## print("Can not find "+aqmfilein)
+                    print(aqmfilein2+" exists")
+                    ak_aqm = netcdf.Dataset(aqmfilein2)
+                    ak_var = ak_aqm.variables['TFLAG'][:,0,:]
+                    nstep_ak=len(ak_var)
+                    if nstep_ak != nstep:
+                        print("time step of AK domain "+str(nstep_ak)+" is different from CONUS domain "+str(nstep))
+                        sys.exit()
+                else:
+                    print("Can not find "+aqmfilein+" and "+aqmfilein2)
+                    flag_ak = "no"
+                    iplot[num_reg-3] = 0
     
         if flag_hi == "yes":
             metfilein=metout+"/hi."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
@@ -301,6 +338,7 @@ while date <= edate:
                 iplot[num_reg-2] = 0
     
             aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/aqm."+cyc+".dustemis.d1.ncf"
+            aqmfilein2=comout+"/hi."+date.strftime(YMD_date_format)+"/aqm."+cyc+".dustemis.ncf"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
                 hi_aqm = netcdf.Dataset(aqmfilein)
@@ -311,9 +349,19 @@ while date <= edate:
                     print("time step of HI domain "+str(nstep_hi)+" is different from CONUS domain "+str(nstep))
                     sys.exit()
             else:
-                print("Can not find "+aqmfilein)
-                flag_hi = "no"
-                iplot[num_reg-2] = 0
+                if os.path.exists(aqmfilein2):
+                    ## print("Can not find "+aqmfilein)
+                    print(aqmfilein2+" exists")
+                    hi_aqm = netcdf.Dataset(aqmfilein2)
+                    hi_var = hi_aqm.variables['TFLAG'][:,0,:]
+                    nstep_hi=len(hi_var)
+                    if nstep_hi != nstep:
+                        print("time step of HI domain "+str(nstep_hi)+" is different from CONUS domain "+str(nstep))
+                        sys.exit()
+                else:
+                    print("Can not find "+aqmfilein+" and "+aqmfilein2)
+                    flag_hi = "no"
+                    iplot[num_reg-2] = 0
         for ivar in range(0,num_var):
             plot_var=var[ivar]
             msg=datetime.datetime.now()
@@ -503,4 +551,3 @@ while date <= edate:
     msg=datetime.datetime.now()
     print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     date = date + date_inc
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         

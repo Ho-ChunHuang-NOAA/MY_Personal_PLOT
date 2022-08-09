@@ -137,8 +137,7 @@ metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver+"/cs."+grdcro2d_date
 date = sdate
 while date <= edate:
     find_dir=[
-              "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format),
-              "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format),
+              "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver+"/cs."+date.strftime(YMD_date_format),
               "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format),
               "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format)
              ]
@@ -150,11 +149,20 @@ while date <= edate:
         for cyc in cycle:
             check_file=model+".t"+cyc+"z.fireemis.d1.ncf"
             aqmfilein=datadir+"/"+check_file
+            check_file2=model+".t"+cyc+"z.fireemis.ncf"
+            aqmfilein2=datadir+"/"+check_file2
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
                 cycfind=cyc
                 flag_find_cyc="yes"
             else:
+                if os.path.exists(aqmfilein2):
+                    print(aqmfilein2+" exists")
+                    cycfind=cyc
+                    flag_find_cyc="yes"
+                else:
+                    print("Can not find "+aqmfilein+" and "+aqmfilein2)
+        if flag_find_cyc == "yes":
                 print("Can not find "+aqmfilein)
         if flag_find_cyc == "yes":
             flag_find_idir="yes"
@@ -173,12 +181,19 @@ while date <= edate:
             for cyc in cycle:
                 check_file=model+".t"+cyc+"z.fireemis.d1.ncf"
                 aqmfilein=datadir+"/"+check_file
+                check_file2=model+".t"+cyc+"z.fireemis.ncf"
+                aqmfilein2=datadir+"/"+check_file2
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
                     cycfind=cyc
                     flag_find_cyc="yes"
                 else:
-                    print("Can not find "+aqmfilein)
+                    if os.path.exists(aqmfilein2):
+                        print(aqmfilein2+" exists")
+                        cycfind=cyc
+                        flag_find_cyc="yes"
+                    else:
+                        print("Can not find "+aqmfilein+" and "+aqmfilein2)
             if flag_find_cyc == "yes":
                 flag_find_idir="yes"
                 break
@@ -209,6 +224,15 @@ while date <= edate:
             sys.exit()
 
         aqmfilein=datadir+"/"+model+".t"+cyc+"z.fireemis.d1.ncf"
+        if os.path.exists(aqmfilein):
+            print(aqmfilein+" exists")
+        else:
+            aqmfilein2=datadir+"/"+model+".t"+cyc+"z.fireemis.ncf"
+            if os.path.exists(aqmfilein2):
+                print(aqmfilein2+" exists")
+                aqmfilein=aqmfilein2
+            else:
+                print("Can not find "+aqmfilein+" and "+aqmfilein2)
         if os.path.exists(aqmfilein):
             print(aqmfilein+" exists")
             cs_aqm = netcdf.Dataset(aqmfilein)

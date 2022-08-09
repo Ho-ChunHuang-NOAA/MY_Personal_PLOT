@@ -166,13 +166,20 @@ while [ ${NOW} -le ${LASTDAY} ]; do
             exit
          fi
       fi
-   elif [ ${exp} == 'lingan' ]; then
-      comdir2=/lfs/h2/emc/ptmp/Lin.Gan/cmaq/nco/ops/com/aqm/prod/cs.${NOW}
-      comdir=/lfs/h2/emc/ptmp/Lin.Gan/cmaq/nco/ops/com/aqm/prod/cs.${NOW}
-   elif [ ${exp} == 'para13j' ]; then
-      comdir=/lfs/h2/emc/ptmp/Jianping.Huang/com/aqm/para13/cs.${NOW}
+   elif [ ${exp} == 'v70a1' ] || [ ${exp} == 'v70b1' ] || [ ${exp} == 'v70c1' ]; then
+      comdir2=/lfs/h2/emc/ptmp/${USER}/com/aqm/${exp}/cs.${NOW}
+      comdir=/lfs/h2/emc/physics/noscrub/${USER}/verification/aqm/${exp}/cs.${NOW}
+      if [ ! -d ${comdir} ]; then
+         if [ -d ${comdir2} ]; then
+            comdir=${comdir2}
+         else
+            echo "Can not find ${comdir} or ${comdir2}, program stop"
+            exit
+         fi
+      fi
    else
       comdir=/lfs/h2/emc/physics/noscrub/${USER}/com/aqm/${exp}/cs.${NOW}
+      comdir2=/lfs/h2/emc/ptmp/${USER}/com/aqm/${exp}/cs.${NOW}
    fi
    if [ ! -d ${comdir} ]; then
       echo "////////////////////////////////////////"

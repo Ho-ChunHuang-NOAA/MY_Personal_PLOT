@@ -100,10 +100,6 @@ exp1=${smlopt}
 comdir=/lfs/h1/ops/${exp1}/com/${smlaqm}/v6.1
 ## comdir2=${comdir}
 comdir2=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp1}
-comdir2=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp1}
-mydir2=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp1}
-mydir12=/lfs/h2/emc/ptmp/Jianping.Huang/com/${smlaqm}/${exp1}
-mydir2=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp1}
 mydir=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp1}
 mydir2=/lfs/h2/emc/ptmp/${USER}/com/${smlaqm}/${exp1}
 
@@ -111,29 +107,14 @@ mydir2=/lfs/h2/emc/ptmp/${USER}/com/${smlaqm}/${exp1}
 if [ ${smlopt} == 'prod' ]; then
    mydir=${comdir}
    mydir2=${comdir2}
-elif [ ${smlopt} == 'prodx' ]; then
-   comdir=/lfs/h2/emc/physics/noscrub/${USER}/com/aqm/prod/cs.${NOW}
-   comdir2=${comdir}
-   mydir=${comdir}
-   mydir2=${comdir}
 elif [ ${smlopt} == 'ncopara' ]; then
    comdir=/lfs/h1/ops/para/com/aqm/v6.1
    comdir2=${comdir}
    mydir=${comdir}
    mydir2=${comdir}
-elif [ ${smlopt} == 'para13j' ]; then
-   comdir=/lfs/h2/emc/ptmp/Jianping.Huang/com/aqm/para13
-   comdir2=/lfs/h2/emc/ptmp/Jianping.Huang/com/aqm/para13
-   mydir=/lfs/h2/emc/ptmp/Jianping.Huang/com/aqm/para13
-   mydir2=/lfs/h2/emc/ptmp/Jianping.Huang/com/aqm/para13
-elif [ ${smlopt} == 'lingan' ]; then
-   comdir2=/lfs/h2/emc/ptmp/Lin.Gan/cmaq/nco/ops/com/aqm/prod
-   comdir=/lfs/h2/emc/ptmp/Lin.Gan/cmaq/nco/ops/com/aqm/prod
-   mydir2=/lfs/h2/emc/ptmp/Lin.Gan/cmaq/nco/ops/com/aqm/prod
-   mydir=/lfs/h2/emc/ptmp/Lin.Gan/cmaq/nco/ops/com/aqm/prod
-elif [ ${smlopt} == 'para12' ]; then
-   comdir=${mydir12}
-   comdir2=${mydir12}
+elif [ ${smlopt} == 'v70a1' ] || [ ${smlopt} == 'v70b1' ] || [ ${smlopt} == 'v70c1' ]; then
+    comdir2=/lfs/h2/emc/ptmp/${USER}/com/aqm/${smlopt}
+    comdir=/lfs/h2/emc/physics/noscrub/${USER}/verification/aqm/${smlopt}
 else
    comdir=${mydir}
    comdir2=${mydir2}
@@ -163,10 +144,6 @@ exp2=${smlopt}
 comdir=/lfs/h1/ops/${exp2}/com/${smlaqm}/v6.1
 comdir2=${comdir}
 comdir2=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp2}
-comdir2=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp2}
-mydir2=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp2}
-mydir12=/lfs/h2/emc/ptmp/Jianping.Huang/com/${smlaqm}/${exp2}
-mydir2=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp2}
 mydir=/lfs/h2/emc/physics/noscrub/${USER}/com/${smlaqm}/${exp2}
 mydir2=/lfs/h2/emc/ptmp/${USER}/com/${smlaqm}/${exp2}
 
@@ -184,19 +161,9 @@ elif [ ${smlopt} == 'ncopara' ]; then
    comdir2=${comdir}
    mydir=${comdir}
    mydir2=${comdir}
-elif [ ${smlopt} == 'para13j' ]; then
-   comdir=/lfs/h2/emc/ptmp/Jianping.Huang/com/aqm/para13
-   comdir2=/lfs/h2/emc/ptmp/Jianping.Huang/com/aqm/para13
-   mydir=/lfs/h2/emc/ptmp/Jianping.Huang/com/aqm/para13
-   mydir2=/lfs/h2/emc/ptmp/Jianping.Huang/com/aqm/para13
-elif [ ${smlopt} == 'lingan' ]; then
-   comdir2=/lfs/h2/emc/ptmp/Lin.Gan/cmaq/nco/ops/com/aqm/prod
-   comdir=/lfs/h2/emc/ptmp/Lin.Gan/cmaq/nco/ops/com/aqm/prod
-   mydir2=/lfs/h2/emc/ptmp/Lin.Gan/cmaq/nco/ops/com/aqm/prod
-   mydir=/lfs/h2/emc/ptmp/Lin.Gan/cmaq/nco/ops/com/aqm/prod
-elif [ ${smlopt} == 'para12' ]; then
-   comdir=${mydir12}
-   comdir2=${mydir12}
+elif [ ${smlopt} == 'v70a1' ] || [ ${smlopt} == 'v70b1' ] || [ ${smlopt} == 'v70c1' ]; then
+    comdir2=/lfs/h2/emc/ptmp/${USER}/com/aqm/${smlopt}
+    comdir=/lfs/h2/emc/physics/noscrub/${USER}/verification/aqm/${smlopt}
 else
    comdir=${mydir}
    comdir2=${mydir2}

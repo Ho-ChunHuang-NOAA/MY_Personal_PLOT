@@ -8,15 +8,13 @@ import logging
 import datetime
 
 ### PASSED AGRUEMENTS
-if len(sys.argv) < 5:
-    print("you must set 5 arguments as model[prod|para|...] variabels[o3|pm25|all] cycle[06|12|all]  start_date end_date")
+if len(sys.argv) < 3:
+    print("you must set 3 arguments as model[prod|para|...] start_date end_date")
     sys.exit()
 else:
     envir = sys.argv[1]
-    sel_var = sys.argv[2]
-    sel_cyc = sys.argv[3]
-    start_date = sys.argv[4]
-    end_date = sys.argv[5]
+    start_date = sys.argv[2]
+    end_date = sys.argv[3]
 
 task_cpu="04:30:00"
 
@@ -104,18 +102,18 @@ if envir == "prod":
 else:
     ## "diff.aqm.plot_48vs72.py",
     script_name = [
+                  "fireemis_fire_loc.py"
+                  ]
+    no_workk_script = [
                   "daily.aqm.plot.py", "daily.aqm.plot_bc.py", 
                   "daily.aqm.plot_specs1.py", "daily.aqm.plot_specs2.py",
                   "daily.aqm.plot_specs3.py", "daily.aqm.plot_specs4.py",
                   "diff.aqm.plot.py",
-                  "daily.aqm.plot_dustloc.py",
-                  "fireemis_fire_loc.py",
                   "gbbepx_fire_loc.py",
                   "diff.aqm.plot_specs1.py", "diff.aqm.plot_specs2.py",
                   "diff.aqm.plot_specs3.py", "diff.aqm.plot_specs4.py",
                   "diff.aqm.plot_bc.py"
-                  ]
-    no_workk_script = [
+                  "daily.aqm.plot_dustloc.py",
                   "daily.aqm.plot_met_v6s1.py", "daily.aqm.plot_met_v6s2.py",
                   "daily.aqm.plot_met_v6s3.py", "daily.aqm.plot_met_v6s4.py",
                   "daily.aqm.plot_met_v6s5.py", 
@@ -156,6 +154,10 @@ H_date_format = "%H"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
+## no impact option for fire location
+sel_var="all"
+sel_cyc="all"
+
 if sel_var == "all":
     var=[ "o3", "pm25" ]
 elif sel_var == "o3":
@@ -177,7 +179,8 @@ elif sel_cyc == "12":
 else:
     print("seletced cycle"+sel_cyc+" can not be recongized.")
     sys.exit()
-
+## for fire location, we only work on 6Z data
+cycle=[ "06" ]
 ##  regname = [   "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",   "ak",   "hi",  "can" ] 
 ##    rlon0 = [ -175.0, -124.0,  -100.0, -128.0,  -82.0, -125.0,  -95.0, -125.0, -105.0, -105.0, -170.0, -161.0, -141.0 ]
 ## xsize = [     10,     10,       8,      8,      8,      8,      8,      8,      8,      8,      8,      8,     10 ]

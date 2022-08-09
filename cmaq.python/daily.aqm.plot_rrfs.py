@@ -219,6 +219,7 @@ while date <= edate:
                 shutil.rmtree(figdir)
             os.makedirs(figdir)
             print("working on "+date.strftime(YMD_date_format)+" t"+cyc+"z "+var[ivar])
+            flag_read_latlon="no"
             for fcst_hr in range(0,73):
                 str_fcst_hr=str(fcst_hr)
                 ## fhh=str_pad(fcst_hr,3,'0',STR_PAD_LEFT)
@@ -229,9 +230,11 @@ while date <= edate:
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein)
-                        if fcst_hr == 0:
+                        if flag_read_latlon == "no":
                             cs_lat = cs_aqm.variables['lat'][:,:]
                             cs_lon = cs_aqm.variables['lon'][:,:]
+                            flag_read_latlon="yes"
+                        if fcst_hr == 0:
                             latmax=np.amax(cs_lat)
                             latmin=np.amin(cs_lat)
                             lonmax=np.amax(cs_lon)
@@ -244,6 +247,10 @@ while date <= edate:
                     elif os.path.exists(aqmfilein2):
                         ## print(aqmfilein2+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein2)
+                        if flag_read_latlon == "no":
+                            cs_lat = cs_aqm.variables['lat'][:,:]
+                            cs_lon = cs_aqm.variables['lon'][:,:]
+                            flag_read_latlon="yes"
                         if fcst_hr == 0:
                             cs_lat = cs_aqm.variables['lat'][:,:]
                             cs_lon = cs_aqm.variables['lon'][:,:]
@@ -261,9 +268,11 @@ while date <= edate:
                         if os.path.exists(aqmfilein):
                             ## print(aqmfilein+" exists")
                             cs_aqm = netcdf.Dataset(aqmfilein)
-                            if fcst_hr == 0:
+                            if flag_read_latlon == "no":
                                 cs_lat = cs_aqm.variables['lat'][:,:]
                                 cs_lon = cs_aqm.variables['lon'][:,:]
+                                flag_read_latlon="yes"
+                            if fcst_hr == 0:
                                 latmax=np.amax(cs_lat)
                                 latmin=np.amin(cs_lat)
                                 lonmax=np.amax(cs_lon)
@@ -275,7 +284,7 @@ while date <= edate:
                             cs_aqm.close()
                         else:
                             print("Can not find "+aqmfilein)
-                            sys.exit()
+                            ## sys.exit()
                 ## in ppm
                 if var[ivar] == "o3":
                     aqmfilein=comout+"/"+date.strftime(YMD_date_format)+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
@@ -283,9 +292,11 @@ while date <= edate:
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein)
-                        if fcst_hr == 0:
+                        if flag_read_latlon == "no":
                             cs_lat = cs_aqm.variables['lat'][:,:]
                             cs_lon = cs_aqm.variables['lon'][:,:]
+                            flag_read_latlon="yes"
+                        if fcst_hr == 0:
                             latmax=np.amax(cs_lat)
                             latmin=np.amin(cs_lat)
                             lonmax=np.amax(cs_lon)
@@ -299,9 +310,11 @@ while date <= edate:
                     elif os.path.exists(aqmfilein2):
                         ## print(aqmfilein2+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein2)
-                        if fcst_hr == 0:
+                        if flag_read_latlon == "no":
                             cs_lat = cs_aqm.variables['lat'][:,:]
                             cs_lon = cs_aqm.variables['lon'][:,:]
+                            flag_read_latlon="yes"
+                        if fcst_hr == 0:
                             latmax=np.amax(cs_lat)
                             latmin=np.amin(cs_lat)
                             lonmax=np.amax(cs_lon)
@@ -317,9 +330,11 @@ while date <= edate:
                         if os.path.exists(aqmfilein):
                             ## print(aqmfilein+" exists")
                             cs_aqm = netcdf.Dataset(aqmfilein)
-                            if fcst_hr == 0:
+                            if flag_read_latlon == "no":
                                 cs_lat = cs_aqm.variables['lat'][:,:]
                                 cs_lon = cs_aqm.variables['lon'][:,:]
+                                flag_read_latlon="yes"
+                            if fcst_hr == 0:
                                 latmax=np.amax(cs_lat)
                                 latmin=np.amin(cs_lat)
                                 lonmax=np.amax(cs_lon)
@@ -332,7 +347,7 @@ while date <= edate:
                             cs_aqm.close()
                         else:
                             print("Can not find "+aqmfilein)
-                            sys.exit()
+                            ## sys.exit()
 
             ## if flag_ak == "no" and iplot[num_reg-3] == 1:
             ##     iplot[num_reg-3] = 0

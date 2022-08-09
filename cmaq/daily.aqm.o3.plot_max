@@ -94,7 +94,7 @@ gs_dir=`pwd`
 declare -a reg=( dset conus east west  ne10  nw10  se10  swse  ak   hi   )
 declare -a lon0=( -175 -133 -100 -130  -81   -125  -91   -125  -170 -161 )
 declare -a lon1=(   55  -60  -60  -90  -66   -105  -74   -100  -130 -154 )
-declare -a lat0=(    0   21   24   21   37     37   24     21    50   18 )
+declare -a lat0=(    0   21   24   21   37     37   24     21    40   18 )
 declare -a lat1=(   80   52   50   50   48     50   40     45    80   23 )
 nreg=${#reg[@]}
 let max_ireg=${nreg}-1
@@ -153,9 +153,9 @@ while [ ${NOW} -le ${LASTDAY} ]; do
    elif [ ${exp} == 'ncopara' ]; then
       comdir=/lfs/h1/ops/para/com/aqm/v6.1/cs.${NOW}
       comdir2=/lfs/h1/ops/para/com/aqm/v6.1/cs.${NOW}
-   elif [ ${exp} == 'para6a' ] || [ ${exp} == 'para6a' ] || [ ${exp} == 'para6x' ]; then
+   elif [ ${exp} == 'v70a1' ] || [ ${exp} == 'v70b1' ] || [ ${exp} == 'v70c1' ]; then
       comdir2=/lfs/h2/emc/ptmp/${USER}/com/aqm/${exp}/cs.${NOW}
-      comdir=/lfs/h2/emc/physics/noscrub/${USER}/com/aqm/${exp}/cs.${NOW}
+      comdir=/lfs/h2/emc/physics/noscrub/${USER}/verification/aqm/${exp}/cs.${NOW}
       if [ ! -d ${comdir} ]; then
          if [ -d ${comdir2} ]; then
             comdir=${comdir2}
@@ -164,12 +164,9 @@ while [ ${NOW} -le ${LASTDAY} ]; do
             exit
          fi
       fi
-   elif [ ${exp} == 'lingan' ]; then
-      comdir2=/lfs/h2/emc/ptmp/Lin.Gan/cmaq/nco/ops/com/aqm/prod/cs.${NOW}
-      comdir=/lfs/h2/emc/ptmp/Lin.Gan/cmaq/nco/ops/com/aqm/prod/cs.${NOW}
    else
-      comdir2=/lfs/h2/emc/ptmp/${USER}/com/aqm/${exp}/cs.${NOW}
       comdir=/lfs/h2/emc/physics/noscrub/${USER}/com/aqm/${exp}/cs.${NOW}
+      comdir=/lfs/h2/emc/ptmp/${USER}/com/aqm/${exp}/cs.${NOW}
    fi
    if [ ! -d ${comdir} ]; then
       echo "////////////////////////////////////////"
