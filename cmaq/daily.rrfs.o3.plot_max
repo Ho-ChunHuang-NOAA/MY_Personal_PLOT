@@ -58,6 +58,7 @@ fi
 case ${sel_cyc} in
    ''|*[!0-9]*) if [ "${sel_cyc}" == "all" ]; then
             declare -a cyc_opt=( 06 12 )
+	    cyc_in=99  ## can not plot for ptmp's output with all option
          else
             echo "input choice for cycle time is not defined $2, program stop"
             echo $MSG
@@ -154,7 +155,15 @@ while [ ${NOW} -le ${LASTDAY} ]; do
       comdir=/lfs/h1/ops/para/com/aqm/v6.1/cs.${NOW}
       comdir2=/lfs/h1/ops/para/com/aqm/v6.1/cs.${NOW}
    elif [ ${exp} == 'v70a1' ] || [ ${exp} == 'v70b1' ] || [ ${exp} == 'v70c1' ]; then
+
       comdir2=/lfs/h2/emc/ptmp/${USER}/com/aqm/${exp}/cs.${NOW}
+      if [ ${exp} == 'v70a1' ]; then
+          comdir2=/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.a1/${NOW}${cyc_in}
+      elif [ ${exp} == 'v70b1' ]; then
+          comdir2=/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.b1/${NOW}${cyc_in}
+      elif [ ${exp} == 'v70c1' ]; then
+          comdir2=/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.c1/${NOW}${cyc_in}
+      fi
       comdir=/lfs/h2/emc/physics/noscrub/${USER}/verification/aqm/${exp}/cs.${NOW}
       if [ ! -d ${comdir} ]; then
          if [ -d ${comdir2} ]; then
