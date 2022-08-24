@@ -248,34 +248,42 @@ while date <= edate:
                 ## READ hourly EPA AirNOW OBS data
                 ## note obs is forward average and model is backward, so they are different by an hour
                 obs_hour=fcst_hour
-                fcst_hour=fcst_hour+hour_inc
+                ## fcst_hour=fcst_hour+hour_inc
 
                 ## Read in one hourly data at a time
                 base_dir = obsdir+"/"+obs_hour.strftime(Y_date_format)+'/'+obs_hour.strftime(YMD_date_format)+'/'
                 obsfile= base_dir+'HourlyAQObs_'+obs_hour.strftime(obs_YMDH_date_format)+'.dat'
-                airnow = []
-                colnames = ['Latitude','Longitude','ValidDate','ValidTime','PM25','PM25_Unit','OZONE','OZONE_Unit']
+                flag_find_epa_ascii="no"
+                if os.path.exists(obsfile):
+                ##    print(obsfile+" exists")
+                    flag_find_epa_ascii="yes"
+                ## else:
+                ##    print("Can not find "+obsfile)
 
-                df = pd.read_csv(obsfile,usecols=colnames)
-
-                df[df['PM25']<0]=np.nan # ignore negative PM2.5 values
-
-                df['Datetime'] = df['ValidDate'].astype(str)+' '+df['ValidTime'] # merge date and time columns
-                df['Datetime'] = pd.to_datetime(df['Datetime'],format='%m/%d/%Y %H:%M') # convert dates/times into datetime format
-                colnames_dt = ['Latitude','Longitude','Datetime','PM25','PM25_Unit','OZONE','OZONE_Unit']
-# is there a similar command of pd.close_csv() ??
-                df = df[colnames_dt]
-                airnow.append(df)
-
-                airnow = pd.concat(airnow, ignore_index=True) # combine list of dataframes into one
-
-                lat = airnow['Latitude']
-                lon = airnow['Longitude']
-                dt = airnow['Datetime']
-                pm25_obs = airnow['PM25']
-                pmunit = airnow['PM25_Unit']
-                o3_obs = airnow['OZONE']
-                o3unit = airnow['OZONE_Unit']
+                if flag_find_epa_ascii == "yes":
+                    airnow = []
+                    colnames = ['Latitude','Longitude','ValidDate','ValidTime','PM25','PM25_Unit','OZONE','OZONE_Unit']
+    
+                    df = pd.read_csv(obsfile,usecols=colnames)
+    
+                    df[df['PM25']<0]=np.nan # ignore negative PM2.5 values
+    
+                    df['Datetime'] = df['ValidDate'].astype(str)+' '+df['ValidTime'] # merge date and time columns
+                    df['Datetime'] = pd.to_datetime(df['Datetime'],format='%m/%d/%Y %H:%M') # convert dates/times into datetime format
+                    colnames_dt = ['Latitude','Longitude','Datetime','PM25','PM25_Unit','OZONE','OZONE_Unit']
+    # is there a similar command of pd.close_csv() ??
+                    df = df[colnames_dt]
+                    airnow.append(df)
+    
+                    airnow = pd.concat(airnow, ignore_index=True) # combine list of dataframes into one
+    
+                    lat = airnow['Latitude']
+                    lon = airnow['Longitude']
+                    dt = airnow['Datetime']
+                    pm25_obs = airnow['PM25']
+                    pmunit = airnow['PM25_Unit']
+                    o3_obs = airnow['OZONE']
+                    o3unit = airnow['OZONE_Unit']
 
                 if var[ivar] == "pm25":
                     aqmfilein=comout+"/"+date.strftime(YMD_date_format)+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
@@ -543,104 +551,105 @@ while date <= edate:
                             ## cb2.set_label('Discrete intervals, some other units')
                             fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
 
-                            #######################################################
-                            ##########      PLOTTING OBS DATA            ##########
-                            #######################################################
-    
-                            var_lat = []
-                            var_lon = []
-                            plot_var = []
-                            var_unit = []
-                            length = len(lat)
-    
-                            for row in range(length):
-                                bool_nanpm = pd.isnull(pm25_obs[row])
-                                bool_nano3 = pd.isnull(o3_obs[row])
-    
+                            if flag_find_epa_ascii == "yes":
+                                #######################################################
+                                ##########      PLOTTING OBS DATA            ##########
+                                #######################################################
+        
+                                var_lat = []
+                                var_lon = []
+                                plot_var = []
+                                var_unit = []
+                                length = len(lat)
+        
+                                for row in range(length):
+                                    bool_nanpm = pd.isnull(pm25_obs[row])
+                                    bool_nano3 = pd.isnull(o3_obs[row])
+        
+                                    if sel_var == 'pm25':
+                                        if dt[row] == obs_hour and bool_nanpm == False:
+                                            var_lon.append(lon[row])
+                                            var_lat.append(lat[row])
+                                            plot_var.append(pm25_obs[row])
+                                            var_unit.append(pmunit[row])
+                                            if pmunit[row]!='UG/M3':
+                                                print('Uh oh! pm25 row '+str(row)+' is in units of '+str(pmunit[row]))
+                                    elif sel_var == 'o3':
+                                        if dt[row] == obs_hour and bool_nano3 == False:
+                                            var_lon.append(lon[row])
+                                            var_lat.append(lat[row])
+                                            plot_var.append(o3_obs[row])
+                                            var_unit.append(pmunit[row])
+                                            if o3unit[row]!='PPB':
+                                                print('Uh oh! o3 row '+str(row)+' is in units of '+str(o3unit[row])) 
+                                    else:
+                                        print('Chosen variable not recognized'+str(var))
+        
                                 if sel_var == 'pm25':
-                                    if dt[row] == obs_hour and bool_nanpm == False:
-                                        var_lon.append(lon[row])
-                                        var_lat.append(lat[row])
-                                        plot_var.append(pm25_obs[row])
-                                        var_unit.append(pmunit[row])
-                                        if pmunit[row]!='UG/M3':
-                                            print('Uh oh! pm25 row '+str(row)+' is in units of '+str(pmunit[row]))
+                                    num_pm25=len(plot_var)
+                                    clevs = [ 3., 6., 9., 12., 15., 35., 55., 75., 100., 125., 150., 250., 300., 400., 500., 600., 750. ]
+                                    nlev=len(clevs)
+                                    ccols = [
+                                            (0.0000,0.7060,0.0000), (0.0000,0.9060,0.0000), (0.3020,1.0000,0.3020),
+                                            (1.0000,1.0000,0.4980), (1.0000,0.8745,0.0000), (1.0000,0.6471,0.0000),
+                                            (1.0000,0.3840,0.3840), (1.0000,0.0000,0.0000), (0.8000,0.0000,0.0000), (0.7020,0.0000,0.0000),
+                                            (0.6120,0.5100,0.8120), (0.5180,0.3880,0.7650), (0.4310,0.2780,0.7250),(0.2980,0.1920,0.5020),
+                                            (0.4706,0.4706,0.4706), (0.7843,0.7843,0.7843)
+                                            ]
+                                    ncols=len(ccols)
+                                    if ncols+1 != nlev:
+                                        print("Warning: color interval does not match with color setting")
+                                    color=[]
+                                    for i in range(0,num_pm25):
+                                        if plot_var[i] < clevs[0]:
+                                            color.append((0.8627,0.8627,1.0000))
+                                        elif plot_var[i] >= clevs[nlev-1]:
+                                            color.append((0.9412,0.9412,0.9412))
+                                        else:
+                                            flag_find_color="no"
+                                            for j in range(0,nlev-1):
+                                                if plot_var[i] >= clevs[j] and plot_var[i] < clevs[j+1]:
+                                                    color.append(ccols[j])
+                                                    flag_find_color="yes"
+                                                    break
+                                            if flag_find_color =="no":
+                                                print("Can not assign proper value for color, program stop")
+                                                sys.exit()
+        
                                 elif sel_var == 'o3':
-                                    if dt[row] == obs_hour and bool_nano3 == False:
-                                        var_lon.append(lon[row])
-                                        var_lat.append(lat[row])
-                                        plot_var.append(o3_obs[row])
-                                        var_unit.append(pmunit[row])
-                                        if o3unit[row]!='PPB':
-                                            print('Uh oh! o3 row '+str(row)+' is in units of '+str(o3unit[row])) 
-                                else:
-                                    print('Chosen variable not recognized'+str(var))
-    
-                            if sel_var == 'pm25':
-                                num_pm25=len(plot_var)
-                                clevs = [ 3., 6., 9., 12., 15., 35., 55., 75., 100., 125., 150., 250., 300., 400., 500., 600., 750. ]
-                                nlev=len(clevs)
-                                ccols = [
-                                        (0.0000,0.7060,0.0000), (0.0000,0.9060,0.0000), (0.3020,1.0000,0.3020),
-                                        (1.0000,1.0000,0.4980), (1.0000,0.8745,0.0000), (1.0000,0.6471,0.0000),
-                                        (1.0000,0.3840,0.3840), (1.0000,0.0000,0.0000), (0.8000,0.0000,0.0000), (0.7020,0.0000,0.0000),
-                                        (0.6120,0.5100,0.8120), (0.5180,0.3880,0.7650), (0.4310,0.2780,0.7250),(0.2980,0.1920,0.5020),
-                                        (0.4706,0.4706,0.4706), (0.7843,0.7843,0.7843)
-                                        ]
-                                ncols=len(ccols)
-                                if ncols+1 != nlev:
-                                    print("Warning: color interval does not match with color setting")
-                                color=[]
-                                for i in range(0,num_pm25):
-                                    if plot_var[i] < clevs[0]:
-                                        color.append((0.8627,0.8627,1.0000))
-                                    elif plot_var[i] >= clevs[nlev-1]:
-                                        color.append((0.9412,0.9412,0.9412))
-                                    else:
-                                        flag_find_color="no"
-                                        for j in range(0,nlev-1):
-                                            if plot_var[i] >= clevs[j] and plot_var[i] < clevs[j+1]:
-                                                color.append(ccols[j])
-                                                flag_find_color="yes"
-                                                break
-                                        if flag_find_color =="no":
-                                            print("Can not assign proper value for color, program stop")
-                                            sys.exit()
-    
-                            elif sel_var == 'o3':
-                                num_o3=len(plot_var)
-                                clevs = [ 3., 6., 9., 12., 25., 35., 45., 55., 65., 70., 75., 85., 95., 105. ]
-                                nlev=len(clevs)
-                                ccols = [
-                                         (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
-                                         (0.0000,0.7490,1.0000), (0.0000,1.0000,1.0000),
-                                         (0.0000,0.7060,0.0000), (0.0000,0.9060,0.0000), (0.3020,1.0000,0.3020),
-                                         (1.0000,1.0000,0.4980), (1.0000,0.8745,0.0000), (1.0000,0.6471,0.0000), (0.9412,0.5098,0.1569),
-                                         (1.0000,0.0000,0.0000), (0.7020,0.0000,0.0000)
-                                        ]
-                                ncols=len(ccols)
-                                if ncols+1 != nlev:
-                                    print('Warning: color interval does not match with color setting')
-                                color=[]
-                                for i in range(0,num_o3):
-                                    if plot_var[i] < clevs[0]:
-                                        color.append((0.8627,0.8627,1.0000))
-                                    elif plot_var[i] >= clevs[nlev-1]:
-                                        color.append((0.4310,0.2780,0.7250))
-                                    else:
-                                        flag_find_color='no'
-                                        for j in range(0,nlev-1):
-                                            if plot_var[i] >= clevs[j] and plot_var[i] < clevs[j+1]:
-                                                color.append(ccols[j])
-                                                flag_find_color='yes'
-                                                break
-                                        if flag_find_color =='no':
-                                            print('Can not assign proper value for color, program stop')
-                                            sys.exit()
-    
-                            ## s = [20*4**n for n in range(len(x))]
-                            ## ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=100,zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
-                            ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=mksize[ireg],zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
+                                    num_o3=len(plot_var)
+                                    clevs = [ 3., 6., 9., 12., 25., 35., 45., 55., 65., 70., 75., 85., 95., 105. ]
+                                    nlev=len(clevs)
+                                    ccols = [
+                                             (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
+                                             (0.0000,0.7490,1.0000), (0.0000,1.0000,1.0000),
+                                             (0.0000,0.7060,0.0000), (0.0000,0.9060,0.0000), (0.3020,1.0000,0.3020),
+                                             (1.0000,1.0000,0.4980), (1.0000,0.8745,0.0000), (1.0000,0.6471,0.0000), (0.9412,0.5098,0.1569),
+                                             (1.0000,0.0000,0.0000), (0.7020,0.0000,0.0000)
+                                            ]
+                                    ncols=len(ccols)
+                                    if ncols+1 != nlev:
+                                        print('Warning: color interval does not match with color setting')
+                                    color=[]
+                                    for i in range(0,num_o3):
+                                        if plot_var[i] < clevs[0]:
+                                            color.append((0.8627,0.8627,1.0000))
+                                        elif plot_var[i] >= clevs[nlev-1]:
+                                            color.append((0.4310,0.2780,0.7250))
+                                        else:
+                                            flag_find_color='no'
+                                            for j in range(0,nlev-1):
+                                                if plot_var[i] >= clevs[j] and plot_var[i] < clevs[j+1]:
+                                                    color.append(ccols[j])
+                                                    flag_find_color='yes'
+                                                    break
+                                            if flag_find_color =='no':
+                                                print('Can not assign proper value for color, program stop')
+                                                sys.exit()
+        
+                                ## s = [20*4**n for n in range(len(x))]
+                                ## ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=100,zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
+                                ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=mksize[ireg],zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
     
                             savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cycle_time+"."+str(format(fcst_hr,'02d'))+"."+var[ivar]+".k1.png"
                             plt.savefig(savefig_name, bbox_inches='tight')

@@ -15,13 +15,7 @@ import sys
 import datetime
 import shutil
 import subprocess
-
 import pandas as pd
-## import datetime as dts
-## from datetime import date, time, timedelta
-## from netCDF4 import Dataset
-## from matplotlib import dates
-
 ### Read data of all time step in once, then print one at a time
 ### PASSED AGRUEMENTS
 if len(sys.argv) < 5:
@@ -138,22 +132,29 @@ plt.rcParams['axes.titleweight'] = 'bold'
 plt.rcParams['axes.formatter.useoffset'] = False
 cbar_num_format = "%d"
 plt.close('all') # close all figures
-
+##
+## Current operational CMAQ does not apply Bias-Correction procedure for AK and HI domain
+## Current EMC development CMAQ does not apply Bias-Correction procedure for AK and HI domain
+##
 msg=datetime.datetime.now()
 msg=msg - date_inc
 grdcro2d_date=msg.strftime("%Y%m%d")
-##
-## Current operational CMAQ does include runs for AK and HI domain
-## Current EMC development CMAQ does not include runs for AK and HI domain
-##
+
 aqm_ver="v6.1"
 find_dir=[
           "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
-          "/lfs/h2/emc/ptmp/"+os.environ['USER']+"/com/aqm/"+envir,
-          "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir
+          "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir,
+          "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir
          ]
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
 obsdir="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/epa_airnow_acsii"
+
+if envir == "prod" or envir == "para6x" or envir == "para6b":
+    flag_ak = "no"
+    flag_hi = "no"
+else:
+    flag_ak = "no"
+    flag_hi = "no"
 
 figout=stmp_dir
 
@@ -192,13 +193,21 @@ while date <= edate:
         print("check "+idir)
         flag_find_cyc="yes"
         for cyc in cycle:
-            check_file="aqm."+cyc+".aconc_sfc.ncf"
-            aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
-            if os.path.exists(aqmfilein):
-                print(aqmfilein+" exists")
-            else:
+            flag_find_var="yes"
+            for ivar in range(0,num_var):
+                if var[ivar] == "o3":
+                    check_file="ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                elif var[ivar] == "pm25":
+                    check_file="pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
+                if os.path.exists(aqmfilein):
+                    print(aqmfilein+" exists")
+                else:
+                    flag_find_var="no"
+                    print("Can not find "+aqmfilein)
+                    break
+            if flag_find_var == "no":
                 flag_find_cyc="no"
-                print("Can not find "+aqmfilein)
                 break
         if flag_find_cyc == "yes":
             flag_find_idir="yes"
@@ -208,36 +217,18 @@ while date <= edate:
     else:
         date = date + date_inc
         continue
-    
-    if envir == "prod" or envir == "para6x" or envir == "para6b":
-        flag_ak = "yes"
-        for cyc in cycle:
-            check_file="aqm."+cyc+".aconc_sfc.ncf"
-            aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+check_file
-            if os.path.exists(aqmfilein):
-                print(aqmfilein+" exists")
-            else:
-                flag_ak="no"
-                print("Can not find "+aqmfilein)
-                break
-        flag_hi = "yes"
-        for cyc in cycle:
-            check_file="aqm."+cyc+".aconc_sfc.ncf"
-            aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+check_file
-            if os.path.exists(aqmfilein):
-                print(aqmfilein+" exists")
-            else:
-                flag_hi="no"
-                print("Can not find "+aqmfilein)
-                break
-    else:
-        flag_ak = "no"
-        flag_hi = "no"
+
+    if flag_ak == "no" and iplot[num_reg-3] == 1:
+        iplot[num_reg-3] = 0
+    if flag_hi == "no" and iplot[num_reg-2] == 1:
+        iplot[num_reg-2] = 0
+    print("iplot length = "+str(num_reg))
+
 
     for cyc in cycle:
         msg=datetime.datetime.now()
         print("Start processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
-        s1_title="CMAQ "+fig_exp.upper()+" "+date.strftime(YMD_date_format)+" "+cyc
+        s1_title=fig_exp.upper()+"_BC "+date.strftime(YMD_date_format)+" "+cyc
         fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[1:3]))
 
         metfilein=metout+"/cs."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
@@ -250,104 +241,87 @@ while date <= edate:
         else:
             print("Can not find "+metfilein)
 
-        aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
-        if os.path.exists(aqmfilein):
-            print(aqmfilein+" exists")
-            cs_aqm = netcdf.Dataset(aqmfilein)
-            cs_var = cs_aqm.variables['TFLAG'][:,0,:]
-            nstep=len(cs_var)
-            for ivar in range(0,num_var):
+        for ivar in range(0,num_var):
+            if var[ivar] == "o3":
+                model_filein=comout+"/cs."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                if os.path.exists(model_filein):
+                    print(model_filein+" exists")
+                    model_data = netcdf.Dataset(model_filein)
+                    o3_cs  = model_data.variables['O3'][:,0,:,:]
+                    nstep=len(o3_cs)
+                    model_data.close()
+                else:
+                    print("Can not find "+model_filein)
+                    sys.exit()
+            elif var[ivar] == "pm25":
+                model_filein=comout+"/cs."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                if os.path.exists(model_filein):
+                    print(model_filein+" exists")
+                    model_data = netcdf.Dataset(model_filein)
+                    pm_cs = model_data.variables['pm25'][:,0,:,:]
+                    nstep=len(pm_cs)
+                    model_data.close()
+                else:
+                    print("Can not find "+model_filein)
+                    sys.exit()
+            if flag_ak == "yes":
                 if var[ivar] == "o3":
-                    o3_cs = cs_aqm.variables['O3'][:,0,:,:]
+                    model_filein=comout+"/ak."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                    if os.path.exists(model_filein):
+                        print(model_filein+" exists")
+                        model_data = netcdf.Dataset(model_filein)
+                        o3_cs  = model_data.variables['O3'][:,0,:,:]
+                        nstep=len(o3_cs)
+                        model_data.close()
+                    else:
+                        print("Can not find "+model_filein)
+                        flag_ak = "no"
+                        iplot[num_reg-3] = 0
                 elif var[ivar] == "pm25":
-                    pm_cs = cs_aqm.variables['PM25_TOT'][:,0,:,:]
-            cs_aqm.close()
-        else:
-            print("Can not find "+aqmfilein)
-            sys.exit()
-
-        if flag_ak == "yes":
-            metfilein=metout+"/ak."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
-            if os.path.exists(metfilein):
-                print(metfilein+" exists")
-                model_data = netcdf.Dataset(metfilein)
-                ak_lat = model_data.variables['LAT'][0,0,:,:]
-                ak_lon = model_data.variables['LON'][0,0,:,:]
-                model_data.close()
-            else:
-                print("Can not find "+metfilein)
-                flag_ak = "no"
-                iplot[num_reg-3] = 0
-
-            aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
-            if os.path.exists(aqmfilein):
-                print(aqmfilein+" exists")
-                ak_aqm = netcdf.Dataset(aqmfilein)
-                ak_var = ak_aqm.variables['TFLAG'][:,0,:]
-                nstep_ak=len(ak_var)
-                if nstep_ak != nstep:
-                    print("time step of AK domain "+str(nstep_ak)+" is different from CONUS domain "+str(nstep))
-                    sys.exit()
-                for ivar in range(0,num_var):
-                    if var[ivar] == "o3":
-                        o3_ak = ak_aqm.variables['O3'][:,0,:,:]
-                    elif var[ivar] == "pm25":
-                        pm_ak = ak_aqm.variables['PM25_TOT'][:,0,:,:]
-                ak_aqm.close()
-            else:
-                print("Can not find "+aqmfilein)
-                flag_ak = "no"
-                iplot[num_reg-3] = 0
-    
-        if flag_hi == "yes":
-            metfilein=metout+"/hi."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
-            if os.path.exists(metfilein):
-                print(metfilein+" exists")
-                model_data = netcdf.Dataset(metfilein)
-                hi_lat = model_data.variables['LAT'][0,0,:,:]
-                hi_lon = model_data.variables['LON'][0,0,:,:]
-                model_data.close()
-            else:
-                print("Can not find "+metfilein)
-                flag_hi = "no"
-                iplot[num_reg-2] = 0
-    
-            aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
-            if os.path.exists(aqmfilein):
-                print(aqmfilein+" exists")
-                hi_aqm = netcdf.Dataset(aqmfilein)
-                hi_var = hi_aqm.variables['TFLAG'][:,0,:]
-                nstep_hi=len(hi_var)
-                nstep_hi= nstep
-                if nstep_hi != nstep:
-                    print("time step of HI domain "+str(nstep_hi)+" is different from CONUS domain "+str(nstep))
-                    sys.exit()
-                for ivar in range(0,num_var):
-                    if var[ivar] == "o3":
-                        o3_hi = hi_aqm.variables['O3'][:,0,:,:]
-                    elif var[ivar] == "pm25":
-                        pm_hi = hi_aqm.variables['PM25_TOT'][:,0,:,:]
-                hi_aqm.close()
-            else:
-                print("Can not find "+aqmfilein)
-                flag_hi = "no"
-                iplot[num_reg-2] = 0
-
-        if flag_ak == "no" and iplot[num_reg-3] == 1:
-            iplot[num_reg-3] = 0
-        if flag_hi == "no" and iplot[num_reg-2] == 1:
-            iplot[num_reg-2] = 0
-        print("iplot length = "+str(num_reg))
-
+                    model_filein=comout+"/ak."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                    if os.path.exists(model_filein):
+                        print(model_filein+" exists")
+                        model_data = netcdf.Dataset(model_filein)
+                        pm_cs = model_data.variables['pm25'][:,0,:,:]
+                        nstep=len(pm_cs)
+                        model_data.close()
+                    else:
+                        print("Can not find "+model_filein)
+                        flag_ak = "no"
+                        iplot[num_reg-3] = 0
+            if flag_hi == "yes":
+                if var[ivar] == "o3":
+                    model_filein=comout+"/hi."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                    if os.path.exists(model_filein):
+                        print(model_filein+" exists")
+                        model_data = netcdf.Dataset(model_filein)
+                        o3_cs  = model_data.variables['O3'][:,0,:,:]
+                        nstep=len(o3_cs)
+                        model_data.close()
+                    else:
+                        print("Can not find "+model_filein)
+                        iplot[num_reg-2] = 0
+                        flag_hi = "no"
+                elif var[ivar] == "pm25":
+                    model_filein=comout+"/hi."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                    if os.path.exists(model_filein):
+                        print(model_filein+" exists")
+                        model_data = netcdf.Dataset(model_filein)
+                        pm_cs = model_data.variables['pm25'][:,0,:,:]
+                        nstep=len(pm_cs)
+                        model_data.close()
+                    else:
+                        print("Can not find "+model_filein)
+                        flag_hi = "no"
+                        iplot[num_reg-2] = 0
         for ivar in range(0,num_var):
             msg=datetime.datetime.now()
             print("Start processing "+var[ivar])
-            jobid="aqm"+"_"+envir+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"_"+cyc
+            jobid="aqm"+"_"+envir+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"_"+cyc+"_bc"
             figdir = figout+"/"+jobid
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)
             os.makedirs(figdir)
-            print("figdir = "+figdir)
             print("working on "+date.strftime(YMD_date_format)+" "+cyc+" "+var[ivar])
             if var[ivar] == "o3":
                 s3_title="Ozone sfc_conc (ppbV)"
@@ -405,13 +379,13 @@ while date <= edate:
             norm = mpl.colors.BoundaryNorm(boundaries=clevs, ncolors=cmap.N)
             gs = gridspec.GridSpec(1,1)
             fcst_hour=fcst_ini
-
             ## for over lay plot
             ## code is design to process the graphic in sequence from 1st hour
             ## obs_hour and fcst_hour need to be consistently increase by one hour, whike
             ## model forecast output is directly read "n" if model output
             ## thus, obs and fcst will not sync if n start from the middle
             ## for n in range(0,17):
+            ## for n in range(0,2):
             for n in range(0,nstep):
                 nout=n+1
                 str_fcst_hr=str(nout)
@@ -459,10 +433,6 @@ while date <= edate:
                 s2_title = fcst_hour.strftime(YMDH_date_format)+"00V"+fhh
                 title=s1_title+"\n"+s2_title+" "+s3_title
                 pvar_cs = var_cs[n,:,:]
-                if flag_ak == "yes":
-                    pvar_ak = var_ak[n,:,:]
-                if flag_hi == "yes":
-                    pvar_hi = var_hi[n,:,:]
                 for ireg in range(0,num_reg):
                     if iplot[ireg] == 1:
                         figarea=regname[ireg]
@@ -522,7 +492,6 @@ while date <= edate:
                         ax.set_title(title)
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
-
                         if flag_find_epa_ascii == "yes":
                             #######################################################
                             ##########      PLOTTING OBS DATA            ##########
@@ -623,7 +592,7 @@ while date <= edate:
                             ## ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=100,zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
                             ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=mksize[ireg],zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
     
-                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cyc+"."+str(format(nout,'02d'))+"."+var[ivar]+".k1.png"
+                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"bc."+date.strftime(YMD_date_format)+"."+cyc+"."+str(format(nout,'02d'))+"."+var[ivar]+".k1.png"
                         plt.savefig(savefig_name, bbox_inches='tight')
                         plt.close()
             ##
@@ -634,8 +603,7 @@ while date <= edate:
             if 1 == 2 :
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cyc)
             else:
-                ### partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
-                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
+                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
             subprocess.call(['scp -p * '+partb], shell=True)
             msg=datetime.datetime.now()
             print("End   processing "+var[ivar])
@@ -643,5 +611,5 @@ while date <= edate:
         msg=datetime.datetime.now()
         print("End   processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     msg=datetime.datetime.now()
-    print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     date = date + date_inc
+    print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
