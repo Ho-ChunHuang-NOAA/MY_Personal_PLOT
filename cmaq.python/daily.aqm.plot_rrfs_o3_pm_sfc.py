@@ -156,6 +156,10 @@ else:
 
 figout=stmp_dir
 
+##
+## new area need to be added ahead of ak.  The last three areas need to be fixed as "ak",   "hi",  "can"
+## this is due to the code below remove plotting of ak and hi if no ak and hi input files ash been found
+##
 flag_proj="LambertConf"
 ## from 22.574179720000018 to 51.47512722912568
 ## from 228.37073225113136 to 296.6273160909873

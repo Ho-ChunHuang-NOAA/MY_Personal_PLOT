@@ -190,6 +190,10 @@ else:
 
 figout=stmp_dir
 
+##
+## new area need to be added ahead of ak.  The last three areas need to be fixed as "ak",   "hi",  "can"
+## this is due to the code below remove plotting of ak and hi if no ak and hi input files ash been found
+##
 flag_proj="LambertConf"
 ##mksize= [     16,     25,      36,      36,     49,     49,     49,     49,     64,     64,    121,    100,    121,     36 ]
 mksize= [     16,      16,      25,     25,     36,     36,     36,     36,     49,     49,    121,    100,    121,     36 ]

@@ -157,6 +157,10 @@ obsdir="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/epa_airnow_acsii"
 
 figout=stmp_dir
 
+##
+## new area need to be added ahead of ak.  The last three areas need to be fixed as "ak",   "hi",  "can"
+## this is due to the code below remove plotting of ak and hi if no ak and hi input files ash been found
+##
 flag_proj="LambertConf"
 ##
 ## marker size (s= in the scatter plot command) is the wxH. s=100 is the area of 10x10
