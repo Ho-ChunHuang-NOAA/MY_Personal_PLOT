@@ -146,10 +146,16 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 aqm_ver="v7.0"
 if envir == "v70a1":
     comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.a1"
-    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/v70a1"
+    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
 elif envir =="v70b1":
     comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.b1"
-    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/v70b1"
+    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
+elif envir =="v70b5":
+    comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.b5"
+    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
+elif envir =="v70b6":
+    comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.b6"
+    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
 else:
     print("Experiment is not recognized or defined in this program")
     sys.exit()
@@ -220,7 +226,11 @@ while date <= edate:
             os.makedirs(figdir)
             print("working on "+date.strftime(YMD_date_format)+" t"+cyc+"z "+var[ivar])
             flag_read_latlon="no"
-            for fcst_hr in range(0,73):
+            if envir == "v70b5" or envir == "v70b6":
+                hour_end = 31
+            else:
+                hour_end = 73
+            for fcst_hr in range(0,hour_end):
                 str_fcst_hr=str(fcst_hr)
                 ## fhh=str_pad(fcst_hr,3,'0',STR_PAD_LEFT)
                 fhh=str_fcst_hr.zfill(3)
@@ -305,7 +315,10 @@ while date <= edate:
                             ## print("from "+str(lonmin)+" to "+str(lonmax))
                         else:
                             o3_cs = cs_aqm.variables['o3'][0,:,:]
-                            scale= 1.
+                            if envir == "v70b5" or envir == "v70b6":
+                                scale= 1000.
+                            else:
+                                scale= 1.
                         cs_aqm.close()
                     elif os.path.exists(aqmfilein2):
                         ## print(aqmfilein2+" exists")
@@ -323,7 +336,10 @@ while date <= edate:
                             ## print("from "+str(lonmin)+" to "+str(lonmax))
                         else:
                             o3_cs = cs_aqm.variables['o3'][0,:,:]
-                            scale= 1.
+                            if envir == "v70b5" or envir == "v70b6":
+                                scale= 1000.
+                            else:
+                                scale= 1.
                         cs_aqm.close()
                     else:
                         aqmfilein=comout+"/"+date.strftime(YMD_date_format)+cyc+"/dynf"+fhh+".nc"

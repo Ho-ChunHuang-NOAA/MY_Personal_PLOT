@@ -15,6 +15,13 @@ import sys
 import datetime
 import shutil
 import subprocess
+
+import pandas as pd
+## import datetime as dts
+## from datetime import date, time, timedelta
+## from netCDF4 import Dataset
+## from matplotlib import dates
+
 ### Read data of all time step in once, then print one at a time
 ### PASSED AGRUEMENTS
 if len(sys.argv) < 5:
@@ -86,6 +93,8 @@ if os.path.isfile(msg_file):
 
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]))
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]))
+
+obs_YMDH_date_format = "%Y%m%d%H"
 YMDH_date_format = "%Y%m%d/%H"
 YMD_date_format = "%Y%m%d"
 YM_date_format = "%Y%m"
@@ -140,14 +149,21 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 aqm_ver="v6.1"
 find_dir=[
           "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
-          "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir,
-          "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir
+          "/lfs/h2/emc/ptmp/"+os.environ['USER']+"/com/aqm/"+envir,
+          "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir
          ]
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
+obsdir="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/epa_airnow_acsii"
 
 figout=stmp_dir
 
 flag_proj="LambertConf"
+##
+## marker size (s= in the scatter plot command) is the wxH. s=100 is the area of 10x10
+## Thus increase and decrease by squrt(s) or using nxn wiht n from 1,....large integer
+##
+##mksize= [     16,     25,      36,      36,     49,     49,     49,     49,     64,     64,    100,    121,     25 ]
+mksize= [     16,      16,      25,     25,     36,     36,     36,     36,     49,     49,    100,    121,     25 ]
 if flag_proj == "LambertConf":
     regname = [   "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",   "ak",   "hi",  "can" ] 
     rlon0 = [ -161.0, -120.4,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0, -166.0, -161.5, -141.0 ]
@@ -389,14 +405,50 @@ while date <= edate:
             norm = mpl.colors.BoundaryNorm(boundaries=clevs, ncolors=cmap.N)
             gs = gridspec.GridSpec(1,1)
             fcst_hour=fcst_ini
-            ## for n in range(0,2):
-            for n in range(0,nstep):
+
+            ## for over lay plot
+            ## code is design to process the graphic in sequence from 1st hour
+            ## obs_hour and fcst_hour need to be consistently increase by one hour, whike
+            ## model forecast output is directly read "n" if model output
+            ## thus, obs and fcst will not sync if n start from the middle
+            ## for n in range(0,nstep):
+            for n in range(0,17):
                 nout=n+1
+                str_fcst_hr=str(nout)
+                fhh=str_fcst_hr.zfill(3)
+                ## READ hourly EPA AirNOW OBS data
+                ## note obs is forward average and model is backward, so they are different by an hour
+                obs_hour=fcst_hour
                 fcst_hour=fcst_hour+hour_inc
-                if nstep > 99:
-                    s2_title = fcst_hour.strftime(YMDH_date_format)+"00V"+str(format(nout,'03d'))
-                else:
-                    s2_title = fcst_hour.strftime(YMDH_date_format)+"00V"+str(format(nout,'02d'))
+
+                ## Read in one hourly data at a time
+                base_dir = obsdir+"/"+obs_hour.strftime(Y_date_format)+'/'+obs_hour.strftime(YMD_date_format)+'/'
+                obsfile= base_dir+'HourlyAQObs_'+obs_hour.strftime(obs_YMDH_date_format)+'.dat'
+                airnow = []
+                colnames = ['Latitude','Longitude','ValidDate','ValidTime','PM25','PM25_Unit','OZONE','OZONE_Unit']
+
+                df = pd.read_csv(obsfile,usecols=colnames)
+
+                df[df['PM25']<0]=np.nan # ignore negative PM2.5 values
+
+                df['Datetime'] = df['ValidDate'].astype(str)+' '+df['ValidTime'] # merge date and time columns
+                df['Datetime'] = pd.to_datetime(df['Datetime'],format='%m/%d/%Y %H:%M') # convert dates/times into datetime format
+                colnames_dt = ['Latitude','Longitude','Datetime','PM25','PM25_Unit','OZONE','OZONE_Unit']
+# is there a similar command of pd.close_csv() ??
+                df = df[colnames_dt]
+                airnow.append(df)
+
+                airnow = pd.concat(airnow, ignore_index=True) # combine list of dataframes into one
+
+                lat = airnow['Latitude']
+                lon = airnow['Longitude']
+                dt = airnow['Datetime']
+                pm25_obs = airnow['PM25']
+                pmunit = airnow['PM25_Unit']
+                o3_obs = airnow['OZONE']
+                o3unit = airnow['OZONE_Unit']
+
+                s2_title = fcst_hour.strftime(YMDH_date_format)+"00V"+fhh
                 title=s1_title+"\n"+s2_title+" "+s3_title
                 pvar_cs = var_cs[n,:,:]
                 if flag_ak == "yes":
@@ -462,6 +514,106 @@ while date <= edate:
                         ax.set_title(title)
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
+
+                        #######################################################
+                        ##########      PLOTTING OBS DATA            ##########
+                        #######################################################
+
+                        var_lat = []
+                        var_lon = []
+                        plot_var = []
+                        var_unit = []
+                        length = len(lat)
+
+                        for row in range(length):
+                            bool_nanpm = pd.isnull(pm25_obs[row])
+                            bool_nano3 = pd.isnull(o3_obs[row])
+
+                            if sel_var == 'pm25':
+                                if dt[row] == obs_hour and bool_nanpm == False:
+                                    var_lon.append(lon[row])
+                                    var_lat.append(lat[row])
+                                    plot_var.append(pm25_obs[row])
+                                    var_unit.append(pmunit[row])
+                                    if pmunit[row]!='UG/M3':
+                                        print('Uh oh! pm25 row '+str(row)+' is in units of '+str(pmunit[row]))
+                            elif sel_var == 'o3':
+                                if dt[row] == obs_hour and bool_nano3 == False:
+                                    var_lon.append(lon[row])
+                                    var_lat.append(lat[row])
+                                    plot_var.append(o3_obs[row])
+                                    var_unit.append(pmunit[row])
+                                    if o3unit[row]!='PPB':
+                                        print('Uh oh! o3 row '+str(row)+' is in units of '+str(o3unit[row])) 
+                            else:
+                                print('Chosen variable not recognized'+str(var))
+
+                        if sel_var == 'pm25':
+                            num_pm25=len(plot_var)
+                            clevs = [ 3., 6., 9., 12., 15., 35., 55., 75., 100., 125., 150., 250., 300., 400., 500., 600., 750. ]
+                            nlev=len(clevs)
+                            ccols = [
+                                    (0.0000,0.7060,0.0000), (0.0000,0.9060,0.0000), (0.3020,1.0000,0.3020),
+                                    (1.0000,1.0000,0.4980), (1.0000,0.8745,0.0000), (1.0000,0.6471,0.0000),
+                                    (1.0000,0.3840,0.3840), (1.0000,0.0000,0.0000), (0.8000,0.0000,0.0000), (0.7020,0.0000,0.0000),
+                                    (0.6120,0.5100,0.8120), (0.5180,0.3880,0.7650), (0.4310,0.2780,0.7250),(0.2980,0.1920,0.5020),
+                                    (0.4706,0.4706,0.4706), (0.7843,0.7843,0.7843)
+                                    ]
+                            ncols=len(ccols)
+                            if ncols+1 != nlev:
+                                print("Warning: color interval does not match with color setting")
+                            color=[]
+                            for i in range(0,num_pm25):
+                                if plot_var[i] < clevs[0]:
+                                    color.append((0.8627,0.8627,1.0000))
+                                elif plot_var[i] >= clevs[nlev-1]:
+                                    color.append((0.9412,0.9412,0.9412))
+                                else:
+                                    flag_find_color="no"
+                                    for j in range(0,nlev-1):
+                                        if plot_var[i] >= clevs[j] and plot_var[i] < clevs[j+1]:
+                                            color.append(ccols[j])
+                                            flag_find_color="yes"
+                                            break
+                                    if flag_find_color =="no":
+                                        print("Can not assign proper value for color, program stop")
+                                        sys.exit()
+
+                        elif sel_var == 'o3':
+                            num_o3=len(plot_var)
+                            clevs = [ 3., 6., 9., 12., 25., 35., 45., 55., 65., 70., 75., 85., 95., 105. ]
+                            nlev=len(clevs)
+                            ccols = [
+                                     (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
+                                     (0.0000,0.7490,1.0000), (0.0000,1.0000,1.0000),
+                                     (0.0000,0.7060,0.0000), (0.0000,0.9060,0.0000), (0.3020,1.0000,0.3020),
+                                     (1.0000,1.0000,0.4980), (1.0000,0.8745,0.0000), (1.0000,0.6471,0.0000), (0.9412,0.5098,0.1569),
+                                     (1.0000,0.0000,0.0000), (0.7020,0.0000,0.0000)
+                                    ]
+                            ncols=len(ccols)
+                            if ncols+1 != nlev:
+                                print('Warning: color interval does not match with color setting')
+                            color=[]
+                            for i in range(0,num_o3):
+                                if plot_var[i] < clevs[0]:
+                                    color.append((0.8627,0.8627,1.0000))
+                                elif plot_var[i] >= clevs[nlev-1]:
+                                    color.append((0.4310,0.2780,0.7250))
+                                else:
+                                    flag_find_color='no'
+                                    for j in range(0,nlev-1):
+                                        if plot_var[i] >= clevs[j] and plot_var[i] < clevs[j+1]:
+                                            color.append(ccols[j])
+                                            flag_find_color='yes'
+                                            break
+                                    if flag_find_color =='no':
+                                        print('Can not assign proper value for color, program stop')
+                                        sys.exit()
+
+                        ## s = [20*4**n for n in range(len(x))]
+                        ## ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=100,zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
+                        ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=mksize[ireg],zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
+
                         savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cyc+"."+str(format(nout,'02d'))+"."+var[ivar]+".k1.png"
                         plt.savefig(savefig_name, bbox_inches='tight')
                         plt.close()
@@ -470,10 +622,11 @@ while date <= edate:
             ##
             os.chdir(figdir)
             parta=os.path.join("/usr", "bin", "scp")
-            if 1 == 1 :
+            if 1 == 2 :
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cyc)
             else:
-                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
+                ### partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
+                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
             subprocess.call(['scp -p * '+partb], shell=True)
             msg=datetime.datetime.now()
             print("End   processing "+var[ivar])
