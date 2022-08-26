@@ -166,8 +166,8 @@ flag_proj="LambertConf"
 ## marker size (s= in the scatter plot command) is the wxH. s=100 is the area of 10x10
 ## Thus increase and decrease by squrt(s) or using nxn wiht n from 1,....large integer
 ##
-## mksize= [     16,     36,      36,      36,     49,     49,     49,     49,     64,     64,    121,    100,    121,     36 ]
-mksize= [     16,      16,      25,     25,     36,     36,     36,     36,     49,     49,    121,    100,    121,     36 ]
+##mksize= [     16,     25,      36,      36,     49,     49,     49,     49,     64,     64,    121,    100,    121,     36 ]
+mksize= [     16,      36,      25,     25,     36,     36,     36,     36,     49,     49,    121,    100,    121,     36 ]
 if flag_proj == "LambertConf":
     regname = [   "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
     rlon0 = [ -161.0, -120.4,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0,  -75.0, -166.0, -161.5, -141.0 ]
@@ -182,7 +182,7 @@ else:
     rlat1 = [   70.0,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   41.8,   72.0,   23.0,   70.0 ]
 xsize = [     10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
 ysize = [      8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
-if 1 == 1:
+if 1 == 2:
     iplot = [      1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1, 1 ]
 else:
     iplot = [      0,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
@@ -415,9 +415,9 @@ while date <= edate:
             ## obs_hour and fcst_hour need to be consistently increase by one hour, whike
             ## model forecast output is directly read "n" if model output
             ## thus, obs and fcst will not sync if n start from the middle
-            ## for n in range(0,1):
-            ## for n in range(0,nstep):
             for n in range(0,17):
+            ## for n in range(0,nstep):
+            ## for n in range(0,1):
                 nout=n+1
                 str_fcst_hr=str(nout)
                 fhh=str_fcst_hr.zfill(3)
@@ -538,32 +538,41 @@ while date <= edate:
                             plot_var = []
                             var_unit = []
                             length = len(lat)
-    
+                            iddo3=0    
+                            iddpm=0    
                             for row in range(length):
                                 bool_nanpm = pd.isnull(pm25_obs[row])
                                 bool_nano3 = pd.isnull(o3_obs[row])
     
                                 if sel_var == 'pm25':
                                     if dt[row] == obs_hour and bool_nanpm == False:
-                                        var_lon.append(lon[row])
-                                        var_lat.append(lat[row])
-                                        plot_var.append(pm25_obs[row])
-                                        var_unit.append(pmunit[row])
-                                        if pmunit[row]!='UG/M3':
-                                            print('Uh oh! pm25 row '+str(row)+' is in units of '+str(pmunit[row]))
+                                        if iddpm == 0:
+                                            var_lon.append(lon[row])
+                                            var_lat.append(lat[row])
+                                            plot_var.append(pm25_obs[row])
+                                            var_unit.append(pmunit[row])
+                                            if pmunit[row]!='UG/M3':
+                                                print('Uh oh! pm25 row '+str(row)+' is in units of '+str(pmunit[row]))
+                                        iddpm+=1
+                                        if iddpm == 2:
+                                            iddpm=0
+
                                 elif sel_var == 'o3':
                                     if dt[row] == obs_hour and bool_nano3 == False:
-                                        var_lon.append(lon[row])
-                                        var_lat.append(lat[row])
-                                        plot_var.append(o3_obs[row])
-                                        var_unit.append(o3unit[row])
-                                        if o3unit[row]!='PPB':
-                                            print('Uh oh! o3 row '+str(row)+' is in units of '+str(o3unit[row])) 
+                                        if iddo3 == 0 or o3_obs[row] >=65:
+                                            var_lon.append(lon[row])
+                                            var_lat.append(lat[row])
+                                            plot_var.append(o3_obs[row])
+                                            var_unit.append(o3unit[row])
+                                            if o3unit[row]!='PPB':
+                                                print('Uh oh! o3 row '+str(row)+' is in units of '+str(o3unit[row])) 
+                                        iddo3+=1
+                                        if iddo3 == 2:
+                                            iddo3=0
                                 else:
                                     print('Chosen variable not recognized'+str(var))
-
+    
                             ## print("total number of obs points = "+str(len(plot_var)))
-
                             if sel_var == 'pm25':
                                 num_pm25=len(plot_var)
                                 clevs = [ 3., 6., 9., 12., 15., 35., 55., 75., 100., 125., 150., 250., 300., 400., 500., 600., 750. ]
@@ -638,12 +647,11 @@ while date <= edate:
             ##
             os.chdir(figdir)
             parta=os.path.join("/usr", "bin", "scp")
-            if 1 == 1 :
+            if 1 == 2 :
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cyc)
             else:
+                ### partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
-                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
-                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer_36")
             subprocess.call(['scp -p * '+partb], shell=True)
             msg=datetime.datetime.now()
             print("End   processing "+var[ivar])

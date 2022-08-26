@@ -90,7 +90,7 @@ if envir == "prod":
                   ]
 else:
     script_name = [
-                  "daily.aqm.plot_rrfs.py"
+                  "daily.aqm.plot_rrfs_overlay.py"
                   ]
 ## subprocess.call(['cp -p * '+partb], shell=True)
 
@@ -229,7 +229,7 @@ while date <= edate:
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                     msg="        python "+i+" "+envir+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                     print(msg)
-            if i == ( "daily.aqm.plot_rrfs.py" ):
+            if i == ( "daily.aqm.plot_rrfs_overlay.py" ):
                 print("    Start processing "+i)
                 for j in var:
                     jobid="plot_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)

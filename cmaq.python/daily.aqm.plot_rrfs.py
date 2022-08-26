@@ -143,23 +143,21 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## ilen=len(envir)
 ## print("experiment is "+envir[0:ilen])
 ## sys.exit()
-aqm_ver="v7.0"
-if envir == "v70a1":
-    comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.a1"
-    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
-elif envir =="v70b1":
-    comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.b1"
-    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
-elif envir =="v70b5":
-    comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.b5"
-    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
-elif envir =="v70b6":
-    comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.b6"
-    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
+if envir[0:3] =="v70":
+    runid=envir[3:5]
+    print(runid)
 else:
-    print("Experiment is not recognized or defined in this program")
+    print(envir+" is not v7.0 experiment")
     sys.exit()
 
+aqm_ver="v7.0"
+comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0."+runid
+usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
+
+if not os.path.exists(comout):
+    if not os.path.exists(usrout):
+        print("Can not find ioutput dir with experiment id "+envir)
+        sys.exit()
 figout=stmp_dir
 
 ##
@@ -243,24 +241,7 @@ while date <= edate:
                 if var[ivar] == "pm25":
                     aqmfilein=comout+"/"+date.strftime(YMD_date_format)+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     aqmfilein2=usrout+"/aqm."+date.strftime(YMD_date_format)+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
-                    if os.path.exists(aqmfilein):
-                        ## print(aqmfilein+" exists")
-                        cs_aqm = netcdf.Dataset(aqmfilein)
-                        if flag_read_latlon == "no":
-                            cs_lat = cs_aqm.variables['lat'][:,:]
-                            cs_lon = cs_aqm.variables['lon'][:,:]
-                            flag_read_latlon="yes"
-                        if fcst_hr == 0:
-                            latmax=np.amax(cs_lat)
-                            latmin=np.amin(cs_lat)
-                            lonmax=np.amax(cs_lon)
-                            lonmin=np.amin(cs_lon)
-                            ## print("from "+str(latmin)+" to "+str(latmax))
-                            ## print("from "+str(lonmin)+" to "+str(lonmax))
-                        else:
-                            pm_cs = cs_aqm.variables['PM25_TOT'][0,:,:]
-                        cs_aqm.close()
-                    elif os.path.exists(aqmfilein2):
+                    if os.path.exists(aqmfilein2):
                         ## print(aqmfilein2+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein2)
                         if flag_read_latlon == "no":
@@ -270,6 +251,23 @@ while date <= edate:
                         if fcst_hr == 0:
                             cs_lat = cs_aqm.variables['lat'][:,:]
                             cs_lon = cs_aqm.variables['lon'][:,:]
+                            latmax=np.amax(cs_lat)
+                            latmin=np.amin(cs_lat)
+                            lonmax=np.amax(cs_lon)
+                            lonmin=np.amin(cs_lon)
+                            ## print("from "+str(latmin)+" to "+str(latmax))
+                            ## print("from "+str(lonmin)+" to "+str(lonmax))
+                        else:
+                            pm_cs = cs_aqm.variables['PM25_TOT'][0,:,:]
+                        cs_aqm.close()
+                    elif os.path.exists(aqmfilein):
+                        ## print(aqmfilein+" exists")
+                        cs_aqm = netcdf.Dataset(aqmfilein)
+                        if flag_read_latlon == "no":
+                            cs_lat = cs_aqm.variables['lat'][:,:]
+                            cs_lon = cs_aqm.variables['lon'][:,:]
+                            flag_read_latlon="yes"
+                        if fcst_hr == 0:
                             latmax=np.amax(cs_lat)
                             latmin=np.amin(cs_lat)
                             lonmax=np.amax(cs_lon)
@@ -305,9 +303,9 @@ while date <= edate:
                 if var[ivar] == "o3":
                     aqmfilein=comout+"/"+date.strftime(YMD_date_format)+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     aqmfilein2=usrout+"/aqm."+date.strftime(YMD_date_format)+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
-                    if os.path.exists(aqmfilein):
-                        ## print(aqmfilein+" exists")
-                        cs_aqm = netcdf.Dataset(aqmfilein)
+                    if os.path.exists(aqmfilein2):
+                        ## print(aqmfilein2+" exists")
+                        cs_aqm = netcdf.Dataset(aqmfilein2)
                         if flag_read_latlon == "no":
                             cs_lat = cs_aqm.variables['lat'][:,:]
                             cs_lon = cs_aqm.variables['lon'][:,:]
@@ -326,9 +324,9 @@ while date <= edate:
                             else:
                                 scale= 1.
                         cs_aqm.close()
-                    elif os.path.exists(aqmfilein2):
-                        ## print(aqmfilein2+" exists")
-                        cs_aqm = netcdf.Dataset(aqmfilein2)
+                    elif os.path.exists(aqmfilein):
+                        ## print(aqmfilein+" exists")
+                        cs_aqm = netcdf.Dataset(aqmfilein)
                         if flag_read_latlon == "no":
                             cs_lat = cs_aqm.variables['lat'][:,:]
                             cs_lon = cs_aqm.variables['lon'][:,:]

@@ -146,22 +146,20 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## ilen=len(envir)
 ## print("experiment is "+envir[0:ilen])
 ## sys.exit()
-aqm_ver="v7.0"
-if envir == "v70a1":
-    comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.a1"
-    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
-elif envir =="v70b1":
-    comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.b1"
-    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
-elif envir =="v70b5":
-    comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.b5"
-    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
-elif envir =="v70b6":
-    comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0.b6"
-    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
+if envir[0:3] =="v70":
+    runid=envir[3:5]
+    print(runid)
 else:
-    print("Experiment is not recognized or defined in this program")
+    print(envir+" is not v7.0 experiment")
     sys.exit()
+
+aqm_ver="v7.0"
+comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0."+runid
+usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
+if not os.path.exists(comout):
+    if not os.path.exists(usrout):
+        print("Can not find ioutput dir with experiment id "+envir)
+        sys.exit()
 
 obsdir="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/epa_airnow_acsii"
 figout=stmp_dir
@@ -175,8 +173,8 @@ flag_proj="LambertConf"
 ## from 228.37073225113136 to 296.6273160909873
 # old -70.6 to -120.4
 #     22.2 to 50.7
-##mksize= [     16,     25,      36,      36,     49,     49,     49,     49,     64,     64,    121,    100,    121,     36 ]
-mksize= [     16,      16,      25,     25,     36,     36,     36,     36,     49,     49,    121,    100,    121,     36 ]
+mksize= [     25,     36,      36,      36,     49,     49,     49,     49,     64,     64,    121,    100,    121,     36 ]
+##mksize= [     16,      16,      25,     25,     36,     36,     36,     36,     49,     49,    121,    100,    121,     36 ]
 if flag_proj == "LambertConf":
     regname = [   "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
     rlon0 = [ -161.0, -120.4,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0,  -75.0, -166.0, -161.5, -141.0 ]
@@ -659,11 +657,12 @@ while date <= edate:
             ##
         os.chdir(figdir)
         parta=os.path.join("/usr", "bin", "scp")
-        if 1 == 2 :
+        if 1 == 1 :
             partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cycle_time)
         else:
+            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
             partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
-            ## partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
+            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer_36")
         subprocess.call(['scp -p * '+partb], shell=True)
         msg=datetime.datetime.now()
         print("End   processing "+var[ivar])
