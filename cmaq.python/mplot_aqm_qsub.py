@@ -99,6 +99,7 @@ if envir == "prod":
                   "daily.aqm.plot.py", "daily.aqm.plot_bc.py",
                   "gbbepx_fire_loc.py",
                   "daily.aqm.plot_dustloc.py",
+                  "daily.aqm.plot_overlay.py",
                   "diff.aqm.plot_bc.py"
                   ]
 else:
@@ -111,6 +112,7 @@ else:
                   "daily.aqm.plot_dustloc.py",
                   "fireemis_fire_loc.py",
                   "gbbepx_fire_loc.py",
+                  "daily.aqm.plot_overlay.py",
                   "diff.aqm.plot_specs1.py", "diff.aqm.plot_specs2.py",
                   "diff.aqm.plot_specs3.py", "diff.aqm.plot_specs4.py",
                   "diff.aqm.plot_bc.py"
@@ -192,7 +194,7 @@ while date <= edate:
         print("Start processing "+date.strftime(YMD_date_format)+" "+cyc+"Z Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
         for i in script_name:
             msg=datetime.datetime.now()
-            if i == "daily.aqm.plot.py" or i == "daily.aqm.plot_bc.py":
+            if i == "daily.aqm.plot.py" or i == "daily.aqm.plot_overlay.py" or i == "daily.aqm.plot_bc.py":
                 print("    Start processing "+i)
                 for j in var:
                     if i == "daily.aqm.plot.py":
@@ -212,7 +214,7 @@ while date <= edate:
                         sh.write("#PBS -q dev_transfer\n")
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
-                        sh.write("#PBS -l debug=true\n")
+                        sh.write("####PBS -l debug=true\n")
                         sh.write("# \n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("# \n")

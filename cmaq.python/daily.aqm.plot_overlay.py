@@ -150,7 +150,8 @@ aqm_ver="v6.1"
 find_dir=[
           "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
           "/lfs/h2/emc/ptmp/"+os.environ['USER']+"/com/aqm/"+envir,
-          "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir
+          "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir,
+          "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
          ]
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
 obsdir="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/epa_airnow_acsii"
@@ -166,8 +167,8 @@ flag_proj="LambertConf"
 ## marker size (s= in the scatter plot command) is the wxH. s=100 is the area of 10x10
 ## Thus increase and decrease by squrt(s) or using nxn wiht n from 1,....large integer
 ##
-## mksize= [     16,     36,      36,      36,     49,     49,     49,     49,     64,     64,    121,    100,    121,     36 ]
-mksize= [     16,      16,      25,     25,     36,     36,     36,     36,     49,     49,    121,    100,    121,     36 ]
+mksize= [     16,     36,      36,      36,     49,     49,     49,     49,     64,     64,    121,    100,    121,     36 ]
+## mksize= [     16,      16,      25,     25,     36,     36,     36,     36,     49,     49,    121,    100,    121,     36 ]
 if flag_proj == "LambertConf":
     regname = [   "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
     rlon0 = [ -161.0, -120.4,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0,  -75.0, -166.0, -161.5, -141.0 ]
@@ -416,8 +417,8 @@ while date <= edate:
             ## model forecast output is directly read "n" if model output
             ## thus, obs and fcst will not sync if n start from the middle
             ## for n in range(0,1):
-            ## for n in range(0,nstep):
-            for n in range(0,17):
+            ## for n in range(0,17):
+            for n in range(0,nstep):
                 nout=n+1
                 str_fcst_hr=str(nout)
                 fhh=str_fcst_hr.zfill(3)
@@ -630,7 +631,7 @@ while date <= edate:
                             ## ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=100,zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
                             ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=mksize[ireg],zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
     
-                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cyc+"."+str(format(nout,'02d'))+"."+var[ivar]+".k1.png"
+                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cyc+"."+str(format(nout,'02d'))+"."+var[ivar]+".k1.png"
                         plt.savefig(savefig_name, bbox_inches='tight')
                         plt.close()
             ##
@@ -648,6 +649,7 @@ while date <= edate:
             msg=datetime.datetime.now()
             print("End   processing "+var[ivar])
             print("FIG DIR = "+figdir)
+            print("scp -p * "+partb)
         msg=datetime.datetime.now()
         print("End   processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     msg=datetime.datetime.now()

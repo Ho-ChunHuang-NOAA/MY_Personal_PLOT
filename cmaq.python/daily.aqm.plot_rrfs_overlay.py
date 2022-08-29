@@ -649,7 +649,7 @@ while date <= edate:
                                 ## ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=100,zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
                                 ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=mksize[ireg],zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
     
-                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cycle_time+"."+str(format(fcst_hr,'02d'))+"."+var[ivar]+".k1.png"
+                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cycle_time+"."+str(format(fcst_hr,'02d'))+"."+var[ivar]+".k1.png"
                             plt.savefig(savefig_name, bbox_inches='tight')
                             plt.close()
             ##
