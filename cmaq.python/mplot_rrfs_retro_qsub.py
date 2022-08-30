@@ -652,7 +652,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("submit "+plot_script)

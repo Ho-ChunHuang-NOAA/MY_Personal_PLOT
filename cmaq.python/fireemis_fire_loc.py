@@ -77,13 +77,14 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
 ### PASSED AGRUEMENTS
-if len(sys.argv) < 3:
-    print("you must set 3 arguments as model_exp [prod|para1...#] start_date end_date in yyyymmdd")
+if len(sys.argv) < 4:
+    print("you must set 4 arguments as model_exp [prod|para1...#] cycle [06|12] start_date end_date in yyyymmdd")
     sys.exit()
 else:
     envir = sys.argv[1]
-    start_date = sys.argv[2]
-    end_date = sys.argv[3]
+    cyc_in = sys.argv[2]
+    start_date = sys.argv[3]
+    end_date = sys.argv[4]
 
 user=os.environ['USER']
 
@@ -117,7 +118,7 @@ lat0_ref=[40.,   0.,   24.,     24.,  30.,  37.,   38.,  38.,   24.,   52.,  18.
 lat1_ref=[70.,   70.,  50.,     38.,  45.,  48.,   52.,  52.,   40.,   72.,  23.,  50.,     54.5]
 lon0_ref=[ -141., -141.,  -124.,   -95., -125, -82, -125.,-105., -105., -170.,-161.,-100.,     -128. ]
 lon1_ref=[  -60., -60.,   -70.,    -79., -105.,-67.,-103.,-85.,  -85.,  -130.,-154.,-65.,     -90. ]
-figdir="/lfs/h2/emc/stmp/"+user
+figdir="/lfs/h2/emc/stmp/"+os.environ['USER']
 ##title = [ "dset", "conus", "east us", "west us", "ne us", "nw us", "se us", "sw us", "alaska", "hawaii", "us-can" ] 
 reg = [   "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "mds",   "ak",   "hi",  "can" ] 
 rlon0 = [ -175.0, -124.0,  -100.0, -128.0,  -82.0, -125.0,  -95.0, -125.0, -105.0, -105.0, -170.0, -161.0, -141.0 ]
@@ -131,14 +132,21 @@ print("iplot length = "+str(ilen))
 
 model="aqm"
 aqm_ver="v6.1"
-cycle=[ "06" ]
-working_dir="/lfs/h2/emc/stmp/"+user+"/working/fireemis/"+envir
+cycle=[]
+cycle.append(cyc_in)
+working_dir="/lfs/h2/emc/stmp/"+os.environ['USER']+"/working/fireemis/"+envir
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver+"/cs."+grdcro2d_date
+hourly_fire_data="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/hourly_fire_emission/"+envir
+if not os.path.exists(hourly_fire_data):
+    os.mkdir(hourly_fire_data)
 date = sdate
 while date <= edate:
+    hourly_fire_out=hourly_fire_data+"/"+date.strftime(YMD_date_format)
+    if not os.path.exists(hourly_fire_out):
+        os.mkdir(hourly_fire_out)
     find_dir=[
               "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver+"/cs."+date.strftime(YMD_date_format),
-              "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format),
+              "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format),
               "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format)
              ]
     flag_find_idir="no"
@@ -172,7 +180,10 @@ while date <= edate:
     else:
         ## try 12z data, may not work in near realtime since 12Z has not been run
         ## but good for manauel re-run this graphic routine
-        cycle = [ "12" ]
+        if cycle[0] == "06":
+            cycle = [ "12" ]
+        else:
+            sys.exit()
         flag_find_idir="no"
         for idir in find_dir:
             datadir=idir
@@ -242,6 +253,11 @@ while date <= edate:
             nstep=len(cs_var)
             FEi58j285=[]
             for n in range(0,nstep):
+                nout=n+1
+                str_fcst_hr=str(nout)
+                fhh=str_fcst_hr.zfill(3)
+                output_file=hourly_fire_out+"/cmaq_"+envir+"_t"+cyc+"z_fireemis_f"+fhh+".dat"
+                wfile=open(output_file,'w')
                 nrow=[]
                 ncol=[]
                 pvar_cs = fire_cs[n,:,:]
@@ -280,16 +296,25 @@ while date <= edate:
                 if n == 0:
                     plotrow=[]
                     plotcol=[]
+                    out_lat=[]
+                    out_lon=[]
+                    out_var=[]
                     for ii in range(0,nx):
                         ## print('( %d , %d )' % (nrow[ii],ncol[ii]) )
                         plotrow.append(nrow[ii])
                         plotcol.append(ncol[ii])
+                        out_lat.append(mdl_lat[nrow[ii],ncol[ii]])
+                        out_lon.append(mdl_lon[nrow[ii],ncol[ii]])
+                        out_var.append(pvar_cs[nrow[ii],ncol[ii]])
                     print('initial number of fire is %d ' % (nx) )
                 else:
                     nplot=len(plotrow)
                     if nplot >= mdl_pts:
                        print('( "full domain with fire emission reached" %d , %d )' % (mdl_pts, nplot ) )
                        break
+                    out_lat=[]
+                    out_lon=[]
+                    out_var=[]
                     for ii in range(0,nx):
                         find_new_fire=1
                         for ij in range(0,nplot):
@@ -302,8 +327,19 @@ while date <= edate:
                             plotcol.append(ncol[ii])
                             nplotnow=len(plotrow)
                             ## print('current number of fire is %d'% (nplotnow))
+                        out_lat.append(mdl_lat[nrow[ii],ncol[ii]])
+                        out_lon.append(mdl_lon[nrow[ii],ncol[ii]])
+                        out_var.append(pvar_cs[nrow[ii],ncol[ii]])
+                    num_out=len(out_lat)
                     num_pts=len(plotrow)
                     ## print('time step %d # of fire is %d' % (n,num_pts))
+                nwrout=len(out_lat)
+                for iout in range(0,nwrout):
+                    icout=iout+1
+                    str_fcst_hr=str(icout)
+                    fhh=str_fcst_hr.zfill(3)
+                    wfile.write(fhh+","+str(out_lat[iout])+","+str(out_lon[iout])+","+str(out_var[iout])+"\n")
+                wfile.close()
             num_pts=len(plotrow)
             print('final   number of fire is %d' % (num_pts))
             if num_pts >= mdl_pts:
@@ -355,16 +391,17 @@ while date <= edate:
                   ## ax.plot(lon[x], lat[x], 'ro', markersize=3, transform=ccrs.Geodetic())
                   ax.plot(cs_lon[x], cs_lat[x], 'ro', markersize=3, transform=ccrs.PlateCarree())
                 ##ax.text(-117, 33, 'San Diego', transform=ccrs.Geodetic())
-                fileout=figout+"/fireemisfire."+figarea+"."+envir+"."+date.strftime(YMD_date_format)+".t06z.location.day0.k1.png"
+                fileout=figout+"/fireemisfire."+figarea+"."+envir+"."+date.strftime(YMD_date_format)+".t"+cyc+"z.location.day0.k1.png"
                 plt.savefig(fileout, bbox_inches='tight') 
                 for j in range(1,3):
-                    newfile=figout+"/fireemisfire."+figarea+"."+envir+"."+date.strftime(YMD_date_format)+".t06z.location.day"+str(j)+".k1.png"
+                    newfile=figout+"/fireemisfire."+figarea+"."+envir+"."+date.strftime(YMD_date_format)+".t"+cyc+"z.location.day"+str(j)+".k1.png"
                     shutil.copyfile(fileout,newfile)
             ## else:
                 ## print("skip "+title[i])
         os.chdir(figout)
+        cyc_out="t"+cyc+"z"
         parta=os.path.join("/usr", "bin", "scp")
-        partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), "t06z" )
+        partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cyc_out )
         ##partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
         subprocess.call(["scp -p * "+partb], shell=True)
     date = date + date_inc

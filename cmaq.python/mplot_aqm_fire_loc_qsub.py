@@ -8,13 +8,14 @@ import logging
 import datetime
 
 ### PASSED AGRUEMENTS
-if len(sys.argv) < 3:
-    print("you must set 3 arguments as model[prod|para|...] start_date end_date")
+if len(sys.argv) < 4:
+    print("you must set 4 arguments as model[prod|para|...] cycle [06|12] start_date end_date")
     sys.exit()
 else:
     envir = sys.argv[1]
-    start_date = sys.argv[2]
-    end_date = sys.argv[3]
+    cyc_in = sys.argv[2]
+    start_date = sys.argv[3]
+    end_date = sys.argv[4]
 
 task_cpu="04:30:00"
 
@@ -170,17 +171,9 @@ else:
 num_var=len(var)
 print("var length = "+str(num_var))
 
-if sel_cyc == "all":
-    cycle=[ "06", "12" ]
-elif sel_cyc == "06":
-    cycle=[ "06" ]
-elif sel_cyc == "12":
-    cycle=[ "12" ]
-else:
-    print("seletced cycle"+sel_cyc+" can not be recongized.")
-    sys.exit()
 ## for fire location, we only work on 6Z data
-cycle=[ "06" ]
+cycle=[]
+cycle.append(cyc_in)
 ##  regname = [   "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",   "ak",   "hi",  "can" ] 
 ##    rlon0 = [ -175.0, -124.0,  -100.0, -128.0,  -82.0, -125.0,  -95.0, -125.0, -105.0, -105.0, -170.0, -161.0, -141.0 ]
 ## xsize = [     10,     10,       8,      8,      8,      8,      8,      8,      8,      8,      8,      8,     10 ]
@@ -618,7 +611,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("submit "+plot_script)

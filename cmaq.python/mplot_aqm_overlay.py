@@ -244,9 +244,9 @@ while date <= edate:
             if i == "fireemis_fire_loc.py":
                 print("    Start processing "+i)
                 for j in var:
-                    msg="        python "+i+" "+envir+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                     print(msg)
-                    subprocess.call(["python "+i+" "+envir+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+" > "+i+"."+envir+"."+cyc+"."+date.strftime(YMD_date_format)+".log 2>&1 &"], shell=True)
+                    subprocess.call(["python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+" > "+i+"."+envir+"."+cyc+"."+date.strftime(YMD_date_format)+".log 2>&1 &"], shell=True)
             if i == "gbbepx_fire_loc.py":
                 print("    Start processing "+i)
                 for j in var:
