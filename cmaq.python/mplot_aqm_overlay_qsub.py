@@ -197,10 +197,14 @@ while date <= edate:
             if i == "daily.aqm.plot.py" or i == "daily.aqm.plot_bc.py" or i == "daily.aqm.plot_overlay.py" or i == "daily.aqm.plot_bc_overlay.py":
                 print("    Start processing "+i)
                 for j in var:
-                    if i == "daily.aqm.plot.py" or i == "daily.aqm.plot_overlay.py":
+                    if i == "daily.aqm.plot.py":
                       jobid="plot_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    if i == "daily.aqm.plot_bc.py" or i == "daily.aqm.plot_bc_overlay.py":
+                    elif i == "daily.aqm.plot_overlay.py":
+                      jobid="plot_"+envir+"obs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    elif i == "daily.aqm.plot_bc.py":
                       jobid="plot_"+envir+"bc_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    elif i == "daily.aqm.plot_bc_overlay.py":
+                      jobid="plot_"+envir+"bcobs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     print("Creating graphic script "+plot_script)
                     if os.path.exists(plot_script):

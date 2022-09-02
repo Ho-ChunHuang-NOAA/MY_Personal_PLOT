@@ -172,8 +172,11 @@ num_var=len(var)
 print("var length = "+str(num_var))
 
 ## for fire location, we only work on 6Z data
-cycle=[]
-cycle.append(cyc_in)
+if cyc_in == "all":
+    cycle=[ "06", "12" ]
+else:
+    cycle=[]
+    cycle.append(cyc_in)
 ##  regname = [   "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",   "ak",   "hi",  "can" ] 
 ##    rlon0 = [ -175.0, -124.0,  -100.0, -128.0,  -82.0, -125.0,  -95.0, -125.0, -105.0, -105.0, -170.0, -161.0, -141.0 ]
 ## xsize = [     10,     10,       8,      8,      8,      8,      8,      8,      8,      8,      8,      8,     10 ]
