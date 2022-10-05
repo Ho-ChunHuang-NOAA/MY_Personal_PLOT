@@ -149,11 +149,12 @@ working_dir="/lfs/h2/emc/stmp/"+user+"/working_rrfs_fireemis_"+envir
 if os.path.exists(working_dir):
     shutil.rmtree(working_dir)
 os.mkdir(working_dir)
+###              "/lfs/h2/emc/physics/noscrub/jianping.huang/data/RRFS_CMAQ/emissions/GSCE/GBBEPx.in.C775/RAVE_RT/"+date.strftime(YMD_date_format),
 date = sdate
 while date <= edate:
     aqm_ver="v6.1"
     find_dir=[
-              "/lfs/h2/emc/physics/noscrub/jianping.huang/data/RRFS_CMAQ/emissions/GSCE/GBBEPx.in.C775/RAVE_RT/"+date.strftime(YMD_date_format),
+              "/lfs/h2/emc/physics/noscrub/jianping.huang/data/RRFS_CMAQ/emissions/GSCE/RAVE.in.C793/RAVE_RT/"+date.strftime(YMD_date_format),
               "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format),
               "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format)
              ]
@@ -163,7 +164,8 @@ while date <= edate:
         print("check "+idir)
         flag_find_cyc="no"
         for cyc in cycle:
-            check_file="Hourly_Emissions_regrid_rrfs_13km_"+date.strftime(YMD_date_format)+"_"+cyc+"_h72.nc"
+            ## check_file="Hourly_Emissions_regrid_rrfs_13km_"+date.strftime(YMD_date_format)+"_"+cyc+"_h72.nc"
+            check_file="Hourly_Emissions_regrid_NA_13km_"+date.strftime(YMD_date_format)+"_"+cyc+"_h72.nc"
             aqmfilein=datadir+"/"+check_file
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
@@ -187,7 +189,7 @@ while date <= edate:
 
         ini_time = date.replace(int(date.year), int(date.month), int(date.day), int(cyc[1:3]), 00, 00 )
         print("initial time is "+ini_time.strftime(YMDH_date_format))
-        aqmfilein=datadir+"/Hourly_Emissions_regrid_rrfs_13km_"+date.strftime(YMD_date_format)+"_"+cyc+"_h72.nc"
+        aqmfilein=datadir+"/Hourly_Emissions_regrid_NA_13km_"+date.strftime(YMD_date_format)+"_"+cyc+"_h72.nc"
         if os.path.exists(aqmfilein):
             print(aqmfilein+" exists")
             cs_aqm = netcdf.Dataset(aqmfilein)
@@ -288,7 +290,7 @@ while date <= edate:
                         ax.add_feature(cfeature.LAKES, edgecolor='black')
                         if beg_time.strftime(YMD_date_format) == end_time.strftime(YMD_date_format):
                             ## ax.set_title(end_time.strftime(YMD_date_format)+" "+beg_time.strftime(H_date_format)+"-"+end_time.strftime(H_date_format)+"Z "+envir.upper()+" run fire location - "+emis_var.upper())
-                            ax.set_title(end_time.strftime(YMD_date_format)+" "+beg_time.strftime(H_date_format)+"-"+end_time.strftime(H_date_format)+"Z V70 exp run fire location - "+emis_var.upper())
+                            ax.set_title(end_time.strftime(YMD_date_format)+" "+beg_time.strftime(H_date_format)+"-"+end_time.strftime(H_date_format)+"Z V70 run NA_G793 fire location - "+emis_var.upper())
                         else:
                             ## ax.set_title(beg_time.strftime(YMD_date_format)+" "+beg_time.strftime(H_date_format)+"Z - "+end_time.strftime(YMD_date_format)+" "+end_time.strftime(H_date_format)+"Z "+envir.upper()+" run fire location - "+emis_var.upper())
                             ax.set_title(beg_time.strftime(YMD_date_format)+" "+beg_time.strftime(H_date_format)+"Z - "+end_time.strftime(YMD_date_format)+" "+end_time.strftime(H_date_format)+"Z V70 exp run fire location - "+emis_var.upper())

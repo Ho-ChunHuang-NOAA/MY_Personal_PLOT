@@ -1,13 +1,8 @@
 #!/bin/sh
-module load imagemagick/6.9.9-25
-module load prod_util/1.1.0
-module load GrADS/2.2.0
-hl=`hostname | cut -c1`
-if [ "${hl}" == "v" ]; then
-  phase12_id='g'
-else
-  phase12_id='t'
-fi
+## module load imagemagick/7.0.8-7
+## module load prod_util/1.1.0
+module load imagemagick
+module load prod_util
 set -x
 USAGE="USAGE : $0 BEG_DAY(YYYYMMDD) END_DAY(YYYYMMDD)"
 flag_fect_fig=no
@@ -34,30 +29,36 @@ fi
 
    ## declare -a cyc=( t06z t12z )
    declare -a cyc=( t06z )
+   declare -a cyc=( t12z )
 ## declare envir=( prod ncopara dev para1 )
 ## declare envir=( prod para para1 para-prod para1-prod para1-para )
 ## declare envir=( para-prod para1-prod )
-declare envir=( prod )
+declare envir=( v70b1obs v70c3obs )
 
 anim_slow=1
 anim_fast=0
-slow=20
-fast=10
+slow=40
+fast=20
 
 beg_hour=1
 end_hour=48
 ## declare -a ptype=( pbl sfc )
 ## declare -a reg=( full conus  east west nwus neus seus swus akus hius can )
 ## declare -a fig_reg=( dset conus east west ne10 nw10 se10 swse   ak   hi can )
-declare -a fig_reg=( nw )
 declare -a fig_reg=( conus )
+declare -a fig_reg=( nw )
+declare -a fig_reg=( lis )
+declare -a fig_reg=( Mckinney ) 
+
+figure_type=png
+anim_type=gif
 
 if [[ $anim_fast == 1 ]]; then
    anim_time=${fast}
 else
    anim_time=${slow}
 fi
-working_dir=/gpfs/dell2/ptmp/${USER}/cmaq_animation
+working_dir=/lfs/h2/emc/stmp/${USER}/cmaq_animation
 odir=${working_dir}/anim_out
 if [ -d ${odir} ]; then /bin/rm -rf ${odir}; fi
 mkdir -p ${working_dir} ${odir}
@@ -98,35 +99,32 @@ while [ ${NOW} -le ${LASTDAY} ]; do
             file_type=pm25.k1.${figure_type}
             scp -p ${remote_user}@${remote_host}:${remote_dir}/${YR}/${NOW}/${j}/${file_hd}*${file_type} .
             ## convert -cache 1GB -delay ${anim_time} -loop 0 cmaq${i}smoke${j}_*.${figure_type} cmaq_${i}_$NOW.anim.${j}
-            convert -delay ${anim_time} -loop 0 ${file_hd}*${file_type} ${file_hd}.anim.${file_type}
-            if [[ 1 == 2 ]]; then  # for RZDM maintainence
-              #
-              ## TRANSFER PLOTS TO RZDM
-              #
-              remote_dir=/home/people/emc/www/htdocs/mmb/hchuang/web/fig
-              remote_dir=/home/people/emc/www/htdocs/mmb/hchuang
-              remote_dir=/home/people/emc/hchuang/transfer
-              remote_user=hchuang
-              file=aqm.${i}.${L}.${NOW}.${j}.anim.pm25.k1.${figure_type}
-              file=${file_hd}.anim.${file_type}
-              scp ${file} ${remote_user}@rzdm:${remote_dir}
-            fi
-            mv ${file_hd}.anim.${file_type} ${odir}
+            convert -delay ${anim_time} -loop 0 ${file_hd}*${file_type} ${file_hd}.anim.${anim_type}
+            mv ${file_hd}.anim.${anim_type} ${odir}
+	    echo "${odir}/${file_hd}.anim.${anim_type}"
          done
       done
    done
-   #
-   ## TRANSFER PLOTS TO RZDM
-   #
-   if [ 1 == 1 ]; then  # for RZDM maintainence
-      remote_dir=/home/people/emc/www/htdocs/mmb/hchuang/web/fig
-      remote_dir=/home/people/emc/www/htdocs/mmb/hchuang
-      remote_dir=/home/people/emc/hchuang/transfer
-      remote_user=hchuang
-      file="aqm.*.anim.pm25.k1.${figure_type}"
-      scp ${odir}/${file} ${remote_user}@rzdm:${remote_dir}
-   fi
 
+  if [[ 1 == 1 ]]; then  # for RZDM maintainence
+    #
+    ## TRANSFER PLOTS TO RZDM
+    #
+    cd ${working_dir}
+    remote_dir=/home/people/emc/www/htdocs/mmb/hchuang
+    remote_dir=/home/people/emc/www/htdocs/mmb/hchuang/web/fig
+    remote_dir=/home/people/emc/www/htdocs/mmb/hchuang/transfer
+    cd ${odir}
+    ## aqm.conus.para5-prod.20170805.t06z.anim.pm25.k1.${figure_type}
+    ## file=aqm.conus.para5-prod.20170805.t06z.anim.o3.k1.${figure_type}
+    ## file=aqm.nw.${envir[0]}.20170809.t12z.anim.o3.k1.${figure_type}
+    ## file=aqm.nw.${envir[0]}.20170809.t12z.anim.o3.k1.${figure_type}
+    ## scp ${file} hchuang@rzdm:/home/people/emc/hchuang/transfer
+    ## file=aqm.conus.${envir[0]}.20170809.t12z.anim.o3.k1.${figure_type}
+    ## mv ${file} new_${file}
+    ## scp new_${file} hchuang@rzdm:${remote_dir}
+    scp aqm.Mckinney*  hchuang@rzdm:${remote_dir}
+  fi
 
   cdate=$NOW"00"
   tmp=`${NDATE} +24 $cdate`

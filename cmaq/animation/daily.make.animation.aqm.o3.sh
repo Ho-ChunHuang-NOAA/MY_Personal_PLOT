@@ -33,7 +33,7 @@ fi
 ## declare envir=( prod ncopara dev para1 )
 ## declare envir=( prod para para1 para-prod para1-prod para1-para )
 ## declare envir=( para-prod para1-prod )
-declare envir=( prod )
+declare envir=( prodobs )
 
 anim_slow=1
 anim_fast=0
@@ -48,6 +48,7 @@ end_hour=48
 declare -a fig_reg=( conus )
 declare -a fig_reg=( nw )
 declare -a fig_reg=( lis )
+declare -a fig_reg=( Mckinney ) 
 
 figure_type=png
 anim_type=gif
@@ -115,6 +116,7 @@ while [ ${NOW} -le ${LASTDAY} ]; do
     cd ${odir}
     ## aqm.conus.para5-prod.20170805.t06z.anim.pm25.k1.${figure_type}
     ## file=aqm.conus.para5-prod.20170805.t06z.anim.o3.k1.${figure_type}
+    ## file=aqm.nw.${envir[0]}.20170809.t12z.anim.o3.k1.${figure_type}
     file=aqm.nw.${envir[0]}.20170809.t12z.anim.o3.k1.${figure_type}
     scp ${file} hchuang@rzdm:/home/people/emc/hchuang/transfer
     file=aqm.conus.${envir[0]}.20170809.t12z.anim.o3.k1.${figure_type}
