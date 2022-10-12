@@ -146,9 +146,8 @@ else:
 user=os.environ['USER']
 figdir="/lfs/h2/emc/stmp/"+user
 working_dir="/lfs/h2/emc/stmp/"+user+"/working_rrfs_fireemis_"+envir
-if os.path.exists(working_dir):
-    shutil.rmtree(working_dir)
-os.mkdir(working_dir)
+if not os.path.exists(working_dir):
+    os.mkdir(working_dir)
 ###              "/lfs/h2/emc/physics/noscrub/jianping.huang/data/RRFS_CMAQ/emissions/GSCE/GBBEPx.in.C775/RAVE_RT/"+date.strftime(YMD_date_format),
 date = sdate
 while date <= edate:
