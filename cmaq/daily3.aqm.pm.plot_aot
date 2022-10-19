@@ -139,8 +139,8 @@ while [ ${NOW} -le ${LASTDAY} ]; do
    if [ ${exp} == 'prod' ]; then
       comdir2=/lfs/h2/emc/physics/noscrub/${USER}/com/aqm/${exp}/cs.${NOW}
       comdir2=/lfs/h2/emc/physics/noscrub/${USER}/com/aqm/${exp}/cs.${NOW}
-      comdir=${COMROOThps}/aqm/${exp}/cs.${NOW}
-      comdir2=/lfs/h2/emc/physics/noscrub/${USER}/com/aqm/${exp}/cs.${NOW}
+      comdir=/lfs/h1/ops/prod/com/aqm/v6.1/cs.${NOW}   ## only available on PROD
+      comdir2=/lfs/h2/emc/physics/noscrub/${USER}/verification/aqm/${exp}/cs.${NOW}  ## Alternative for verification
       if [ ! -d ${comdir} ]; then
          if [ -d ${comdir2} ]; then
             comdir=${comdir2}
@@ -388,6 +388,8 @@ EOF
    cdate=${NOW}"00"
    NOW=$(${NDATE} +24 ${cdate}| cut -c1-8)
 done
+
+echo "FIG_DIR = ${outdir}"
 
 if [ "${flag_qsub}" == "yes" ]; then
    working_dir=/lfs/h2/emc/stmp/${USER}/job_submit
