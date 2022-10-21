@@ -83,22 +83,15 @@ else:
     os.makedirs(working_dir)
     os.chdir(working_dir)
 
-##     script_name = [
-##                   "daily.aqm.plot.py", "daily.aqm.plot_bc.py",
-##                   "daily.aqm.plot_specs1.py", "daily.aqm.plot_specs2.py",
-##                   "daily.aqm.plot_specs3.py", "daily.aqm.plot_specs4.py",
-##                   "daily.aqm.plot_met_v6s1.py", "daily.aqm.plot_met_v6s2.py",
-##                   "daily.aqm.plot_met_v6s3.py", "daily.aqm.plot_met_v6s4.py",
-##                   "daily.aqm.plot_met_v6s5.py",
-##                   "daily.aqm.plot_dustloc.py",
-##                   "gbbepx_fire_loc.py",
-##                   "diff.aqm.plot_bc.py"
-##                   ]
 if envir == "prod":
+    no_workk_script = [
+                  "gbbepx_fire_loc.py",
+                  "daily.aqm.plot_dustloc.py",
+                  "daily.aqm.plot_max_ave.py", "daily.aqm.plot_max_ave_bc.py",
+                  "diff.aqm.plot_max_ave_bc.py", "daily.aqm.plot_aot.py"
+                  ]
     script_name = [
-                  "daily.aqm.plot.py", "daily.aqm.plot_bc.py",
-                  "daily.aqm.plot_overlay.py", "daily.aqm.plot_bc_overlay.py",
-                  "diff.aqm.plot_bc.py"
+                  "diff.aqm.plot_max_ave_bc.py"
                   ]
 else:
     ## "diff.aqm.plot_48vs72.py",
@@ -215,7 +208,7 @@ while date <= edate:
                         sh.write("#PBS -q dev_transfer\n")
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
-                        sh.write("######PBS -l debug=true\n")
+                        sh.write("####PBS -l debug=true\n")
                         sh.write("# \n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("# \n")
