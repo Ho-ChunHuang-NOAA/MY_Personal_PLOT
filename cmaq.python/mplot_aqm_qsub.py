@@ -19,6 +19,9 @@ else:
     end_date = sys.argv[5]
 
 task_cpu="04:30:00"
+task_cpu1="01:00:00"
+task_cpu2="02:00:00"
+task_cpu3="03:00:00"
 
 script_dir=os.getcwd()
 print("Script directory is "+script_dir)
@@ -739,7 +742,7 @@ while date <= edate:
                     sh.write("#PBS -N j"+jobid+"\n")
                     sh.write("#PBS -q dev_transfer\n")
                     sh.write("#PBS -A AQM-DEV\n")
-                    sh.write("#PBS -l walltime="+task_cpu+"\n")
+                    sh.write("#PBS -l walltime="+task_cpu2+"\n")
                     sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
@@ -771,7 +774,7 @@ while date <= edate:
                     sh.write("#PBS -N j"+jobid+"\n")
                     sh.write("#PBS -q dev_transfer\n")
                     sh.write("#PBS -A AQM-DEV\n")
-                    sh.write("#PBS -l walltime="+task_cpu+"\n")
+                    sh.write("#PBS -l walltime="+task_cpu2+"\n")
                     sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
@@ -803,7 +806,7 @@ while date <= edate:
                     sh.write("#PBS -N j"+jobid+"\n")
                     sh.write("#PBS -q dev_transfer\n")
                     sh.write("#PBS -A AQM-DEV\n")
-                    sh.write("#PBS -l walltime="+task_cpu+"\n")
+                    sh.write("#PBS -l walltime="+task_cpu2+"\n")
                     sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
