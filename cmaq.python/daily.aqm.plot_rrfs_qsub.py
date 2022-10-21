@@ -507,7 +507,7 @@ while date <= edate:
             sh.write("#PBS -q dev_transfer\n")
             sh.write("#PBS -A AQM-DEV\n")
             sh.write("#PBS -l walltime="+task_cpu+"\n")
-            sh.write("#PBS -l debug=true\n")
+            sh.write("###PBS -l debug=true\n")
             sh.write("\n")
             sh.write("set -x\n")
             sh.write("export OMP_NUM_THREADS=1\n")
