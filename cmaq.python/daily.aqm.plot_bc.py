@@ -141,7 +141,8 @@ aqm_ver="v6.1"
 find_dir=[
           "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
           "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir,
-          "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir
+          "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir,
+          "/lfs/h2/emc/physics/noscrub/"+user+"/BiasCor_updated/"+envir
          ]
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
 
@@ -159,26 +160,30 @@ figout=stmp_dir
 ## this is due to the code below remove plotting of ak and hi if no ak and hi input files ash been found
 ##
 flag_proj="LambertConf"
-##mksize= [     16,     25,      36,      36,     49,     49,     49,     49,     64,     64,    121,    100,    121,     36 ]
-mksize= [     16,      16,      25,     25,     36,     36,     36,     36,     49,     49,    121,    100,    121,     36 ]
+##
+## marker size (s= in the scatter plot command) is the wxH. s=100 is the area of 10x10
+## Thus increase and decrease by squrt(s) or using nxn wiht n from 1,....large integer
+##
+mksize= [     64, 64, 16,     36,      36,      36,     49,     49,     49,     49,     64,     64,    121,    100,    121,     36 ]
+## mksize= [  64, 64, 16,      16,      25,     25,     36,     36,     36,     36,     49,     49,    121,    100,    121,     36 ]
 if flag_proj == "LambertConf":
-    regname = [   "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
-    rlon0 = [ -161.0, -120.4,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0,  -75.0, -166.0, -161.5, -141.0 ]
-    rlon1 = [  -73.0,  -70.6,   -67.0,  -95.0,  -67.0, -103.0,  -74.0, -100.0,  -83.0,  -78.0,  -71.0, -132.0, -153.1, -60.0 ]
-    rlat0 = [   14.0,   22.2,    21.9,   24.5,   37.0,   38.0,   24.0,   30.0,   35.0,   23.5,   40.2,   53.2,   17.8,   38.0 ]
-    rlat1 = [   72.0,   50.7,    50.0,   52.0,   48.0,   52.0,   40.0,   45.0,   50.0,   38.0,   41.8,   71.2,   23.1,   70.0 ]
+    regname = [ "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
+    rlon0 = [ -125., -120., -161.0, -120.4,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0,  -75.0, -166.0, -161.5, -141.0 ]
+    rlon1 = [  -110., -100., -73.0,  -70.6,   -67.0,  -95.0,  -67.0, -103.0,  -74.0, -100.0,  -83.0,  -78.0,  -71.0, -132.0, -153.1, -60.0 ]
+    rlat0 = [   40., 30.0, 14.0,   22.2,    21.9,   24.5,   37.0,   38.0,   24.0,   30.0,   35.0,   23.5,   40.2,   53.2,   17.8,   38.0 ]
+    rlat1 = [   45., 40., 72.0,   50.7,    50.0,   52.0,   48.0,   52.0,   40.0,   45.0,   50.0,   38.0,   41.8,   71.2,   23.1,   70.0 ]
 else:
-    regname = [   "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
-    rlon0 = [ -175.0, -124.0,  -100.0, -128.0,  -82.0, -125.0,  -95.0, -125.0, -105.0, -105.0,  -75.0, -170.0, -161.0, -141.0 ]
-    rlon1 = [  -55.0,  -70.0,   -65.0,  -90.0,  -67.0, -103.0,  -79.0, -105.0,  -85.0,  -85.0,   -71.0, -130.0, -154.0,  -60.0 ]
-    rlat0 = [    0.0,   22.0,    22.0,   24.5,   37.0,   38.0,   24.0,   30.0,   38.0,   24.0,   40.2,   52.0,   18.0,   38.0 ]
-    rlat1 = [   70.0,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   41.8,   72.0,   23.0,   70.0 ]
-xsize = [     10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
-ysize = [      8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
-if 1 == 2:
-    iplot = [      1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1, 1 ]
+    regname = [   "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
+    rlon0 = [ -125., -120., -175.0, -124.0,  -100.0, -128.0,  -82.0, -125.0,  -95.0, -125.0, -105.0, -105.0,  -75.0, -170.0, -161.0, -141.0 ]
+    rlon1 = [  -110., -100., -55.0,  -70.0,   -65.0,  -90.0,  -67.0, -103.0,  -79.0, -105.0,  -85.0,  -85.0,   -71.0, -130.0, -154.0,  -60.0 ]
+    rlat0 = [    40., 30.0, 0.0,   22.0,    22.0,   24.5,   37.0,   38.0,   24.0,   30.0,   38.0,   24.0,   40.2,   52.0,   18.0,   38.0 ]
+    rlat1 = [   45., 40., 70.0,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   41.8,   72.0,   23.0,   70.0 ]
+xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
+ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
+if 1 == 1:
+    iplot = [    1, 1,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      0,      0, 1 ]
 else:
-    iplot = [      0,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
+    iplot = [    1,  0, 0,      0,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
 num_reg=len(iplot)
 
 date=sdate
@@ -196,12 +201,19 @@ while date <= edate:
                 elif var[ivar] == "pm25":
                     check_file="pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
                 aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
+                aqmfilein2=comout+"/"+check_file
+                flag_new_dir = "no"
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
                 else:
-                    flag_find_var="no"
-                    print("Can not find "+aqmfilein)
-                    break
+                    if os.path.exists(aqmfilein2):
+                        print(aqmfilein2+" exists")
+                        flag_new_dir = "yes"
+                    else:
+                        flag_find_var="no"
+                        print("Can not find "+aqmfilein)
+                        print("Can not find "+aqmfilein2)
+                        break
             if flag_find_var == "no":
                 flag_find_cyc="no"
                 break
@@ -213,6 +225,11 @@ while date <= edate:
     else:
         date = date + date_inc
         continue
+
+    if comout == "/lfs/h2/emc/physics/noscrub/"+user+"/BiasCor_updated/"+envir:
+        print("Changing directory structute for bias-corrected files")
+        flag_new_dir="yes"
+
 
     if flag_ak == "no" and iplot[num_reg-3] == 1:
         iplot[num_reg-3] = 0
@@ -239,7 +256,10 @@ while date <= edate:
 
         for ivar in range(0,num_var):
             if var[ivar] == "o3":
-                model_filein=comout+"/cs."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                if flag_new_dir == "yes":
+                    model_filein=comout+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                else:
+                    model_filein=comout+"/cs."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
                 if os.path.exists(model_filein):
                     print(model_filein+" exists")
                     model_data = netcdf.Dataset(model_filein)
@@ -250,7 +270,10 @@ while date <= edate:
                     print("Can not find "+model_filein)
                     sys.exit()
             elif var[ivar] == "pm25":
-                model_filein=comout+"/cs."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                if flag_new_dir == "yes":
+                    model_filein=comout+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+                else:
+                    model_filein=comout+"/cs."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
                 if os.path.exists(model_filein):
                     print(model_filein+" exists")
                     model_data = netcdf.Dataset(model_filein)

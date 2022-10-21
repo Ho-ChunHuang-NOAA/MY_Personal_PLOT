@@ -96,9 +96,7 @@ else:
 ##                   ]
 if envir == "prod":
     script_name = [
-                  "daily.aqm.plot.py", "daily.aqm.plot_bc.py",
-                  "daily.aqm.plot_overlay.py", "daily.aqm.plot_bc_overlay.py",
-                  "diff.aqm.plot_bc.py"
+                  "daily.aqm.plot_aot.py"
                   ]
 else:
     ## "diff.aqm.plot_48vs72.py",
@@ -192,7 +190,7 @@ while date <= edate:
         print("Start processing "+date.strftime(YMD_date_format)+" "+cyc+"Z Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
         for i in script_name:
             msg=datetime.datetime.now()
-            if i == "daily.aqm.plot.py" or i == "daily.aqm.plot_overlay.py" or i == "daily.aqm.plot_bc.py" or i == "daily.aqm.plot_bc_overlay.py":
+            if i == "daily.aqm.plot.py" or i == "daily.aqm.plot_overlay.py" or i == "daily.aqm.plot_bc.py":
                 print("    Start processing "+i)
                 for j in var:
                     if i == "daily.aqm.plot.py":
@@ -201,8 +199,6 @@ while date <= edate:
                       jobid="plot_"+envir+"obs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
                     if i == "daily.aqm.plot_bc.py":
                       jobid="plot_"+envir+"bc_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    if i == "daily.aqm.plot_bc_overlay.py":
-                      jobid="plot_"+envir+"bcobs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     print("Creating graphic script "+plot_script)
                     if os.path.exists(plot_script):
@@ -216,7 +212,7 @@ while date <= edate:
                         sh.write("#PBS -q dev_transfer\n")
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
-                        sh.write("####PBS -l debug=true\n")
+                        sh.write("###PBS -l debug=true\n")
                         sh.write("# \n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("# \n")
@@ -257,7 +253,7 @@ while date <= edate:
                     sh.write("#PBS -q dev_transfer\n")
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("#PBS -l debug=true\n")
+                    sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
@@ -290,7 +286,7 @@ while date <= edate:
                         sh.write("#PBS -q dev_transfer\n")
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
-                        sh.write("#PBS -l debug=true\n")
+                        sh.write("###PBS -l debug=true\n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("# \n")
                         sh.write("##\n")
@@ -329,7 +325,7 @@ while date <= edate:
                     sh.write("#PBS -q dev_transfer\n")
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("#PBS -l debug=true\n")
+                    sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
@@ -367,7 +363,7 @@ while date <= edate:
                         sh.write("#PBS -q dev_transfer\n")
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
-                        sh.write("#PBS -l debug=true\n")
+                        sh.write("###PBS -l debug=true\n")
                         sh.write("# \n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("##\n")
@@ -400,7 +396,7 @@ while date <= edate:
                         sh.write("#PBS -q dev_transfer\n")
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
-                        sh.write("#PBS -l debug=true\n")
+                        sh.write("###PBS -l debug=true\n")
                         sh.write("# \n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("##\n")
@@ -439,7 +435,7 @@ while date <= edate:
                     sh.write("#PBS -q dev_transfer\n")
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("#PBS -l debug=true\n")
+                    sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
@@ -478,7 +474,7 @@ while date <= edate:
                     sh.write("#PBS -q dev_transfer\n")
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("#PBS -l debug=true\n")
+                    sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
@@ -514,7 +510,7 @@ while date <= edate:
                         sh.write("#PBS -q dev_transfer\n")
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
-                        sh.write("#PBS -l debug=true\n")
+                        sh.write("###PBS -l debug=true\n")
                         sh.write("# \n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("##\n")
@@ -546,7 +542,7 @@ while date <= edate:
                     sh.write("#PBS -q dev_transfer\n")
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("#PBS -l debug=true\n")
+                    sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
@@ -578,7 +574,7 @@ while date <= edate:
                     sh.write("#PBS -q dev_transfer\n")
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("#PBS -l debug=true\n")
+                    sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
@@ -610,7 +606,7 @@ while date <= edate:
                     sh.write("#PBS -q dev_transfer\n")
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("#PBS -l debug=true\n")
+                    sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
@@ -642,7 +638,7 @@ while date <= edate:
                     sh.write("#PBS -q dev_transfer\n")
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("#PBS -l debug=true\n")
+                    sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
@@ -677,7 +673,7 @@ while date <= edate:
                     sh.write("#PBS -q dev_transfer\n")
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("#PBS -l debug=true\n")
+                    sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
@@ -709,7 +705,7 @@ while date <= edate:
                     sh.write("#PBS -q dev_transfer\n")
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("#PBS -l debug=true\n")
+                    sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
@@ -741,7 +737,7 @@ while date <= edate:
                     sh.write("#PBS -q dev_transfer\n")
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("#PBS -l debug=true\n")
+                    sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
@@ -773,7 +769,7 @@ while date <= edate:
                     sh.write("#PBS -q dev_transfer\n")
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("#PBS -l debug=true\n")
+                    sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
@@ -805,7 +801,7 @@ while date <= edate:
                     sh.write("#PBS -q dev_transfer\n")
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("#PBS -l debug=true\n")
+                    sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
@@ -837,7 +833,7 @@ while date <= edate:
                     sh.write("#PBS -q dev_transfer\n")
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("#PBS -l debug=true\n")
+                    sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")

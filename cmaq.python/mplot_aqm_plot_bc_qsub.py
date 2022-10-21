@@ -96,9 +96,7 @@ else:
 ##                   ]
 if envir == "prod":
     script_name = [
-                  "daily.aqm.plot.py", "daily.aqm.plot_bc.py",
-                  "daily.aqm.plot_overlay.py", "daily.aqm.plot_bc_overlay.py",
-                  "diff.aqm.plot_bc.py"
+                  "daily.aqm.plot_bc.py"
                   ]
 else:
     ## "diff.aqm.plot_48vs72.py",
