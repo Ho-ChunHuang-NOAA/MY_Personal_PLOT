@@ -142,8 +142,8 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ##
 aqm_ver="v6.1"
 find_dir=[
-          "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
           "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir,
+          "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
           "/lfs/h2/emc/ptmp/"+os.environ['USER']+"/com/aqm/"+envir,
           "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir
          ]
@@ -209,10 +209,11 @@ while date <= edate:
         if flag_find_idir == "yes":
             print("comout set to "+comout)
             break
-        else:
-            date = date + date_inc
-            continue
     
+    if flag_find_idir == "no":
+        print("Can not define comout, program stop")
+        sys.exit()
+
     if envir == "prod" or envir == "para6x" or envir == "para6b":
         flag_ak = "yes"
         for cyc in cycle:

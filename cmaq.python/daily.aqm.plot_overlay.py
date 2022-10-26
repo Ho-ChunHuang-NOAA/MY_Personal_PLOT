@@ -544,7 +544,7 @@ while date <= edate:
                                 bool_nanpm = pd.isnull(pm25_obs[row])
                                 bool_nano3 = pd.isnull(o3_obs[row])
     
-                                if sel_var == 'pm25':
+                                if var[ivar] == 'pm25':
                                     if dt[row] == obs_hour and bool_nanpm == False:
                                         var_lon.append(lon[row])
                                         var_lat.append(lat[row])
@@ -552,7 +552,7 @@ while date <= edate:
                                         var_unit.append(pmunit[row])
                                         if pmunit[row]!='UG/M3':
                                             print('Uh oh! pm25 row '+str(row)+' is in units of '+str(pmunit[row]))
-                                elif sel_var == 'o3':
+                                elif var[ivar] == 'o3':
                                     if dt[row] == obs_hour and bool_nano3 == False:
                                         var_lon.append(lon[row])
                                         var_lat.append(lat[row])
@@ -565,7 +565,7 @@ while date <= edate:
 
                             ## print("total number of obs points = "+str(len(plot_var)))
 
-                            if sel_var == 'pm25':
+                            if var[ivar] == 'pm25':
                                 num_pm25=len(plot_var)
                                 clevs = [ 3., 6., 9., 12., 15., 35., 55., 75., 100., 125., 150., 250., 300., 400., 500., 600., 750. ]
                                 nlev=len(clevs)
@@ -596,7 +596,7 @@ while date <= edate:
                                             print("Can not assign proper value for color, program stop")
                                             sys.exit()
     
-                            elif sel_var == 'o3':
+                            elif var[ivar] == 'o3':
                                 num_o3=len(plot_var)
                                 clevs = [ 3., 6., 9., 12., 25., 35., 45., 55., 65., 70., 75., 85., 95., 105. ]
                                 nlev=len(clevs)

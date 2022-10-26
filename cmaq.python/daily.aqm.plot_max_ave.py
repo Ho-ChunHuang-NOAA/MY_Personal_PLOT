@@ -209,10 +209,11 @@ while date <= edate:
         if flag_find_idir == "yes":
             print("comout set to "+comout)
             break
-        else:
-            date = date + date_inc
-            continue
     
+    if flag_find_idir == "no":
+        print("Can not define comout, program stop")
+        sys.exit()
+
     if envir == "prod" or envir == "para6x" or envir == "para6b":
         flag_ak = "yes"
         for cyc in cycle:
