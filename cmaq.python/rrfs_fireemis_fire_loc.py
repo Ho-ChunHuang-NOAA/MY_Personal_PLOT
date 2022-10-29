@@ -117,14 +117,19 @@ lat0_ref=[40.,   0.,   24.,     24.,  30.,  37.,   38.,  38.,   24.,   52.,  18.
 lat1_ref=[70.,   70.,  50.,     38.,  45.,  48.,   52.,  52.,   40.,   72.,  23.,  50.,     54.5]
 lon0_ref=[ -141., -141.,  -124.,   -95., -125, -82, -125.,-105., -105., -170.,-161.,-100.,     -128. ]
 lon1_ref=[  -60., -60.,   -70.,    -79., -105.,-67.,-103.,-85.,  -85.,  -130.,-154.,-65.,     -90. ]
-##title = [ "dset", "conus", "east us", "west us", "ne us", "nw us", "se us", "sw us", "alaska", "hawaii", "us-can" ] 
-reg = [   "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "mds",   "ak",   "hi",  "can" ] 
-rlon0 = [ -175.0, -124.0,  -100.0, -128.0,  -82.0, -125.0,  -95.0, -125.0, -105.0, -105.0, -170.0, -161.0, -141.0 ]
-rlon1 = [  -55.0,  -70.0,   -65.0,  -90.0,  -67.0, -103.0,  -79.0, -105.0,  -85.0,  -85.0, -130.0, -154.0,  -60.0 ]
-rlat0 = [    0.0,   22.0,    22.0,   24.5,   37.0,   38.0,   24.0,   30.0,   38.0,   24.0,   52.0,   18.0,   38.0 ]
-rlat1 = [   70.0,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   72.0,   23.0,   70.0 ]
-##iplot = [      1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1 ]
-iplot = [      0,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0 ]
+##
+reg = [ "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
+rlon0 = [ -125., -120., -161.0, -120.4,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0,  -75.0, -166.0, -161.5, -141.0 ]
+rlon1 = [  -110., -100., -73.0,  -70.6,   -67.0,  -95.0,  -67.0, -103.0,  -74.0, -100.0,  -83.0,  -78.0,  -71.0, -132.0, -153.1, -60.0 ]
+rlat0 = [   40., 30.0, 14.0,   22.2,    21.9,   24.5,   37.0,   38.0,   24.0,   30.0,   35.0,   23.5,   40.2,   53.2,   17.8,   38.0 ]
+rlat1 = [   45., 40., 72.0,   50.7,    50.0,   52.0,   48.0,   52.0,   40.0,   45.0,   50.0,   38.0,   41.8,   71.2,   23.1,   70.0 ]
+xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
+ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
+if 1 == 1:
+    ## with all 16 reg, it can not be finished in 4:30:00 wallcolck time
+    iplot = [    1, 1,   0,      1,       1,      1,      0,      1,      1,      1,      0,      0,      0,      1,      0, 1 ]
+else:
+    iplot = [    1,  0, 0,      0,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
 ilen=len(iplot)
 print("iplot length = "+str(ilen))
 
@@ -250,13 +255,15 @@ while date <= edate:
                     sys.exit()
                 cs_lat=[]
                 cs_lon=[]
+                cs_pvar=[]
                 for i in range(0,num_pts):
                     cs_lat.append(mdl_lat[plotrow[i],plotcol[i]])
                     cs_lon.append(mdl_lon[plotrow[i],plotcol[i]])
+                    cs_pvar.append(pvar_cs[plotrow[i],plotcol[i]])
                 ## print(cs_lat)
                 ## print(cs_lon)
 
-                plt.figure(figsize=(12, 6))
+                ## plt.figure(figsize=(12, 6))
                 for i in range(0,ilen):
                     fcst_hr=n+1
                     if int(iplot[i]) == 1: 
@@ -272,6 +279,7 @@ while date <= edate:
                             aqmproj=ccrs.LambertConformal(central_longitude=clon, central_latitude=clat, standard_parallels=(19, 21), globe=None)
                         else:
                             aqmproj=ccrs.LambertConformal(central_longitude=clon, central_latitude=clat, standard_parallels=(33, 45), globe=None)
+                        fig, ax = plt.subplots(figsize=(xsize[i],ysize[i]))
                         ax = plt.axes(projection=aqmproj)
                         ## ax = plt.axes(projection=ccrs.PlateCarree())
                         ax.set_extent(extent)
@@ -297,8 +305,16 @@ while date <= edate:
                         ## ax.add_feature(rivers_50m, facecolor='None', edgecolor='b')
                         ## plt.show()
                         for x in range(0,num_pts):
-                          ## ax.plot(lon[x], lat[x], 'ro', markersize=3, transform=ccrs.Geodetic())
-                          ax.plot(cs_lon[x], cs_lat[x], 'ro', markersize=3, transform=ccrs.PlateCarree())
+                            ## fisrt convert unit from kg/m2/s to g/s, assuming grid area is 13x13 km**2
+                            emis_scale=1.69E+10   ## 1000 g * 13000 m * 13000 m * 0.1
+                            logvar=np.log(cs_pvar[x]*emis_scale)
+                            ## print(str(logvar))
+                            if logvar <= 0.5:
+                                msize=0.5
+                            else:
+                                msize=np.log(cs_pvar[x]*emis_scale)
+                            ## ax.plot(lon[x], lat[x], 'ro', markersize=3, transform=ccrs.Geodetic())
+                            ax.plot(cs_lon[x], cs_lat[x], 'ro', markersize=msize, transform=ccrs.PlateCarree())
                         ##ax.text(-117, 33, 'San Diego', transform=ccrs.Geodetic())
                         fileout=figout+"/rrfs_fireemisfire."+figarea+"."+envir+"."+date.strftime(YMD_date_format)+"."+cyc+".location."+str(format(fcst_hr,'02d'))+".k1.png"
                         plt.savefig(fileout, bbox_inches='tight') 
@@ -309,7 +325,10 @@ while date <= edate:
         os.chdir(figout)
         subprocess.call("chmod 644 *", shell=True)
         parta=os.path.join("/usr", "bin", "scp")
-        partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cyc )
-        #partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
+        if 1 == 1 :
+            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cyc )
+        else:
+            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
+            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
         subprocess.call(["scp -p * "+partb], shell=True)
     date = date + date_inc
