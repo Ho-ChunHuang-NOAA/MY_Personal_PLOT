@@ -160,8 +160,8 @@ while date <= edate:
         flag_find_cyc="no"
         for cyc in cycle:
             check_file=model+".t"+cyc+"z.fireemis.d1.ncf"
-            check_file2=model+".t"+cyc+"z.fireemis.ncf"
             aqmfilein=datadir+"/"+check_file
+            check_file2=model+".t"+cyc+"z.fireemis.ncf"
             aqmfilein2=datadir+"/"+check_file2
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
@@ -223,11 +223,6 @@ while date <= edate:
     os.mkdir(figout)
 
     for cyc in cycle:
-        nselect=15
-        if cyc == "06":
-            nselect=15
-        elif cyc == "12":
-            nselect=9
         filein=metout+"/"+model+".t"+cyc+"z.grdcro2d.ncf"
         if os.path.exists(filein):
             print(filein+" exists")
@@ -254,26 +249,103 @@ while date <= edate:
             else:
                 print("Can not find "+aqmfilein+" and "+aqmfilein2)
         if os.path.exists(aqmfilein):
-            ## print(aqmfilein+" exists")
+            print(aqmfilein+" exists")
             cs_aqm = netcdf.Dataset(aqmfilein)
             cs_var = cs_aqm.variables['TFLAG'][:,0,:]
             fire_cs = cs_aqm.variables['AECJ'][:,0,:,:]
             cs_aqm.close()
             nstep=len(cs_var)
-            for n in range(nselect,nselect+1):
+            FEi58j285=[]
+            for n in range(0,nstep):
+                nout=n+1
+                str_fcst_hr=str(nout)
+                fhh=str_fcst_hr.zfill(3)
+                output_file=hourly_fire_out+"/cmaq_"+envir+"_t"+cyc+"z_fireemis_f"+fhh+".dat"
+                wfile=open(output_file,'w')
+                nrow=[]
+                ncol=[]
                 pvar_cs = fire_cs[n,:,:]
+                FEi58j285.append(fire_cs[n,58,285])
+                current_max_fire=np.amax(pvar_cs)
+                current_min_fire=np.amin(pvar_cs)
+                result = np.where(pvar_cs == np.amax(pvar_cs))
+                ## print('( %d , %d )' % (result[0],result[1]))
+                idx_rows=result[0]
+                idx_cols=result[1]
+                ## print('( %d , %d )' % (result[0],result[1]))
+                if current_max_fire > 1.0E+20:
+                    if date.strftime(YMD_date_format) == "20201207" or date.strftime(YMD_date_format) == "20201208" or date.strftime(YMD_date_format) == "20201212":
+                        print("maximum fire emission at step "+str(format(n,'02d'))+" is "+str(format(current_max_fire,'02f')))
+                        continue
+                else:
+                    if n == 0:
+                        max_fire=current_max_fire
+                        max_rows=idx_rows
+                        max_cols=idx_cols
+                    else:
+                        if current_max_fire > max_fire:
+                            max_fire=current_max_fire
+                            max_rows=idx_rows
+                            max_cols=idx_cols
+                ## print("maximum fire emission at step "+str(format(n,'02d'))+" is "+str(format(max_fire,'02f')))
+                ## print("maximum fire emission at step "+str(format(n,'02d'))+" is "+str(format(current_max_fire,'02f')))
+                ## print("minimum fire emission at step "+str(format(n,'02d'))+" is "+str(format(current_min_fire,'02f')))
                 xnonzero=[]
                 xnonzero=np.nonzero(pvar_cs)
+                ## print(xnonzero)
                 nrow=xnonzero[0]
                 ncol=xnonzero[1]
                 nx=len(nrow)
-                plotrow=[]
-                plotcol=[]
-                for ii in range(0,nx):
-                    plotrow.append(nrow[ii])
-                    plotcol.append(ncol[ii])
+                print('number of fire emission at step %d is %d' % (n, nx))
+                if n == 0:
+                    plotrow=[]
+                    plotcol=[]
+                    out_lat=[]
+                    out_lon=[]
+                    out_var=[]
+                    for ii in range(0,nx):
+                        ## print('( %d , %d )' % (nrow[ii],ncol[ii]) )
+                        plotrow.append(nrow[ii])
+                        plotcol.append(ncol[ii])
+                        out_lat.append(mdl_lat[nrow[ii],ncol[ii]])
+                        out_lon.append(mdl_lon[nrow[ii],ncol[ii]])
+                        out_var.append(pvar_cs[nrow[ii],ncol[ii]])
+                    print('initial number of fire is %d ' % (nx) )
+                else:
+                    nplot=len(plotrow)
+                    if nplot >= mdl_pts:
+                       print('( "full domain with fire emission reached" %d , %d )' % (mdl_pts, nplot ) )
+                       break
+                    out_lat=[]
+                    out_lon=[]
+                    out_var=[]
+                    for ii in range(0,nx):
+                        find_new_fire=1
+                        for ij in range(0,nplot):
+                            if plotrow[ij] == nrow[ii] and plotcol[ij] == ncol[ii]:
+                               find_new_fire=0
+                               break
+                        if find_new_fire == 1:
+                            ## print('%s %d %d' % ("found new fire loc", nrow[ii], ncol[ii]))
+                            plotrow.append(nrow[ii])
+                            plotcol.append(ncol[ii])
+                            nplotnow=len(plotrow)
+                            ## print('current number of fire is %d'% (nplotnow))
+                        out_lat.append(mdl_lat[nrow[ii],ncol[ii]])
+                        out_lon.append(mdl_lon[nrow[ii],ncol[ii]])
+                        out_var.append(pvar_cs[nrow[ii],ncol[ii]])
+                    num_out=len(out_lat)
+                    num_pts=len(plotrow)
+                    ## print('time step %d # of fire is %d' % (n,num_pts))
+                nwrout=len(out_lat)
+                for iout in range(0,nwrout):
+                    icout=iout+1
+                    str_fcst_hr=str(icout)
+                    fhh=str_fcst_hr.zfill(3)
+                    wfile.write(fhh+","+str(out_lat[iout])+","+str(out_lon[iout])+","+str(out_var[iout])+"\n")
+                wfile.close()
             num_pts=len(plotrow)
-            print('number of fire is %d' % (num_pts))
+            print('final   number of fire is %d' % (num_pts))
             if num_pts >= mdl_pts:
                 sys.exit()
             cs_lat=[]
@@ -284,6 +356,9 @@ while date <= edate:
                 cs_lon.append(mdl_lon[plotrow[i],plotcol[i]])
                 cs_pvar.append(pvar_cs[plotrow[i],plotcol[i]])
             
+            print('maximum fire emission occurred at %s z is %f at grid ( %d , %d ) ' % ( cyc, max_fire, max_rows[0], max_cols[0]) )
+            ## for n in range(0,nstep):
+            ##  print( '%d, %s' % (n, FEi58j285[n]) )
         ## plt.figure(figsize=(12, 6))
         for i in range(0,ilen):
             if int(iplot[i]) == 1: 
@@ -315,7 +390,7 @@ while date <= edate:
                 ax.add_feature(cfeature.OCEAN)
                 ax.add_feature(cfeature.LAND, edgecolor='black')
                 ax.add_feature(cfeature.LAKES, edgecolor='black')
-                ax.set_title(date.strftime(YMD_date_format)+" "+envir.upper()+" run 20-21Z fire location - AECJ")
+                ax.set_title(date.strftime(YMD_date_format)+" "+envir.upper()+" run fire location")
                 ## ax.add_feature(rivers_50m, facecolor='None', edgecolor='b')
                 ## ax.add_feature(cfeature.RIVERS)
                 ## plt.show()

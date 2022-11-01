@@ -83,48 +83,16 @@ else:
     os.makedirs(working_dir)
     os.chdir(working_dir)
 
-##     script_name = [
-##                   "daily.aqm.plot.py", "daily.aqm.plot_bc.py",
-##                   "daily.aqm.plot_specs1.py", "daily.aqm.plot_specs2.py",
-##                   "daily.aqm.plot_specs3.py", "daily.aqm.plot_specs4.py",
-##                   "daily.aqm.plot_met_v6s1.py", "daily.aqm.plot_met_v6s2.py",
-##                   "daily.aqm.plot_met_v6s3.py", "daily.aqm.plot_met_v6s4.py",
-##                   "daily.aqm.plot_met_v6s5.py",
-##                   "daily.aqm.plot_dustloc.py",
-##                   "gbbepx_fire_loc.py",
-##                   "diff.aqm.plot_bc.py"
-##                   ]
 if envir == "prod":
     script_name = [
-                  "daily.aqm.plot_max_ave.py",
-                  "daily.aqm.plot_max_ave_bc.py"
+                  "daily.aqm.plot.py", "daily.aqm.plot_bc.py",
+                  "diff.aqm.plot_bc.py"
                   ]
 else:
-    ## "diff.aqm.plot_48vs72.py",
+    ## rrfs_fireemis_fire_loc.py
     script_name = [
                   "daily.rrfs.plot_max_ave.py"
                   ]
-    no_workk_script = [
-                  "daily.rrfs.plot_max_ave_bc.py"
-                  "daily.aqm.plot.py", "daily.aqm.plot_bc.py", 
-                  "daily.aqm.plot_specs1.py", "daily.aqm.plot_specs2.py",
-                  "daily.aqm.plot_specs3.py", "daily.aqm.plot_specs4.py",
-                  "diff.aqm.plot.py",
-                  "daily.aqm.plot_dustloc.py",
-                  "fireemis_fire_loc.py",
-                  "gbbepx_fire_loc.py",
-                  "daily.aqm.plot_overlay.py",
-                  "diff.aqm.plot_specs1.py", "diff.aqm.plot_specs2.py",
-                  "diff.aqm.plot_specs3.py", "diff.aqm.plot_specs4.py",
-                  "diff.aqm.plot_bc.py"
-                  "daily.aqm.plot_met_v6s1.py", "daily.aqm.plot_met_v6s2.py",
-                  "daily.aqm.plot_met_v6s3.py", "daily.aqm.plot_met_v6s4.py",
-                  "daily.aqm.plot_met_v6s5.py", 
-                  "diff.aqm.plot_met_v6s1.py", "diff.aqm.plot_met_v6s2.py",
-                  "diff.aqm.plot_met_v6s3.py", "diff.aqm.plot_met_v6s4.py",
-                  "daily.aqm.plot_dustloc.py",
-                  ]
-    col_var = [ "pm25_col", "pm25c_col" ]
 ## subprocess.call(['cp -p * '+partb], shell=True)
 
 for i in script_name:
@@ -193,15 +161,10 @@ while date <= edate:
         print("Start processing "+date.strftime(YMD_date_format)+" "+cyc+"Z Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
         for i in script_name:
             msg=datetime.datetime.now()
-            if i == "daily.aqm.plot.py" or i == "daily.aqm.plot_overlay.py" or i == "daily.aqm.plot_bc.py":
+            if i == "daily.aqm.plot.py" or i == "daily.aqm.plot_bc.py":
                 print("    Start processing "+i)
                 for j in var:
-                    if i == "daily.aqm.plot.py":
-                      jobid="plot_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    if i == "daily.aqm.plot_overlay.py":
-                      jobid="plot_"+envir+"obs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    if i == "daily.aqm.plot_bc.py":
-                      jobid="plot_"+envir+"bc_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     print("Creating graphic script "+plot_script)
                     if os.path.exists(plot_script):
@@ -215,13 +178,13 @@ while date <= edate:
                         sh.write("#PBS -q dev_transfer\n")
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
-                        sh.write("####PBS -l debug=true\n")
+                        sh.write("#####PBS -l debug=true\n")
                         sh.write("# \n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("# \n")
                         sh.write("\n")
                         sh.write("##\n")
-                        sh.write("##  Plot EMC EXP "+envir+" using python script\n")
+                        sh.write("##  Plot EMC "+envir+" using python script\n")
                         sh.write("##\n")
                         sh.write("set -x\n")
                         sh.write("\n")
@@ -229,53 +192,14 @@ while date <= edate:
                         sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
                         sh.write("\n")
                         sh.write("exit\n")
-                    print("submit "+plot_script)
+                    print("run_script = "+plot_script)
+                    print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                     msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
-                    print(msg)
-            if i == "daily.aqm.plot_specs1.py" or i == "daily.aqm.plot_specs2.py" or i == "daily.aqm.plot_specs3.py" or i == "daily.aqm.plot_specs4.py" or i == "daily.aqm.plot_spec_xsel.py":
-                print("    Start processing "+i)
-                if i == "daily.aqm.plot_specs1.py":
-                    jobid="plot_sp1_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                if i == "daily.aqm.plot_specs2.py":
-                    jobid="plot_sp2_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                if i == "daily.aqm.plot_specs3.py":
-                    jobid="plot_sp3_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                if i == "daily.aqm.plot_specs4.py":
-                    jobid="plot_sp4_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                print("Creating graphic script "+plot_script)
-                if os.path.exists(plot_script):
-                    os.remove(plot_script)
-                with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
-                    sh.write("#PBS -N j"+jobid+"\n")
-                    sh.write("#PBS -q dev_transfer\n")
-                    sh.write("#PBS -A AQM-DEV\n")
-                    sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("###PBS -l debug=true\n")
-                    sh.write("# \n")
-                    sh.write("export OMP_NUM_THREADS=1\n")
-                    sh.write("##\n")
-                    sh.write("##  Plot EMC EXP "+envir+" using python script\n")
-                    sh.write("##\n")
-                    sh.write("set -x\n")
-                    sh.write("\n")
-                    sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("\n")
-                    sh.write("exit\n")
-                print("submit "+plot_script)
-                subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
-                print(msg)
             if i == "diff.aqm.plot_bc.py":
                 print("    Start processing "+i)
                 for j in var:
-                    jobid="plot_diffbc_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     print("Creating graphic script "+plot_script)
                     if os.path.exists(plot_script):
@@ -289,7 +213,7 @@ while date <= edate:
                         sh.write("#PBS -q dev_transfer\n")
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
-                        sh.write("###PBS -l debug=true\n")
+                        sh.write("#####PBS -l debug=true\n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("# \n")
                         sh.write("##\n")
@@ -301,223 +225,38 @@ while date <= edate:
                         sh.write("   python "+i+" "+envir+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
                         sh.write("\n")
                         sh.write("exit\n")
-                    print("submit "+plot_script)
+                    print("run_script = "+plot_script)
+                    print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                     msg="        python "+i+" "+envir+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                     print(msg)
-            if i == ( "diff.aqm.plot_specs1.py" or i == "diff.aqm.plot_specs2.py" or i == "diff.aqm.plot_specs3.py" or i == "diff.aqm.plot_specs4.py" ) and envir != "prod":
-                print("    Start processing "+i)
-                if i == "diff.aqm.plot_specs1.py":
-                    jobid="plot_diff_sp1_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                if i == "diff.aqm.plot_specs2.py":
-                    jobid="plot_diff_sp2_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                if i == "diff.aqm.plot_specs3.py":
-                    jobid="plot_diff_sp3_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                if i == "diff.aqm.plot_specs4.py":
-                    jobid="plot_diff_sp4_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                print("Creating graphic script "+plot_script)
-                if os.path.exists(plot_script):
-                    os.remove(plot_script)
-                with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
-                    sh.write("#PBS -N j"+jobid+"\n")
-                    sh.write("#PBS -q dev_transfer\n")
-                    sh.write("#PBS -A AQM-DEV\n")
-                    sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("###PBS -l debug=true\n")
-                    sh.write("# \n")
-                    sh.write("export OMP_NUM_THREADS=1\n")
-                    sh.write("##\n")
-                    sh.write("##  Plot EMC EXP "+envir+" using python script\n")
-                    sh.write("##\n")
-                    sh.write("set -x\n")
-                    sh.write("\n")
-                    sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" prod "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("\n")
-                    sh.write("exit\n")
-                print("submit "+plot_script)
-                subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" prod "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
-                print(msg)
-                if envir == "para":
-                    if i == "diff.aqm.plot_specs1.py":
-                        jobid="plot_diff_sp1_"+envir+"_6d_"+cyc+"_"+date.strftime(YMD_date_format)
-                    if i == "diff.aqm.plot_specs2.py":
-                        jobid="plot_diff_sp2_"+envir+"_6d_"+cyc+"_"+date.strftime(YMD_date_format)
-                    if i == "diff.aqm.plot_specs3.py":
-                        jobid="plot_diff_sp3_"+envir+"_6d_"+cyc+"_"+date.strftime(YMD_date_format)
-                    if i == "diff.aqm.plot_specs4.py":
-                        jobid="plot_diff_sp4_"+envir+"_6d_"+cyc+"_"+date.strftime(YMD_date_format)
-                    plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                    print("Creating graphic script "+plot_script)
-                    if os.path.exists(plot_script):
-                        os.remove(plot_script)
-                    with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash -l\n")
-                        sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                        sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
-                        sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
-                        sh.write("#PBS -N j"+jobid+"\n")
-                        sh.write("#PBS -q dev_transfer\n")
-                        sh.write("#PBS -A AQM-DEV\n")
-                        sh.write("#PBS -l walltime="+task_cpu+"\n")
-                        sh.write("###PBS -l debug=true\n")
-                        sh.write("# \n")
-                        sh.write("export OMP_NUM_THREADS=1\n")
-                        sh.write("##\n")
-                        sh.write("##  Plot EMC EXP "+envir+" using python script\n")
-                        sh.write("##\n")
-                        sh.write("set -x\n")
-                        sh.write("\n")
-                        sh.write("   cd "+working_dir+"\n")
-                        sh.write("   python "+i+" "+envir+" para6d "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                        sh.write("\n")
-                        sh.write("exit\n")
-                    print("submit "+plot_script)
-                    subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                    msg="        python "+i+" "+envir+" para6d "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
-                    print(msg)
-            if i == "diff.aqm.plot.py" and envir == "para":
+            if i == "daily.aqm.plot_rrfs.py":
                 print("    Start processing "+i)
                 for j in var:
-                    jobid="plot_diff_6d_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     print("Creating graphic script "+plot_script)
                     if os.path.exists(plot_script):
                         os.remove(plot_script)
+                    logfile=log_dir+"/"+jobid+".log"
+                    if os.path.exists(logfile):
+                        os.remove(logfile)
                     with open(plot_script, 'a') as sh:
                         sh.write("#!/bin/bash -l\n")
-                        sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                        sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                        sh.write("#PBS -o "+logfile+"\n")
+                        sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                         sh.write("#PBS -N j"+jobid+"\n")
                         sh.write("#PBS -q dev_transfer\n")
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
-                        sh.write("###PBS -l debug=true\n")
+                        sh.write("#####PBS -l debug=true\n")
                         sh.write("# \n")
                         sh.write("export OMP_NUM_THREADS=1\n")
-                        sh.write("##\n")
-                        sh.write("##  Plot EMC EXP "+envir+" using python script\n")
-                        sh.write("##\n")
-                        sh.write("set -x\n")
-                        sh.write("\n")
-                        sh.write("   cd "+working_dir+"\n")
-                        sh.write("   python "+i+" "+envir+" para6d "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                        sh.write("\n")
-                        sh.write("exit\n")
-                    print("submit "+plot_script)
-                    subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                    msg="        python "+i+" "+envir+" para6d "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
-                    print(msg)
-            if ( i == "daily.aqm.plot_met_v6s1.py" or i == "daily.aqm.plot_met_v6s2.py" or i == "daily.aqm.plot_met_v6s3.py" or i == "daily.aqm.plot_met_v6s4.py" or i == "daily.aqm.plot_met_v6s5.py" ):
-                print("    Start processing "+i)
-                if i == "daily.aqm.plot_met_v6s1.py":
-                    jobid="plot_met1_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                if i == "daily.aqm.plot_met_v6s2.py":
-                    jobid="plot_met2_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                if i == "daily.aqm.plot_met_v6s3.py":
-                    jobid="plot_met3_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                if i == "daily.aqm.plot_met_v6s4.py":
-                    jobid="plot_met4_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                print("Creating graphic script "+plot_script)
-                if os.path.exists(plot_script):
-                    os.remove(plot_script)
-                with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
-                    sh.write("#PBS -N j"+jobid+"\n")
-                    sh.write("#PBS -q dev_transfer\n")
-                    sh.write("#PBS -A AQM-DEV\n")
-                    sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("###PBS -l debug=true\n")
-                    sh.write("# \n")
-                    sh.write("export OMP_NUM_THREADS=1\n")
-                    sh.write("##\n")
-                    sh.write("##  Plot EMC EXP "+envir+" using python script\n")
-                    sh.write("##\n")
-                    sh.write("set -x\n")
-                    sh.write("\n")
-                    sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("\n")
-                    sh.write("exit\n")
-                print("submit "+plot_script)
-                subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
-                print(msg)
-            if ( i == "diff.aqm.plot_met_v6s1.py" or i == "diff.aqm.plot_met_v6s2.py" or i == "diff.aqm.plot_met_v6s3.py" or i == "diff.aqm.plot_met_v6s4.py" or i == "diff.aqm.plot_met_v6s5.py" ) and envir != "prod":
-                print("    Start processing "+i)
-                if i == "diff.aqm.plot_diff_met_v6s1.py":
-                    jobid="plot_diff_met1_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                if i == "diff.aqm.plot_diff_met_v6s2.py":
-                    jobid="plot_diff_met2_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                if i == "diff.aqm.plot_diff_met_v6s3.py":
-                    jobid="plot_diff_met3_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                if i == "diff.aqm.plot_diff_met_v6s4.py":
-                    jobid="plot_diff_met4_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                print("Creating graphic script "+plot_script)
-                if os.path.exists(plot_script):
-                    os.remove(plot_script)
-                with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
-                    sh.write("#PBS -N j"+jobid+"\n")
-                    sh.write("#PBS -q dev_transfer\n")
-                    sh.write("#PBS -A AQM-DEV\n")
-                    sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("###PBS -l debug=true\n")
-                    sh.write("# \n")
-                    sh.write("export OMP_NUM_THREADS=1\n")
-                    sh.write("##\n")
-                    sh.write("##  Plot EMC EXP "+envir+" using python script\n")
-                    sh.write("##\n")
-                    sh.write("set -x\n")
-                    sh.write("\n")
-                    sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" prod "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("\n")
-                    sh.write("exit\n")
-                print("submit "+plot_script)
-                subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" prod "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
-                print(msg)
-            if i == "daily.aqm.col_v6.py":
-                print("    Start processing "+i)
-                for j in col_var:
-                    jobid="plot_col_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                    ic=ic+1
-                    icnt=str(format(ic,'03d'))
-                    plot_script=os.path.join(os.getcwd(),"plot_cmaq_"+icnt+".sh")
-                    print("Creating graphic script "+plot_script)
-                    if os.path.exists(plot_script):
-                        os.remove(plot_script)
-                    with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash -l\n")
-                        sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                        sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
-                        sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
-                        sh.write("#PBS -N j"+jobid+"\n")
-                        sh.write("#PBS -q dev_transfer\n")
-                        sh.write("#PBS -A AQM-DEV\n")
-                        sh.write("#PBS -l walltime="+task_cpu+"\n")
-                        sh.write("###PBS -l debug=true\n")
                         sh.write("# \n")
-                        sh.write("export OMP_NUM_THREADS=1\n")
+                        sh.write("\n")
                         sh.write("##\n")
-                        sh.write("##  Plot EMC EXP "+envir+" using python script\n")
+                        sh.write("##  Plot EMC "+envir+" using python script\n")
                         sh.write("##\n")
                         sh.write("set -x\n")
                         sh.write("\n")
@@ -525,205 +264,48 @@ while date <= edate:
                         sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
                         sh.write("\n")
                         sh.write("exit\n")
-                    print("submit "+plot_script)
+                    print("run_script = "+plot_script)
+                    print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                     msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
-                    print(msg)
-            if i == "daily.aqm.plot_dustemis.py":
+            if i == "daily.aqm.plot_rrfs_overlay.py":
                 print("    Start processing "+i)
-                jobid="plot_dustem_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                print("Creating graphic script "+plot_script)
-                if os.path.exists(plot_script):
-                    os.remove(plot_script)
-                with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
-                    sh.write("#PBS -N j"+jobid+"\n")
-                    sh.write("#PBS -q dev_transfer\n")
-                    sh.write("#PBS -A AQM-DEV\n")
-                    sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("###PBS -l debug=true\n")
-                    sh.write("# \n")
-                    sh.write("export OMP_NUM_THREADS=1\n")
-                    sh.write("##\n")
-                    sh.write("##  Plot EMC EXP "+envir+" using python script\n")
-                    sh.write("##\n")
-                    sh.write("set -x\n")
-                    sh.write("\n")
-                    sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("\n")
-                    sh.write("exit\n")
-                print("submit "+plot_script)
-                subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
-                print(msg)
-            if i == "daily.aqm.plot_fireemis.py" and envir != "prod":
-                print("    Start processing "+i)
-                jobid="plot_fireem_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                print("Creating graphic script "+plot_script)
-                if os.path.exists(plot_script):
-                    os.remove(plot_script)
-                with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
-                    sh.write("#PBS -N j"+jobid+"\n")
-                    sh.write("#PBS -q dev_transfer\n")
-                    sh.write("#PBS -A AQM-DEV\n")
-                    sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("###PBS -l debug=true\n")
-                    sh.write("# \n")
-                    sh.write("export OMP_NUM_THREADS=1\n")
-                    sh.write("##\n")
-                    sh.write("##  Plot EMC EXP "+envir+" using python script\n")
-                    sh.write("##\n")
-                    sh.write("set -x\n")
-                    sh.write("\n")
-                    sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("\n")
-                    sh.write("exit\n")
-                print("submit "+plot_script)
-                subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
-                print(msg)
-            if i == "fireemis_fire_loc.py":
-                print("    Start processing "+i)
-                jobid="plot_fireloc_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                print("Creating graphic script "+plot_script)
-                if os.path.exists(plot_script):
-                    os.remove(plot_script)
-                with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
-                    sh.write("#PBS -N j"+jobid+"\n")
-                    sh.write("#PBS -q dev_transfer\n")
-                    sh.write("#PBS -A AQM-DEV\n")
-                    sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("###PBS -l debug=true\n")
-                    sh.write("# \n")
-                    sh.write("export OMP_NUM_THREADS=1\n")
-                    sh.write("##\n")
-                    sh.write("##  Plot EMC EXP "+envir+" using python script\n")
-                    sh.write("##\n")
-                    sh.write("set -x\n")
-                    sh.write("\n")
-                    sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("\n")
-                    sh.write("exit\n")
-                print("submit "+plot_script)
-                subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
-                print(msg)
-            if i == "gbbepx_fire_loc.py":
-                print("    Start processing "+i)
-                jobid="plot_gbbepxloc_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                print("Creating graphic script "+plot_script)
-                if os.path.exists(plot_script):
-                    os.remove(plot_script)
-                with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
-                    sh.write("#PBS -N j"+jobid+"\n")
-                    sh.write("#PBS -q dev_transfer\n")
-                    sh.write("#PBS -A AQM-DEV\n")
-                    sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("###PBS -l debug=true\n")
-                    sh.write("# \n")
-                    sh.write("export OMP_NUM_THREADS=1\n")
-                    sh.write("##\n")
-                    sh.write("##  Plot EMC EXP "+envir+" using python script\n")
-                    sh.write("##\n")
-                    sh.write("set -x\n")
-                    sh.write("\n")
-                    sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("\n")
-                    sh.write("exit\n")
-                print("submit "+plot_script)
-                subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
-                print(msg)
-            if i == "daily.aqm.plot_fireemis_r.py" and envir != "prod":
-                print("    Start processing "+i)
-                jobid="plot_fireem_r_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                ic=ic+1
-                icnt=str(format(ic,'03d'))
-                plot_script=os.path.join(os.getcwd(),"plot_cmaq_"+icnt+".sh")
-                print("Creating graphic script "+plot_script)
-                if os.path.exists(plot_script):
-                    os.remove(plot_script)
-                with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
-                    sh.write("#PBS -N j"+jobid+"\n")
-                    sh.write("#PBS -q dev_transfer\n")
-                    sh.write("#PBS -A AQM-DEV\n")
-                    sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("###PBS -l debug=true\n")
-                    sh.write("# \n")
-                    sh.write("export OMP_NUM_THREADS=1\n")
-                    sh.write("##\n")
-                    sh.write("##  Plot EMC EXP "+envir+" using python script\n")
-                    sh.write("##\n")
-                    sh.write("set -x\n")
-                    sh.write("\n")
-                    sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("\n")
-                    sh.write("exit\n")
-                print("submit "+plot_script)
-                subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
-                print(msg)
-            if i == "daily.aqm.plot_dustloc.py":
-                print("    Start processing "+i)
-                jobid="plot_dustloc_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                print("Creating graphic script "+plot_script)
-                if os.path.exists(plot_script):
-                    os.remove(plot_script)
-                with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
-                    sh.write("#PBS -N j"+jobid+"\n")
-                    sh.write("#PBS -q dev_transfer\n")
-                    sh.write("#PBS -A AQM-DEV\n")
-                    sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("###PBS -l debug=true\n")
-                    sh.write("# \n")
-                    sh.write("export OMP_NUM_THREADS=1\n")
-                    sh.write("##\n")
-                    sh.write("##  Plot EMC EXP "+envir+" using python script\n")
-                    sh.write("##\n")
-                    sh.write("set -x\n")
-                    sh.write("\n")
-                    sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("\n")
-                    sh.write("exit\n")
-                print("submit "+plot_script)
-                subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
-                print(msg)
+                for j in var:
+                    jobid="plot_"+envir+"obs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                    print("Creating graphic script "+plot_script)
+                    if os.path.exists(plot_script):
+                        os.remove(plot_script)
+                    logfile=log_dir+"/"+jobid+".log"
+                    if os.path.exists(logfile):
+                        os.remove(logfile)
+                    with open(plot_script, 'a') as sh:
+                        sh.write("#!/bin/bash -l\n")
+                        sh.write("#PBS -o "+logfile+"\n")
+                        sh.write("#PBS -e "+logfile+"\n")
+                        sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
+                        sh.write("#PBS -N j"+jobid+"\n")
+                        sh.write("#PBS -q dev_transfer\n")
+                        sh.write("#PBS -A AQM-DEV\n")
+                        sh.write("#PBS -l walltime="+task_cpu+"\n")
+                        sh.write("#####PBS -l debug=true\n")
+                        sh.write("# \n")
+                        sh.write("export OMP_NUM_THREADS=1\n")
+                        sh.write("# \n")
+                        sh.write("\n")
+                        sh.write("##\n")
+                        sh.write("##  Plot EMC "+envir+" using python script\n")
+                        sh.write("##\n")
+                        sh.write("set -x\n")
+                        sh.write("\n")
+                        sh.write("   cd "+working_dir+"\n")
+                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("\n")
+                        sh.write("exit\n")
+                    print("run_script = "+plot_script)
+                    print("log file   = "+logfile)
+                    subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
+                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
             if i == "daily.rrfs.plot_max_ave.py":
                 print("    Start processing "+i)
                 jobid="plot_maxave_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
@@ -731,13 +313,13 @@ while date <= edate:
                 print("Creating graphic script "+plot_script)
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
-                plot_log=log_dir+"/"+jobid+".log"
-                if os.path.exists(plot_log):
-                    os.remove(plot_log)
+                logfile=log_dir+"/"+jobid+".log"
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+plot_log+"\n")
-                    sh.write("#PBS -e "+plot_log+"\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                     sh.write("#PBS -N j"+jobid+"\n")
                     sh.write("#PBS -q dev_transfer\n")
@@ -755,8 +337,8 @@ while date <= edate:
                     sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
-                print("submit "+plot_script)
-                print("LOG =  "+plot_log)
+                print("run_script = "+plot_script)
+                print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                 msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                 print(msg)
@@ -767,13 +349,13 @@ while date <= edate:
                 print("Creating graphic script "+plot_script)
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
-                plot_log=log_dir+"/"+jobid+".log"
-                if os.path.exists(plot_log):
-                    os.remove(plot_log)
+                logfile=log_dir+"/"+jobid+".log"
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+plot_log+"\n")
-                    sh.write("#PBS -e "+plot_log+"\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                     sh.write("#PBS -N j"+jobid+"\n")
                     sh.write("#PBS -q dev_transfer\n")
@@ -791,14 +373,121 @@ while date <= edate:
                     sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
-                print("submit "+plot_script)
-                print("LOG =  "+plot_log)
+                print("run_script = "+plot_script)
+                print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                 msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                 print(msg)
-        msg=datetime.datetime.now()
-        print("End   processing "+date.strftime(YMD_date_format)+" "+cyc+"Z Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
-    msg=datetime.datetime.now()
-    print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
-    print("Script file location = "+working_dir)
+            if i == "rrfs_fireemis_fire_loc.py":
+                print("    Start processing "+i)
+                jobid="plot_rave_fire_loc_v70_"+cyc+"_"+date.strftime(YMD_date_format)
+                plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                logfile=log_dir+"/"+jobid+".log"
+                print("Creating graphic script "+plot_script)
+                if os.path.exists(plot_script):
+                    os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
+                with open(plot_script, 'a') as sh:
+                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
+                    sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5000MB\n")
+                    sh.write("#PBS -N j"+jobid+"\n")
+                    sh.write("#PBS -q dev_transfer\n")
+                    sh.write("#PBS -A AQM-DEV\n")
+                    ## sh.write("#PBS -l walltime="+task_cpu+"\n")
+                    sh.write("#PBS -l walltime=02:00:00\n")
+                    sh.write("##PBS -l debug=true\n")
+                    sh.write("# \n")
+                    sh.write("export OMP_NUM_THREADS=1\n")
+                    sh.write("##\n")
+                    sh.write("##  Plot EMC EXP "+envir+"_bc using python script\n")
+                    sh.write("##\n")
+                    sh.write("set -x\n")
+                    sh.write("\n")
+                    sh.write("   cd "+working_dir+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("\n")
+                    sh.write("exit\n")
+                print("run_script = "+plot_script)
+                print("log file   = "+logfile)
+                subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
+                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                print(msg)
+            if i == "rrfs_fireemis_fire_loc_retro1.py":
+                print("    Start processing "+i)
+                jobid="plot_rave_fire_loc_v1_"+cyc+"_"+date.strftime(YMD_date_format)
+                plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                logfile=log_dir+"/"+jobid+".log"
+                print("Creating graphic script "+plot_script)
+                if os.path.exists(plot_script):
+                    os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
+                with open(plot_script, 'a') as sh:
+                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
+                    sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5000MB\n")
+                    sh.write("#PBS -N j"+jobid+"\n")
+                    sh.write("#PBS -q dev_transfer\n")
+                    sh.write("#PBS -A AQM-DEV\n")
+                    ## sh.write("#PBS -l walltime="+task_cpu+"\n")
+                    sh.write("#PBS -l walltime=02:00:00\n")
+                    sh.write("##PBS -l debug=true\n")
+                    sh.write("# \n")
+                    sh.write("export OMP_NUM_THREADS=1\n")
+                    sh.write("##\n")
+                    sh.write("##  Plot EMC EXP "+envir+"_bc using python script\n")
+                    sh.write("##\n")
+                    sh.write("set -x\n")
+                    sh.write("\n")
+                    sh.write("   cd "+working_dir+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("\n")
+                    sh.write("exit\n")
+                print("run_script = "+plot_script)
+                print("log file   = "+logfile)
+                subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
+            if i == "rrfs_fireemis_fire_loc_retro2.py":
+                print("    Start processing "+i)
+                jobid="plot_rave_fire_loc_v2_"+cyc+"_"+date.strftime(YMD_date_format)
+                plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                logfile=log_dir+"/"+jobid+".log"
+                print("Creating graphic script "+plot_script)
+                if os.path.exists(plot_script):
+                    os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
+                with open(plot_script, 'a') as sh:
+                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
+                    sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5000MB\n")
+                    sh.write("#PBS -N j"+jobid+"\n")
+                    sh.write("#PBS -q dev_transfer\n")
+                    sh.write("#PBS -A AQM-DEV\n")
+                    ## sh.write("#PBS -l walltime="+task_cpu+"\n")
+                    sh.write("#PBS -l walltime=02:00:00\n")
+                    sh.write("##PBS -l debug=true\n")
+                    sh.write("# \n")
+                    sh.write("export OMP_NUM_THREADS=1\n")
+                    sh.write("##\n")
+                    sh.write("##  Plot EMC EXP "+envir+"_bc using python script\n")
+                    sh.write("##\n")
+                    sh.write("set -x\n")
+                    sh.write("\n")
+                    sh.write("   cd "+working_dir+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("\n")
+                    sh.write("exit\n")
+                print("run_script = "+plot_script)
+                print("log file   = "+logfile)
+                subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
+        ## msg=datetime.datetime.now()
+        ## print("End   processing "+date.strftime(YMD_date_format)+" "+cyc+"Z Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+    ## msg=datetime.datetime.now()
+    ## print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+    ## print("LOG file location "+working_dir)
     date = date + date_inc

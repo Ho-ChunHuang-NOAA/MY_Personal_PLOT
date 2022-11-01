@@ -116,6 +116,7 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 aqm_ver="v6.1"
 comout="/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
+dcomout="/lfs/h1/ops/dev/dcom"
 obsdir="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/epa_airnow_acsii"
 
 figout=stmp_dir
@@ -373,8 +374,13 @@ while date <= edate:
                 if os.path.exists(obsfile):
                 ##    print(obsfile+" exists")
                     flag_find_epa_ascii="yes"
-                ##else:
-                ##    print("Can not find "+obsfile)
+                else:
+                    base_dir = dcomout+"/"+obs_hour.strftime(YMD_date_format)+'/airnow/'
+                    obsfile= base_dir+'HourlyAQObs_'+obs_hour.strftime(obs_YMDH_date_format)+'.dat'
+                    if os.path.exists(obsfile):
+                        flag_find_epa_ascii="yes"
+                ##    else:
+                ##        print("Can not find "+obsfile)
 
                 if flag_find_epa_ascii == "yes":
                     airnow = []

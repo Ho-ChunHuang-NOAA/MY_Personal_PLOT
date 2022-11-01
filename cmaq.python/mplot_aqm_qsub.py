@@ -207,12 +207,15 @@ while date <= edate:
                     if i == "daily.aqm.plot_bc_overlay.py":
                       jobid="plot_"+envir+"bcobs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                    logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
                         os.remove(plot_script)
+                    if os.path.exists(logfile):
+                        os.remove(logfile)
                     with open(plot_script, 'a') as sh:
                         sh.write("#!/bin/bash -l\n")
-                        sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                        sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                        sh.write("#PBS -o "+logfile+"\n")
+                        sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                         sh.write("#PBS -N j"+jobid+"\n")
                         sh.write("#PBS -q dev_transfer\n")
@@ -220,6 +223,8 @@ while date <= edate:
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
                         sh.write("######PBS -l debug=true\n")
                         sh.write("# \n")
+                        sh.write("## module load python/3.8.6\n")
+                        sh.write("## module load netcdf/4.7.4\n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("# \n")
                         sh.write("\n")
@@ -233,7 +238,7 @@ while date <= edate:
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
-                    print("log file   = "+log_dir+"/"+jobid+".log")
+                    print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                     msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                     print(msg)
@@ -248,12 +253,15 @@ while date <= edate:
                 if i == "daily.aqm.plot_specs4.py":
                     jobid="plot_sp4_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                     sh.write("#PBS -N j"+jobid+"\n")
                     sh.write("#PBS -q dev_transfer\n")
@@ -261,6 +269,8 @@ while date <= edate:
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
+                    sh.write("## module load python/3.8.6\n")
+                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -272,7 +282,7 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
-                print("log file   = "+log_dir+"/"+jobid+".log")
+                print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                 msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                 print(msg)
@@ -281,21 +291,26 @@ while date <= edate:
                 for j in var:
                     jobid="plot_diffbc_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                    logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
                         os.remove(plot_script)
+                    if os.path.exists(logfile):
+                        os.remove(logfile)
                     with open(plot_script, 'a') as sh:
                         sh.write("#!/bin/bash -l\n")
-                        sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                        sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                        sh.write("#PBS -o "+logfile+"\n")
+                        sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                         sh.write("#PBS -N j"+jobid+"\n")
                         sh.write("#PBS -q dev_transfer\n")
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
                         sh.write("###PBS -l debug=true\n")
-                        sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("# \n")
+                        sh.write("## module load python/3.8.6\n")
+                        sh.write("## module load netcdf/4.7.4\n")
                         sh.write("##\n")
+                        sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("##  Plot EMC EXP "+envir+" using python script\n")
                         sh.write("##\n")
                         sh.write("set -x\n")
@@ -305,7 +320,7 @@ while date <= edate:
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
-                    print("log file   = "+log_dir+"/"+jobid+".log")
+                    print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                     msg="        python "+i+" "+envir+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                     print(msg)
@@ -320,12 +335,15 @@ while date <= edate:
                 if i == "diff.aqm.plot_specs4.py":
                     jobid="plot_diff_sp4_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                     sh.write("#PBS -N j"+jobid+"\n")
                     sh.write("#PBS -q dev_transfer\n")
@@ -333,6 +351,8 @@ while date <= edate:
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
+                    sh.write("## module load python/3.8.6\n")
+                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -344,7 +364,7 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
-                print("log file   = "+log_dir+"/"+jobid+".log")
+                print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                 msg="        python "+i+" prod "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                 print(msg)
@@ -358,12 +378,15 @@ while date <= edate:
                     if i == "diff.aqm.plot_specs4.py":
                         jobid="plot_diff_sp4_"+envir+"_6d_"+cyc+"_"+date.strftime(YMD_date_format)
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                    logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
                         os.remove(plot_script)
+                    if os.path.exists(logfile):
+                        os.remove(logfile)
                     with open(plot_script, 'a') as sh:
                         sh.write("#!/bin/bash -l\n")
-                        sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                        sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                        sh.write("#PBS -o "+logfile+"\n")
+                        sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                         sh.write("#PBS -N j"+jobid+"\n")
                         sh.write("#PBS -q dev_transfer\n")
@@ -371,6 +394,8 @@ while date <= edate:
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
                         sh.write("###PBS -l debug=true\n")
                         sh.write("# \n")
+                        sh.write("## module load python/3.8.6\n")
+                        sh.write("## module load netcdf/4.7.4\n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("##\n")
                         sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -382,7 +407,7 @@ while date <= edate:
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
-                    print("log file   = "+log_dir+"/"+jobid+".log")
+                    print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                     msg="        python "+i+" "+envir+" para6d "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                     print(msg)
@@ -391,12 +416,15 @@ while date <= edate:
                 for j in var:
                     jobid="plot_diff_6d_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                    logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
                         os.remove(plot_script)
+                    if os.path.exists(logfile):
+                        os.remove(logfile)
                     with open(plot_script, 'a') as sh:
                         sh.write("#!/bin/bash -l\n")
-                        sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                        sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                        sh.write("#PBS -o "+logfile+"\n")
+                        sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                         sh.write("#PBS -N j"+jobid+"\n")
                         sh.write("#PBS -q dev_transfer\n")
@@ -404,6 +432,8 @@ while date <= edate:
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
                         sh.write("###PBS -l debug=true\n")
                         sh.write("# \n")
+                        sh.write("## module load python/3.8.6\n")
+                        sh.write("## module load netcdf/4.7.4\n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("##\n")
                         sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -415,7 +445,7 @@ while date <= edate:
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
-                    print("log file   = "+log_dir+"/"+jobid+".log")
+                    print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                     msg="        python "+i+" "+envir+" para6d "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                     print(msg)
@@ -430,12 +460,15 @@ while date <= edate:
                 if i == "daily.aqm.plot_met_v6s4.py":
                     jobid="plot_met4_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                     sh.write("#PBS -N j"+jobid+"\n")
                     sh.write("#PBS -q dev_transfer\n")
@@ -454,7 +487,7 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
-                print("log file   = "+log_dir+"/"+jobid+".log")
+                print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                 msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                 print(msg)
@@ -469,12 +502,15 @@ while date <= edate:
                 if i == "diff.aqm.plot_diff_met_v6s4.py":
                     jobid="plot_diff_met4_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                     sh.write("#PBS -N j"+jobid+"\n")
                     sh.write("#PBS -q dev_transfer\n")
@@ -482,6 +518,8 @@ while date <= edate:
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
+                        sh.write("## module load python/3.8.6\n")
+                        sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -493,7 +531,7 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
-                print("log file   = "+log_dir+"/"+jobid+".log")
+                print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                 msg="        python "+i+" prod "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                 print(msg)
@@ -502,15 +540,15 @@ while date <= edate:
                 for j in col_var:
                     jobid="plot_col_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                    ic=ic+1
-                    icnt=str(format(ic,'03d'))
-                    plot_script=os.path.join(os.getcwd(),"plot_cmaq_"+icnt+".sh")
+                    logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
                         os.remove(plot_script)
+                    if os.path.exists(logfile):
+                        os.remove(logfile)
                     with open(plot_script, 'a') as sh:
                         sh.write("#!/bin/bash -l\n")
-                        sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                        sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                        sh.write("#PBS -o "+logfile+"\n")
+                        sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                         sh.write("#PBS -N j"+jobid+"\n")
                         sh.write("#PBS -q dev_transfer\n")
@@ -529,7 +567,7 @@ while date <= edate:
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
-                    print("log file   = "+log_dir+"/"+jobid+".log")
+                    print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                     msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                     print(msg)
@@ -537,12 +575,15 @@ while date <= edate:
                 print("    Start processing "+i)
                 jobid="plot_dustem_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                     sh.write("#PBS -N j"+jobid+"\n")
                     sh.write("#PBS -q dev_transfer\n")
@@ -550,6 +591,8 @@ while date <= edate:
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
+                        sh.write("## module load python/3.8.6\n")
+                        sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -561,7 +604,7 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
-                print("log file   = "+log_dir+"/"+jobid+".log")
+                print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                 msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                 print(msg)
@@ -569,12 +612,15 @@ while date <= edate:
                 print("    Start processing "+i)
                 jobid="plot_fireem_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                     sh.write("#PBS -N j"+jobid+"\n")
                     sh.write("#PBS -q dev_transfer\n")
@@ -593,7 +639,7 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
-                print("log file   = "+log_dir+"/"+jobid+".log")
+                print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                 msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                 print(msg)
@@ -601,12 +647,15 @@ while date <= edate:
                 print("    Start processing "+i)
                 jobid="plot_fireloc_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                     sh.write("#PBS -N j"+jobid+"\n")
                     sh.write("#PBS -q dev_transfer\n")
@@ -614,6 +663,8 @@ while date <= edate:
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
+                        sh.write("## module load python/3.8.6\n")
+                        sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -625,7 +676,7 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
-                print("log file   = "+log_dir+"/"+jobid+".log")
+                print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                 msg="        python "+i+" "+envir+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                 print(msg)
@@ -633,12 +684,15 @@ while date <= edate:
                 print("    Start processing "+i)
                 jobid="plot_gbbepxloc_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                     sh.write("#PBS -N j"+jobid+"\n")
                     sh.write("#PBS -q dev_transfer\n")
@@ -657,7 +711,7 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
-                print("log file   = "+log_dir+"/"+jobid+".log")
+                print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                 msg="        python "+i+" "+envir+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                 print(msg)
@@ -665,15 +719,15 @@ while date <= edate:
                 print("    Start processing "+i)
                 jobid="plot_fireem_r_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                ic=ic+1
-                icnt=str(format(ic,'03d'))
-                plot_script=os.path.join(os.getcwd(),"plot_cmaq_"+icnt+".sh")
+                logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                     sh.write("#PBS -N j"+jobid+"\n")
                     sh.write("#PBS -q dev_transfer\n")
@@ -681,6 +735,8 @@ while date <= edate:
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
+                        sh.write("## module load python/3.8.6\n")
+                        sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -692,7 +748,7 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
-                print("log file   = "+log_dir+"/"+jobid+".log")
+                print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                 msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                 print(msg)
@@ -700,12 +756,15 @@ while date <= edate:
                 print("    Start processing "+i)
                 jobid="plot_dustloc_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                     sh.write("#PBS -N j"+jobid+"\n")
                     sh.write("#PBS -q dev_transfer\n")
@@ -724,7 +783,7 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
-                print("log file   = "+log_dir+"/"+jobid+".log")
+                print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                 msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                 print(msg)
@@ -732,12 +791,15 @@ while date <= edate:
                 print("    Start processing "+i)
                 jobid="plot_maxave_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                     sh.write("#PBS -N j"+jobid+"\n")
                     sh.write("#PBS -q dev_transfer\n")
@@ -745,6 +807,8 @@ while date <= edate:
                     sh.write("#PBS -l walltime="+task_cpu2+"\n")
                     sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
+                        sh.write("## module load python/3.8.6\n")
+                        sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -756,7 +820,7 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
-                print("log file   = "+log_dir+"/"+jobid+".log")
+                print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                 msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                 print(msg)
@@ -764,12 +828,15 @@ while date <= edate:
                 print("    Start processing "+i)
                 jobid="plot_maxave_bc_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                     sh.write("#PBS -N j"+jobid+"\n")
                     sh.write("#PBS -q dev_transfer\n")
@@ -788,7 +855,7 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
-                print("log file   = "+log_dir+"/"+jobid+".log")
+                print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                 msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                 print(msg)
@@ -796,12 +863,15 @@ while date <= edate:
                 print("    Start processing "+i)
                 jobid="plot_diff_maxave_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                     sh.write("#PBS -N j"+jobid+"\n")
                     sh.write("#PBS -q dev_transfer\n")
@@ -809,6 +879,8 @@ while date <= edate:
                     sh.write("#PBS -l walltime="+task_cpu2+"\n")
                     sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
+                        sh.write("## module load python/3.8.6\n")
+                        sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -820,7 +892,7 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
-                print("log file   = "+log_dir+"/"+jobid+".log")
+                print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                 msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                 print(msg)
@@ -828,12 +900,15 @@ while date <= edate:
                 print("    Start processing "+i)
                 jobid="plot_aot_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
-                    sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
-                    sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
                     sh.write("#PBS -N j"+jobid+"\n")
                     sh.write("#PBS -q dev_transfer\n")
@@ -852,13 +927,13 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
-                print("log file   = "+log_dir+"/"+jobid+".log")
+                print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                 msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                 print(msg)
-        msg=datetime.datetime.now()
-        print("End   processing "+date.strftime(YMD_date_format)+" "+cyc+"Z Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
-    msg=datetime.datetime.now()
-    print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
-    print("LOG file location "+working_dir)
+        ## msg=datetime.datetime.now()
+        ## print("End   processing "+date.strftime(YMD_date_format)+" "+cyc+"Z Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+    ## msg=datetime.datetime.now()
+    ## print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+    ## print("LOG file location "+working_dir)
     date = date + date_inc

@@ -89,9 +89,9 @@ if envir == "prod":
                   "diff.aqm.plot_bc.py"
                   ]
 else:
-    ## rrfs_fireemis_fire_loc.py
     script_name = [
-                  "daily.aqm.plot_rrfs_overlay.py"
+                  "rrfs_fireemis_fire_loc_retro1.py",
+                  "rrfs_fireemis_fire_loc_retro2.py"
                   ]
 ## subprocess.call(['cp -p * '+partb], shell=True)
 

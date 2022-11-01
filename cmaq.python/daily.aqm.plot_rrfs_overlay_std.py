@@ -123,6 +123,7 @@ else:
 aqm_ver="v7.0"
 comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0."+runid
 ## comout="/lfs/h2/emc/physics/noscrub/ho-chun.huan/rrfs_sfc_chem_met/"+envir
+dcomout="/lfs/h1/ops/dev/dcom"
 obsdir="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/epa_airnow_acsii"
 figout=stmp_dir
 
@@ -195,7 +196,15 @@ while date <= edate:
                 obsfile= base_dir+'HourlyAQObs_'+obs_hour.strftime(obs_YMDH_date_format)+'.dat'
                 flag_find_epa_ascii="no"
                 if os.path.exists(obsfile):
-                flag_find_epa_ascii="yes"
+                ##    print(obsfile+" exists")
+                    flag_find_epa_ascii="yes"
+                else:
+                    base_dir = dcomout+"/"+obs_hour.strftime(YMD_date_format)+'/airnow/'
+                    obsfile= base_dir+'HourlyAQObs_'+obs_hour.strftime(obs_YMDH_date_format)+'.dat'
+                    if os.path.exists(obsfile):
+                        flag_find_epa_ascii="yes"
+                ##    else:
+                ##        print("Can not find "+obsfile)
 
                 if flag_find_epa_ascii == "yes":
                     airnow = []

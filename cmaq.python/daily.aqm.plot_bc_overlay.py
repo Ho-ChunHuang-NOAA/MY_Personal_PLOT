@@ -148,6 +148,7 @@ find_dir=[
           "/lfs/h2/emc/physics/noscrub/"+user+"/BiasCor_updated/"+envir
          ]
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
+dcomout="/lfs/h1/ops/dev/dcom"
 obsdir="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/epa_airnow_acsii"
 
 #
