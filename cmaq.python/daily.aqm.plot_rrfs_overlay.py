@@ -161,7 +161,7 @@ if not os.path.exists(comout):
         print("Can not find ioutput dir with experiment id "+envir)
         sys.exit()
 
-dcomout="/lfs/h1/ops/dev/dcom"
+dcomout="/lfs/h1/ops/prod/dcom"
 obsdir="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/epa_airnow_acsii"
 figout=stmp_dir
 
