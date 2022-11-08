@@ -235,11 +235,8 @@ while date <= edate:
             os.makedirs(figdir)
             print("working on "+date.strftime(YMD_date_format)+" t"+cyc+"z "+var[ivar])
             flag_read_latlon="no"
-            if envir == "v70b5" or envir == "v70b6":
-                hour_end = 31
-            else:
-                hour_end = 73
-            for fcst_hr in range(0,hour_end):
+            hour_end = 72
+            for fcst_hr in range(0,hour_end+1):
                 str_fcst_hr=str(fcst_hr)
                 ## fhh=str_pad(fcst_hr,3,'0',STR_PAD_LEFT)
                 fhh=str_fcst_hr.zfill(3)
@@ -370,10 +367,7 @@ while date <= edate:
                             ## print("from "+str(lonmin)+" to "+str(lonmax))
                         else:
                             o3_cs = cs_aqm.variables['o3'][0,:,:]
-                            if envir == "v70b5" or envir == "v70b6":
-                                scale= 1000.
-                            else:
-                                scale= 1.
+                            scale= 1.
                         cs_aqm.close()
                     elif os.path.exists(aqmfilein2):
                         ## print(aqmfilein2+" exists")
@@ -391,10 +385,7 @@ while date <= edate:
                             ## print("from "+str(lonmin)+" to "+str(lonmax))
                         else:
                             o3_cs = cs_aqm.variables['o3'][0,:,:]
-                            if envir == "v70b5" or envir == "v70b6":
-                                scale= 1000.
-                            else:
-                                scale= 1.
+                            scale= 1.
                         cs_aqm.close()
                     else:
                         aqmfilein=comout+"/"+date.strftime(YMD_date_format)+cyc+"/dynf"+fhh+".nc"
