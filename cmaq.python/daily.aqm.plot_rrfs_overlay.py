@@ -147,16 +147,16 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## print("experiment is "+envir[0:ilen])
 ## sys.exit()
 if envir[0:3] =="v70":
-    runid=envir[3:5]
+    runid=envir[3:6]
     print(runid)
 else:
     print(envir+" is not v7.0 experiment")
     sys.exit()
 
 aqm_ver="v7.0"
-comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0/aqm.v7.0."+runid
+comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0/aqm.v7.0."+runid
 usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
-if not os.path.exists(comout):
+if not os.path.exists(comout+"."+sdate.strftime(YMD_date_format)):
     if not os.path.exists(usrout):
         print("Can not find ioutput dir with experiment id "+envir)
         sys.exit()
@@ -290,7 +290,7 @@ while date <= edate:
                     o3unit = airnow['OZONE_Unit']
 
                 if var[ivar] == "pm25":
-                    aqmfilein=comout+"/"+date.strftime(YMD_date_format)+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    aqmfilein=comout+"."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     aqmfilein2=usrout+"/aqm."+date.strftime(YMD_date_format)+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
@@ -329,7 +329,7 @@ while date <= edate:
                             pm_cs = cs_aqm.variables['PM25_TOT'][0,:,:]
                         cs_aqm.close()
                     else:
-                        aqmfilein=comout+"/"+date.strftime(YMD_date_format)+cyc+"/pm25/aqm.t"+cyc+"z.pm25_sfc.f"+fhh+".nc"
+                        aqmfilein=comout+"."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.pm25_sfc.f"+fhh+".nc"
                         if os.path.exists(aqmfilein):
                             ## print(aqmfilein+" exists")
                             cs_aqm = netcdf.Dataset(aqmfilein)
@@ -352,7 +352,7 @@ while date <= edate:
                             ## sys.exit()
                 ## in ppm
                 if var[ivar] == "o3":
-                    aqmfilein=comout+"/"+date.strftime(YMD_date_format)+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    aqmfilein=comout+"."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     aqmfilein2=usrout+"/aqm."+date.strftime(YMD_date_format)+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
@@ -398,6 +398,7 @@ while date <= edate:
                         cs_aqm.close()
                     else:
                         aqmfilein=comout+"/"+date.strftime(YMD_date_format)+cyc+"/dynf"+fhh+".nc"
+                        aqmfilein=comout+"."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.o3_sfc.f"+fhh+".nc"
                         if os.path.exists(aqmfilein):
                             ## print(aqmfilein+" exists")
                             cs_aqm = netcdf.Dataset(aqmfilein)
@@ -413,7 +414,7 @@ while date <= edate:
                                 ## print("from "+str(latmin)+" to "+str(latmax))
                                 ## print("from "+str(lonmin)+" to "+str(lonmax))
                             else:
-                                o3_cs = cs_aqm.variables['o3'][0,63,:,:]
+                                o3_cs = cs_aqm.variables['o3'][0,0,:,:]
                                 scale= 1000.
                             cs_aqm.close()
                         else:

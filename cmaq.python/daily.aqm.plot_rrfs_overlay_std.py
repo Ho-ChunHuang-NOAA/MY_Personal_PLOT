@@ -114,7 +114,7 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## print("experiment is "+envir[0:ilen])
 ## sys.exit()
 if envir[0:3] =="v70":
-    runid=envir[3:5]
+    runid=envir[3:6]
     print(runid)
 else:
     print(envir+" is not v7.0 experiment")
