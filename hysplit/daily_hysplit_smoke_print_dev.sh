@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #PBS -o /lfs/h2/emc/ptmp/${USER}/print_hyspt_smoke_conus_dev_dev.out
 #PBS -e /lfs/h2/emc/ptmp/${USER}/print_hyspt_smoke_conus_dev_dev.err
 #PBS -l place=shared,select=1:ncpus=1:mem=4GB

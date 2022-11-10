@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/bash 
 module use /apps/test/lmodules/core/
 module load GrADS/2.2.2
 module load prod_util

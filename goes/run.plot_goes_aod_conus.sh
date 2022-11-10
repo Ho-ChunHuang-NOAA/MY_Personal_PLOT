@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # module load idl/8.6.1
   
 module load prod_util

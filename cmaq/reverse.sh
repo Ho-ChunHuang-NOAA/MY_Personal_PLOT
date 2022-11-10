@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ls > tlist
 count=0
 while read line

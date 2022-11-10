@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ##
 ## SCRIPT FOR SINGLE DAY PROCESSING AND MAP GENERATION
 ##

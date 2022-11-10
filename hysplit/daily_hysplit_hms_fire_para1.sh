@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #PBS -o /lfs/h2/emc/ptmp/${USER}/batch_logs/hyspt_hms_fire_para1_20160831.out
 #PBS -e /lfs/h2/emc/ptmp/${USER}/batch_logs/hyspt_hms_fire_para1_20160831.err
 #PBS -l place=shared,select=1:ncpus=1:mem=4GB

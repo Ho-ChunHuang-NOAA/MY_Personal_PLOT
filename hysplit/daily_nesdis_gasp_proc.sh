@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #PBS -o /lfs/h2/emc/ptmp/${USER}/batch_logs/gasp_all_aod_and_smoke_20171013.out
 #PBS -e /lfs/h2/emc/ptmp/${USER}/batch_logs/gasp_all_aod_and_smoke_20171013.err
 #PBS -l place=shared,select=1:ncpus=1:mem=4GB

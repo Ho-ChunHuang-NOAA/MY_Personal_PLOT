@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/bash 
 #source ~/.bashrc
 module use /apps/test/lmodules/core/
 module load GrADS/2.2.2

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 MSG="USAGE $0 obs_sat (default:viirs) model_grid [default:aqm|hysplit|ngac] YYYYMMDD_BEG YYYYMMDD_END"
    obs_name=viirs
    mdl_name=aqm

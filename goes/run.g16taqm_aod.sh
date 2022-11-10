@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 TODAY=`date +%Y%m%d`
 
 MSG="USAGE $0 obs_sat (default:g16|g17|) model_grid [default:aqm|hysplit|ngac] YYYYMMDD_BEG YYYYMMDD_END"

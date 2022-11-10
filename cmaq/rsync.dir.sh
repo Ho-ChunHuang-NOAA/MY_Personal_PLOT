@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 whereami=`pwd`
 echo ${whereami}
 hname=`hostname`

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 module load prod_util
 #set -x
 MSG="$0 EXP [prod|para5|...] StartDate EndDate"

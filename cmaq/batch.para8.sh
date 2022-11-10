@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 FIRSTDAY=$1
 LASTDAY=$2
 bash mplot48.o3max.sh para8 all ${FIRSTDAY} ${LASTDAY}

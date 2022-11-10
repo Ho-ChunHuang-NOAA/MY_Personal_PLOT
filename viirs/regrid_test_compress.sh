@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 hname=`hostname`
 hl=`hostname | cut -c1-1`
 if [ -s prod_info_list ]; then /bin/rm -f prod_info_list; fi

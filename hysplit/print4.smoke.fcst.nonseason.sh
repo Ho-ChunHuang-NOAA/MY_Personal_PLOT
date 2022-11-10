@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/bash 
 module use /apps/test/lmodules/core/
 module load GrADS/2.2.2
 module load prod_util
@@ -558,7 +558,7 @@ if [ "${flag_qsub}" == "yes" ]; then
    logfile=${logdir}/${job_name}_${TODAY}.out
    if [ -e ${logfile} ]; then /bin/rm -f ${logfile}; fi
 cat > ${batch_script} << EOF
-#!/bin/sh
+#!/bin/bash
 #PBS -o ${logfile}
 #PBS -e ${logfile}
 #PBS -l place=shared,select=1:ncpus=1:mem=4GB
