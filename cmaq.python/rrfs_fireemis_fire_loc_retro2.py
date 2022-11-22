@@ -77,14 +77,16 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
 ### PASSED AGRUEMENTS
-if len(sys.argv) < 4:
-    print("you must set 4 arguments as model_exp [prod|para1...#] cycle_hour [06|12] start_date end_date in yyyymmdd")
+if len(sys.argv) < 3:
+    print("you must set 3 arguments as cycle_hour [06|12] start_date end_date in yyyymmdd")
     sys.exit()
 else:
-    envir = sys.argv[1]
-    sel_cyc = sys.argv[2]
-    start_date = sys.argv[3]
-    end_date = sys.argv[4]
+    sel_cyc = sys.argv[1]
+    start_date = sys.argv[2]
+    end_date = sys.argv[3]
+
+envir="v70"
+envir_out="v70fire"
 
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]), 00, 00, 00 )
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]), 00, 00, 00 )
@@ -126,6 +128,7 @@ rlat1 = [   45., 40., 75.0,   50.7,    50.0,   52.0,   48.0,   52.0,   40.0,   4
 xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
 ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
 if 1 == 1:
+    ## with all 16 reg, it can not be finished in 4:30:00 wallcolck time
     ## iplot = [    1, 1,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1, 1 ]
     iplot = [    0, 0,   0,      0,       0,      0,      0,      1,      1,      1,      0,      0,      0,      1,      1, 1 ]
 else:
@@ -150,7 +153,7 @@ else:
 
 user=os.environ['USER']
 figdir="/lfs/h2/emc/stmp/"+user
-working_dir="/lfs/h2/emc/stmp/"+user+"/working_rrfs_fireemis_"+envir+"_v2"
+working_dir="/lfs/h2/emc/stmp/"+user+"/working_rrfs_fireemis_"+envir
 if not os.path.exists(working_dir):
     os.mkdir(working_dir)
 ###              "/lfs/h2/emc/physics/noscrub/jianping.huang/data/RRFS_CMAQ/emissions/GSCE/GBBEPx.in.C775/RAVE_RT/"+date.strftime(YMD_date_format),
@@ -159,7 +162,7 @@ while date <= edate:
     aqm_ver="v6.1"
     find_dir=[
               "/lfs/h2/emc/physics/noscrub/jianping.huang/data/RRFS_CMAQ/emissions/GSCE/RAVE.in.C793/RAVE_RT/"+date.strftime(YMD_date_format),
-              "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format),
+              "/lfs/h2/emc/physics/noscrub/"+user+"/rave_fire_emission/C793/"+date.strftime(YMD_date_format),
               "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format)
              ]
     flag_find_idir="no"
@@ -316,7 +319,7 @@ while date <= edate:
                             ## ax.plot(lon[x], lat[x], 'ro', markersize=3, transform=ccrs.Geodetic())
                             ax.plot(cs_lon[x], cs_lat[x], 'ro', markersize=msize, transform=ccrs.PlateCarree())
                         ##ax.text(-117, 33, 'San Diego', transform=ccrs.Geodetic())
-                        fileout=figout+"/rrfs_fireemisfire."+figarea+"."+envir+"."+date.strftime(YMD_date_format)+"."+cyc+".location."+str(format(fcst_hr,'02d'))+".k1.png"
+                        fileout=figout+"/rrfs_fireemisfire."+figarea+"."+envir_out+"."+date.strftime(YMD_date_format)+"."+cyc+".location."+str(format(fcst_hr,'02d'))+".k1.png"
                         plt.savefig(fileout, bbox_inches='tight') 
         else:
             print("Can not find "+aqmfilein)
