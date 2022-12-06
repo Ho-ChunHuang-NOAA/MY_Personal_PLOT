@@ -267,16 +267,16 @@ while date <= edate:
         for ivar in range(0,num_var):
             if var[ivar] == "ozmax8":
                 fileid="max_8hr_o3"
-                varid="OZMAX8_1hybridlevel"
+                varid="OZMAX8_1sigmalevel"
             elif var[ivar] == "ozmax1":
                 fileid="max_1hr_o3"
-                varid="OZMAX1_1hybridlevel"
+                varid="OZMAX1_1sigmalevel"
             elif var[ivar] == "pmave24":
                 fileid="ave_24hr_pm25"
-                varid="PMTF_1hybridlevel"
+                varid="PMTF_1sigmalevel"
             elif var[ivar] == "pmmax1":
                 fileid="max_1hr_pm25"
-                varid="PDMAX1_1hybridlevel"
+                varid="PDMAX1_1sigmalevel"
             msg=datetime.datetime.now()
             print("Start processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
 
