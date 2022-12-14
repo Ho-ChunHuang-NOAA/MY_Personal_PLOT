@@ -143,8 +143,8 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 aqm_ver="v6.1"
 find_dir=[
           "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
-          "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir,
           "/lfs/h2/emc/ptmp/"+os.environ['USER']+"/com/aqm/"+envir,
+          "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir,
           "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir
          ]
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver

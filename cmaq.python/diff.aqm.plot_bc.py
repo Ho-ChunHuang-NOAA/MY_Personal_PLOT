@@ -100,7 +100,8 @@ aqm_ver="v6.1"
 user=os.environ['USER']
 find_dir=[
           "/lfs/h2/emc/ptmp/"+user+"/com/aqm/",
-          "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"
+          "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/",
+          "/lfs/h2/emc/physics/noscrub/"+user+"/verification/aqm/"
          ]
 metout1="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
 metout2="/lfs/h1/ops/prod/com/aqm/"+aqm_ver

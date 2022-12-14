@@ -134,6 +134,7 @@ while date <= edate:
     find_dir=[
               "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver+"/cs."+date.strftime(YMD_date_format),
               "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format),
+              "/lfs/h2/emc/physics/noscrub/"+user+"/com/verification/"+envir+"/cs."+date.strftime(YMD_date_format),
               "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format)+".met",
               "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format)
              ]

@@ -437,7 +437,11 @@ while date <= edate:
                     df[df['PM25']<0]=np.nan # ignore negative PM2.5 values
     
                     df['Datetime'] = df['ValidDate'].astype(str)+' '+df['ValidTime'] # merge date and time columns
-                    df['Datetime'] = pd.to_datetime(df['Datetime'],format='%m/%d/%Y %H:%M') # convert dates/times into datetime format
+                    ## note 2020 epa time format is MM/DD/YY while 2022 timestamp is MM/DD/YYYY
+                    if obs_hour.strftime(Y_date_format) == "2020":
+                        df['Datetime'] = pd.to_datetime(df['Datetime'],format='%m/%d/%y %H:%M') # convert dates/times into datetime format
+                    else:
+                        df['Datetime'] = pd.to_datetime(df['Datetime'],format='%m/%d/%Y %H:%M') # convert dates/times into datetime format
                     colnames_dt = ['Latitude','Longitude','Datetime','PM25','PM25_Unit','OZONE','OZONE_Unit']
     # is there a similar command of pd.close_csv() ??
                     df = df[colnames_dt]

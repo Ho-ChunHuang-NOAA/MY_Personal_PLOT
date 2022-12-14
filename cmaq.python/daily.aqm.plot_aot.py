@@ -143,6 +143,7 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 aqm_ver="v6.1"
 comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
 usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
+usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir
 
 if not os.path.exists(comout):
     if not os.path.exists(usrout):
