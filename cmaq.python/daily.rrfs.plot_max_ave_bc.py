@@ -142,8 +142,8 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ##
 aqm_ver="v6.1"
 find_dir=[
-          "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
           "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir,
+          "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
           "/lfs/h2/emc/ptmp/"+os.environ['USER']+"/com/aqm/"+envir,
           "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir
          ]
@@ -199,10 +199,10 @@ while date <= edate:
                 aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
+                    break
                 else:
                     flag_find_cyc="no"
                     print("Can not find "+aqmfilein)
-                    break
             if flag_find_cyc == "yes":
                 flag_find_idir="yes"
                 break
@@ -256,7 +256,7 @@ while date <= edate:
                 cs_aqm.close()
             else:
                 print("Can not find "+aqmfilein)
-                sys.exit()
+                continue
     
             if flag_ak == "yes":
                 file_hdr="aqm."+cyc+"."+fileid+"_bc."+grid793
