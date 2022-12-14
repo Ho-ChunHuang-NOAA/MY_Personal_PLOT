@@ -242,6 +242,7 @@ while date <= edate:
                 str_fcst_hr=str(nout)
                 ## fhh=str_pad(fcst_hr,3,'0',STR_PAD_LEFT)
                 fhh=str_fcst_hr.zfill(3)
+                fhh2=str_fcst_hr.zfill(2)
                 ## READ hourly EPA AirNOW OBS data
                 ## note obs is forward average and model is backward, so they are different by an hour
                 obs_hour=fcst_hour
@@ -576,7 +577,7 @@ while date <= edate:
                             ## ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=100,zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
                             ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=mksize[ireg],zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
 
-                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh+"."+var[ivar]+".k1.png"
+                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
                         plt.savefig(savefig_name, bbox_inches='tight')
                         plt.close()
             ## scp by cycle and variable
