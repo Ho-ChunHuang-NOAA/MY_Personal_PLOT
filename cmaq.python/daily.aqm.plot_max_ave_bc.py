@@ -199,10 +199,10 @@ while date <= edate:
                 aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
+                    break
                 else:
                     flag_find_cyc="no"
                     print("Can not find "+aqmfilein)
-                    break
             if flag_find_cyc == "yes":
                 flag_find_idir="yes"
                 break
@@ -258,7 +258,7 @@ while date <= edate:
                 cs_aqm.close()
             else:
                 print("Can not find "+aqmfilein)
-                sys.exit()
+                continue
     
             if flag_ak == "yes":
                 file_hdr="aqm."+cyc+"."+fileid+"_bc."+grid198
