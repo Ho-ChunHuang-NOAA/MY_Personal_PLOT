@@ -97,8 +97,9 @@ else:
 ##                   "gbbepx_fire_loc.py",
 ##                   "diff.aqm.plot_bc.py"
 ##                   ]
-if envir == "prod":
+if envir == "prod" or envir == "firev4":
     script_name = [
+                  "daily.aqm.plot_bc.py",
                   "daily.aqm.plot_bc_overlay.py"
                   ]
 else:
