@@ -262,7 +262,7 @@ while date <= edate:
         if not os.path.exists(working_dir):
             os.makedirs(working_dir)
 
-        s1_title="CMAQ "+fig_exp.upper()+" "+date.strftime(YMD_date_format)+" "+cyc
+        s1_title="Online CMAQ "+fig_exp.upper()+" "+date.strftime(YMD_date_format)+" "+cyc
         fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[1:3]))
         for ivar in range(0,num_var):
             if var[ivar] == "ozmax8":

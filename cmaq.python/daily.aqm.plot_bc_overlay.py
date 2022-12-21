@@ -240,7 +240,7 @@ while date <= edate:
     for cyc in cycle:
         msg=datetime.datetime.now()
         print("Start processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
-        s1_title=fig_exp.upper()+"_BC "+date.strftime(YMD_date_format)+" "+cyc
+        s1_title="CMAQ "+fig_exp.upper()+"_BC "+date.strftime(YMD_date_format)+" "+cyc
         fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[1:3]))
 
         metfilein=metout+"/cs."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"

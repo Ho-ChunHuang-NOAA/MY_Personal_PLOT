@@ -16,39 +16,15 @@ import datetime
 import shutil
 import subprocess
 import pandas as pd
-### Read data of all time step in once, then print one at a time
-### PASSED AGRUEMENTS
-if len(sys.argv) < 5:
-    print("you must set 5 arguments as model[prod|para|...] variabels[o3|pm25|all] cycle[06|12|all]  start_date end_date")
-    sys.exit()
-else:
-    envir = sys.argv[1]
-    sel_var = sys.argv[2]
-    sel_cyc = sys.argv[3]
-    start_date = sys.argv[4]
-    end_date = sys.argv[5]
-
-if envir.lower() == "para":
-    fig_exp="ncopara"
-else:
-    fig_exp=envir.lower()
-
-script_dir=os.getcwd()
-print("Script directory is "+script_dir)
 
 user=os.environ['USER']
 wgrib2=os.environ['WGRIB2']
 if wgrib2 == "":
-    print("iNo definition of WGRIB2 can be found, please load module wgrib2/2.0.8")
+    print("No definition of WGRIB2 can be found, please load module wgrib2/2.0.8")
     sys.exit()
-## print(wgrib2)
-grid148="148"
-grid227="227"
-grid198="198"
-grid139="139"
-grid196="196"
-grid793="793"
 
+script_dir=os.getcwd()
+print("Script directory is "+script_dir)
 
 stmp_dir="/lfs/h2/emc/stmp/"+user
 if not os.path.exists(stmp_dir):
@@ -97,6 +73,18 @@ if os.path.isfile(msg_file):
         print(prod_machine)
         sh.close()
 
+### Read data of all time step in once, then print one at a time
+### PASSED AGRUEMENTS
+if len(sys.argv) < 5:
+    print("you must set 5 arguments as model[prod|para|...] variabels[o3|pm25|all] cycle[06|12|all]  start_date end_date")
+    sys.exit()
+else:
+    envir = sys.argv[1]
+    sel_var = sys.argv[2]
+    sel_cyc = sys.argv[3]
+    start_date = sys.argv[4]
+    end_date = sys.argv[5]
+
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]))
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]))
 
@@ -110,6 +98,94 @@ D_date_format = "%d"
 H_date_format = "%H"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
+
+##
+## Current operational CMAQ does include runs for AK and HI domain
+## Current EMC development CMAQ does not include runs for AK and HI domain
+##
+grid148="148"
+grid227="227"
+grid198="198"
+grid139="139"
+grid196="196"
+grid793="793"
+
+caseid="v70"
+nfind=envir.find(caseid)
+if nfind == -1:
+    print("AQMv6 simulation")
+    s1_lead="CMAQ"
+    aqmv7 = False
+    nfind=envir.find("_bc")
+    if nfind == -1:
+        print("not a bias_correction cases")
+        EXP=envir
+        BC_append=""
+        BC_fig_append=BC_append
+        print("exp="+EXP)
+        print("BC_append="+BC_append)
+    else:
+        print("A bias_correction cases")
+        EXP=envir[0:nfind]
+        BC_append="_bc"
+        BC_fig_append="bc"
+        print("exp="+EXP)
+        print("BC_append="+BC_append)
+    if EXP.lower() == "prod" or EXP.lower() == "para" or EXP.lower() == "firev4":
+        aqm_ver="v6.1"
+        exp_grid=grid148
+        expid="cs"
+        comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
+        comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+EXP.lower()
+    else:
+        print("Experiement ID "+EXP.lower()+" not found for this code, Program exit")
+        sys.exit()
+    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
+    if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
+        if not os.path.exists(usrout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
+            print("Can not find output dir with experiment id "+EXP.lower())
+            sys.exit()
+else:
+    print("AQMv7 simulation")
+    s1_lead="Online CMAQ"
+    aqmv7 = True
+    aqm_ver="v7.0"
+    exp_grid=grid793
+
+    nfind=envir.find("_bc")
+    if nfind == -1:
+        print("not a bias_correction cases")
+        EXP=envir
+        n0=len(caseid)
+        n1=len(EXP)
+        expid=envir[n0:n1]
+        BC_append=""
+        BC_fig_append=BC_append
+        print("exp="+EXP)
+        print("expid="+expid)
+        print("BC_append="+BC_append)
+    else:
+        EXP=envir[0:nfind]
+        n0=len(caseid)
+        n1=len(EXP)
+        expid=EXP[n0:n1]
+        BC_append="_bc"
+        BC_fig_append="bc"
+        print("exp="+EXP)
+        print("expid="+expid)
+        print("BC_append="+BC_append)
+    comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver+"/aqm."+aqm_ver+"."+expid
+    comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
+    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
+    if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
+        if not os.path.exists(usrout+"/cs."+sdate.strftime(YMD_date_format)):
+            print("Can not find output dir with experiment id "+EXP.lower())
+            sys.exit()
+
+if EXP.lower() == "para":
+    fig_exp="ncopara"
+else:
+    fig_exp=EXP.lower()+BC_fig_append
 
 if sel_var == "all":
    var=[ "o3", "pm25" ]
@@ -151,28 +227,6 @@ plt.close('all') # close all figures
 msg=datetime.datetime.now()
 msg=msg - date_inc
 grdcro2d_date=msg.strftime("%Y%m%d")
-##
-## Current operational CMAQ does include runs for AK and HI domain
-## Current EMC development CMAQ does not include runs for AK and HI domain
-##
-## ilen=len(envir)
-## print("experiment is "+envir[0:ilen])
-## sys.exit()
-if envir[0:3] =="v70":
-    runid=envir[3:6]
-    print(runid)
-else:
-    print(envir+" is not v7.0 experiment")
-    sys.exit()
-
-aqm_ver="v7.0"
-comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0/aqm.v7.0."+runid
-comout="/lfs/h2/emc/aqmtemp/para/com/aqm/v7.0"
-usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
-if not os.path.exists(comout+"/na."+sdate.strftime(YMD_date_format)):
-    if not os.path.exists(usrout):
-        print("Can not find ioutput dir with experiment id "+envir)
-        sys.exit()
 
 dcomout="/lfs/h1/ops/prod/dcom"
 obsdir="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/epa_airnow_acsii"
@@ -203,8 +257,8 @@ else:
     rlat1 = [   45., 40., 70.0,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   41.8,   72.0,   23.0,   70.0 ]
 xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
 ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
-if 1 == 2:
-    iplot = [    0, 0,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1, 1 ]
+if 1 == 1:
+    iplot = [    0, 0,   0,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
 else:
     iplot = [    1,  1, 0,      1,       0,      0,      1,      1,      1,      1,      0,      0,      1,      0,      0, 0 ]
 num_reg=len(iplot)
@@ -226,22 +280,12 @@ while date <= edate:
         cycle_time="t"+cyc+"z"
         msg=datetime.datetime.now()
         print("Start processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
-        s1_title="Online CMAQ "+fig_exp.upper()+" "+date.strftime(YMD_date_format)+" t"+cyc+"z"
+        s1_title=s1_lead+" "+EXP.upper()+BC_append.upper()+" "+date.strftime(YMD_date_format)+" t"+cyc+"z"
         fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[0:2]))
-
-        ## metfilein=metout+"/cs."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
-        ## if os.path.exists(metfilein):
-        ##     print(metfilein+" exists")
-        ##     model_data = netcdf.Dataset(metfilein)
-        ##     cs_lat = model_data.variables['LAT'][0,0,:,:]
-        ##     cs_lon = model_data.variables['LON'][0,0,:,:]
-        ##     model_data.close()
-        ## else:
-        ##     print("Can not find "+metfilein)
 
         for ivar in range(0,num_var):
             fcst_hour=fcst_ini
-            figdir = figout+"/aqm"+"_"+envir+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cycle_time
+            figdir = figout+"/aqm"+"_"+EXP.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cycle_time
             print(figdir)
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)
@@ -249,12 +293,13 @@ while date <= edate:
             print("working on "+date.strftime(YMD_date_format)+" t"+cyc+"z "+var[ivar])
             flag_read_latlon="no"
             hour_end = 72
+            hour_end = 1
             for fcst_hr in range(0,hour_end):
                 nout=fcst_hr+1
                 str_fcst_hr=str(nout)
                 ## fhh=str_pad(fcst_hr,3,'0',STR_PAD_LEFT)
-                fhh=str_fcst_hr.zfill(3)
                 fhh2=str_fcst_hr.zfill(2)
+                fhh3=str_fcst_hr.zfill(3)
                 ## READ hourly EPA AirNOW OBS data
                 ## note obs is forward average and model is backward, so they are different by an hour
                 obs_hour=fcst_hour
@@ -305,77 +350,70 @@ while date <= edate:
                     o3unit = airnow['OZONE_Unit']
 
                 if var[ivar] == "pm25":
-                    /lfs/h2/emc/aqmtemp/para/com/aqm/v7.0/na.20220726/12/aqm.t12z.pm25.f72.793.grib2
-                    /lfs/h2/emc/aqmtemp/para/com/aqm/v7.0/na.20220727/06/aqm.t06z.awpozcon.f72.793.grib2
-            file_hdr="aqm."+cyc+"."+fileid+"."+grid793
-            aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
-            if os.path.exists(aqmfilein):
-                print(aqmfilein+" exists")
-                outfile=working_dir+"/"+file_hdr+".nc"
-                subprocess.call([wgrib2+' -netcdf '+outfile+' '+aqmfilein], shell=True)
-                aqmfilein=outfile
-                cs_aqm = netcdf.Dataset(aqmfilein)
-                cs_lat = cs_aqm.variables['latitude'][:,:]
-                cs_lon = cs_aqm.variables['longitude'][:,:]
-                cs_var = cs_aqm.variables['time'][:]
-                nstep=len(cs_var)
-                ozpm_cs = cs_aqm.variables[varid][:,:,:]
-                cs_aqm.close()
-            else:
-                print("Can not find "+aqmfilein)
-                continue
-                    aqmfilein=comout+"/na."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
-                    aqmfilein2=usrout+"/aqm."+date.strftime(YMD_date_format)+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    if aqmv7:
+                        aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
+                    else:
+                        aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
+                    aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
+                        outfile=working_dir+"/pm25."+fhh2+".nc"
+                        subprocess.call([wgrib2+' -d 1 -netcdf '+outfile+' '+aqmfilein], shell=True)
+                        aqmfilein=outfile
                         cs_aqm = netcdf.Dataset(aqmfilein)
-                        if flag_read_latlon == "no":
-                            cs_lat = cs_aqm.variables['lat'][:,:]
-                            cs_lon = cs_aqm.variables['lon'][:,:]
-                            flag_read_latlon="yes"
-                        pm_cs = cs_aqm.variables['PM25_TOT'][0,:,:]
+                        cs_lat = cs_aqm.variables['latitude'][:,:]
+                        cs_lon = cs_aqm.variables['longitude'][:,:]
+                        pm_cs = cs_aqm.variables['PMTF_1sigmalevel'][0,:,:]
                         cs_aqm.close()
                     elif os.path.exists(aqmfilein2):
                         ## print(aqmfilein2+" exists")
+                        outfile=working_dir+"/pm25."+fhh2+".nc"
+                        subprocess.call([wgrib2+' -d 1 -netcdf '+outfile+' '+aqmfilein2], shell=True)
+                        aqmfilein2=outfile
                         cs_aqm = netcdf.Dataset(aqmfilein2)
-                        if flag_read_latlon == "no":
-                            cs_lat = cs_aqm.variables['lat'][:,:]
-                            cs_lon = cs_aqm.variables['lon'][:,:]
-                            flag_read_latlon="yes"
-                        pm_cs = cs_aqm.variables['PM25_TOT'][0,:,:]
+                        cs_lat = cs_aqm.variables['latitude'][:,:]
+                        cs_lon = cs_aqm.variables['longitude'][:,:]
+                        pm_cs = cs_aqm.variables['PMTF_1sigmalevel'][0,:,:]
                         cs_aqm.close()
                     else:
                         print("Can not find "+aqmfilein)
                         print("Can not find "+aqmfilein2)
-                        sys.exit()
+                        continue
+                        ## sys.exit()
                 ## in ppm
                 if var[ivar] == "o3":
-                    aqmfilein=comout+"/na."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
-                    aqmfilein2=usrout+"/aqm."+date.strftime(YMD_date_format)+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    if aqmv7:
+                        aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
+                    else:
+                        aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
+                    aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
+                        outfile=working_dir+"/o3."+fhh2+".nc"
+                        subprocess.call([wgrib2+' -d 1 -netcdf '+outfile+' '+aqmfilein], shell=True)
+                        aqmfilein=outfile
                         cs_aqm = netcdf.Dataset(aqmfilein)
-                        if flag_read_latlon == "no":
-                            cs_lat = cs_aqm.variables['lat'][:,:]
-                            cs_lon = cs_aqm.variables['lon'][:,:]
-                            flag_read_latlon="yes"
-                        o3_cs = cs_aqm.variables['o3'][0,:,:]
+                        cs_lat = cs_aqm.variables['latitude'][:,:]
+                        cs_lon = cs_aqm.variables['longitude'][:,:]
+                        o3_cs = cs_aqm.variables['OZCON_1sigmalevel'][0,:,:]
                         scale= 1.
                         cs_aqm.close()
                     elif os.path.exists(aqmfilein2):
                         ## print(aqmfilein2+" exists")
+                        outfile=working_dir+"/o3."+fhh2+".nc"
+                        subprocess.call([wgrib2+' -d 1 -netcdf '+outfile+' '+aqmfilein2], shell=True)
+                        aqmfilein2=outfile
                         cs_aqm = netcdf.Dataset(aqmfilein2)
-                        if flag_read_latlon == "no":
-                            cs_lat = cs_aqm.variables['lat'][:,:]
-                            cs_lon = cs_aqm.variables['lon'][:,:]
-                            flag_read_latlon="yes"
-                        o3_cs = cs_aqm.variables['o3'][0,:,:]
+                        cs_lat = cs_aqm.variables['latitude'][:,:]
+                        cs_lon = cs_aqm.variables['longitude'][:,:]
+                        o3_cs = cs_aqm.variables['OZCON_1sigmalevel'][0,:,:]
                         scale= 1.
                         cs_aqm.close()
                     else:
                         print("Can not find "+aqmfilein)
                         print("Can not find "+aqmfilein2)
-                        sys.exit()
+                        continue
+                        ## sys.exit()
 
             ## if flag_ak == "no" and iplot[num_reg-3] == 1:
             ##     iplot[num_reg-3] = 0
@@ -383,7 +421,7 @@ while date <= edate:
             ##     iplot[num_reg-2] = 0
             ## print("iplot length = "+str(num_reg))
             ##
-                s2_title = fcst_hour.strftime(YMDH_date_format)+"00V"+fhh
+                s2_title = fcst_hour.strftime(YMDH_date_format)+"00V"+fhh3
                 ##    for ivar in range(0,num_var):
                 msg=datetime.datetime.now()
                 ## print("Start processing "+var[ivar])
@@ -615,12 +653,12 @@ while date <= edate:
             ##
         os.chdir(figdir)
         parta=os.path.join("/usr", "bin", "scp")
-        if 1 == 1 :
+        if 1 == 2 :
             partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cycle_time)
         else:
-            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
             partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
             partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer_36")
+            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
         subprocess.call(['scp -p * '+partb], shell=True)
         msg=datetime.datetime.now()
         print("End   processing "+var[ivar])
