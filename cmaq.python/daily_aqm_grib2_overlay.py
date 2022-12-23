@@ -258,7 +258,7 @@ else:
 xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
 ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
 if 1 == 1:
-    iplot = [    0, 0,   0,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
+    iplot = [    1, 1,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      0,      0, 1 ]
 else:
     iplot = [    1,  1, 0,      1,       0,      0,      1,      1,      1,      1,      0,      0,      1,      0,      0, 0 ]
 num_reg=len(iplot)
@@ -293,7 +293,6 @@ while date <= edate:
             print("working on "+date.strftime(YMD_date_format)+" t"+cyc+"z "+var[ivar])
             flag_read_latlon="no"
             hour_end = 72
-            hour_end = 1
             for fcst_hr in range(0,hour_end):
                 nout=fcst_hr+1
                 str_fcst_hr=str(nout)
@@ -653,7 +652,7 @@ while date <= edate:
             ##
         os.chdir(figdir)
         parta=os.path.join("/usr", "bin", "scp")
-        if 1 == 2 :
+        if 1 == 1 :
             partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cycle_time)
         else:
             partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
