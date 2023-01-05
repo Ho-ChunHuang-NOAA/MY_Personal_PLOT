@@ -258,9 +258,9 @@ else:
 xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
 ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
 if 1 == 1:
-    iplot = [    1, 1,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      0,      0, 1 ]
+    iplot = [    1, 1,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1, 1 ]
 else:
-    iplot = [    1,  1, 0,      1,       0,      0,      1,      1,      1,      1,      0,      0,      1,      0,      0, 0 ]
+    iplot = [    0,  0, 1,      0,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
 num_reg=len(iplot)
 
 date=sdate
@@ -285,7 +285,7 @@ while date <= edate:
 
         for ivar in range(0,num_var):
             fcst_hour=fcst_ini
-            figdir = figout+"/aqm"+"_"+EXP.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cycle_time
+            figdir = figout+"/aqm"+"_"+EXP.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cycle_time+BC_append.lower()
             print(figdir)
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)
@@ -353,7 +353,7 @@ while date <= edate:
                         aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
                     else:
                         aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
-                    aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
+                    aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
                         outfile=working_dir+"/pm25."+fhh2+".nc"
@@ -385,7 +385,7 @@ while date <= edate:
                         aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
                     else:
                         aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
-                    aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
+                    aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
                         outfile=working_dir+"/o3."+fhh2+".nc"
@@ -650,18 +650,18 @@ while date <= edate:
                         plt.close()
             ## scp by cycle and variable
             ##
-        os.chdir(figdir)
-        parta=os.path.join("/usr", "bin", "scp")
-        if 1 == 1 :
-            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cycle_time)
-        else:
-            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
-            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer_36")
-            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
-        subprocess.call(['scp -p * '+partb], shell=True)
-        msg=datetime.datetime.now()
-        print("End   processing "+var[ivar])
-        print("FIG DIR = "+figdir)
+            os.chdir(figdir)
+            parta=os.path.join("/usr", "bin", "scp")
+            if 1 == 1 :
+                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cycle_time)
+            else:
+                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
+                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer_36")
+                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
+            subprocess.call(['scp -p * '+partb], shell=True)
+            msg=datetime.datetime.now()
+            print("End   processing "+var[ivar])
+            print("FIG DIR = "+figdir)
         msg=datetime.datetime.now()
         print("End   processing "+date.strftime(YMD_date_format)+" "+cycle_time+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     msg=datetime.datetime.now()

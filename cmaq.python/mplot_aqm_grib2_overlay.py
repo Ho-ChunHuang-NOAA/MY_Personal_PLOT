@@ -109,9 +109,11 @@ if envir == "prod":
 else:
     ## "diff.aqm.plot_48vs72.py",
     script_name = [
-                  "daily_aqm_grib2_overlay.py"
+                  "daily_aqm_grib2_overlay_p1.py",
+                  "daily_aqm_grib2_overlay_p2.py"
                   ]
     no_workk_script = [
+                  "daily_aqm_grib2_overlay.py",
                   "daily.aqm.plot.py", "daily.aqm.plot_bc.py", 
                   "daily.aqm.plot_specs1.py", "daily.aqm.plot_specs2.py",
                   "daily.aqm.plot_specs3.py", "daily.aqm.plot_specs4.py",
@@ -250,6 +252,86 @@ while date <= edate:
                 print("    Start processing "+i)
                 for j in var:
                     jobid="pgrib_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                    logfile=log_dir+"/"+jobid+".log"
+                    if os.path.exists(plot_script):
+                        os.remove(plot_script)
+                    if os.path.exists(logfile):
+                        os.remove(logfile)
+                    with open(plot_script, 'a') as sh:
+                        sh.write("#!/bin/bash -l\n")
+                        sh.write("#PBS -o "+logfile+"\n")
+                        sh.write("#PBS -e "+logfile+"\n")
+                        sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
+                        sh.write("#PBS -N j"+jobid+"\n")
+                        sh.write("#PBS -q dev_transfer\n")
+                        sh.write("#PBS -A AQM-DEV\n")
+                        sh.write("#PBS -l walltime="+task_cpu+"\n")
+                        sh.write("######PBS -l debug=true\n")
+                        sh.write("# \n")
+                        sh.write("## module load python/3.8.6\n")
+                        sh.write("## module load netcdf/4.7.4\n")
+                        sh.write("export OMP_NUM_THREADS=1\n")
+                        sh.write("# \n")
+                        sh.write("\n")
+                        sh.write("##\n")
+                        sh.write("##  Plot EMC EXP "+envir+" using python script\n")
+                        sh.write("##\n")
+                        sh.write("set -x\n")
+                        sh.write("\n")
+                        sh.write("   cd "+working_dir+"\n")
+                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("\n")
+                        sh.write("exit\n")
+                    print("run_script = "+plot_script)
+                    print("log file   = "+logfile)
+                    subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
+                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    print(msg)
+            if i == "daily_aqm_grib2_overlay_p1.py":
+                print("    Start processing "+i)
+                for j in var:
+                    jobid="pgribp1_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                    logfile=log_dir+"/"+jobid+".log"
+                    if os.path.exists(plot_script):
+                        os.remove(plot_script)
+                    if os.path.exists(logfile):
+                        os.remove(logfile)
+                    with open(plot_script, 'a') as sh:
+                        sh.write("#!/bin/bash -l\n")
+                        sh.write("#PBS -o "+logfile+"\n")
+                        sh.write("#PBS -e "+logfile+"\n")
+                        sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
+                        sh.write("#PBS -N j"+jobid+"\n")
+                        sh.write("#PBS -q dev_transfer\n")
+                        sh.write("#PBS -A AQM-DEV\n")
+                        sh.write("#PBS -l walltime="+task_cpu+"\n")
+                        sh.write("######PBS -l debug=true\n")
+                        sh.write("# \n")
+                        sh.write("## module load python/3.8.6\n")
+                        sh.write("## module load netcdf/4.7.4\n")
+                        sh.write("export OMP_NUM_THREADS=1\n")
+                        sh.write("# \n")
+                        sh.write("\n")
+                        sh.write("##\n")
+                        sh.write("##  Plot EMC EXP "+envir+" using python script\n")
+                        sh.write("##\n")
+                        sh.write("set -x\n")
+                        sh.write("\n")
+                        sh.write("   cd "+working_dir+"\n")
+                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("\n")
+                        sh.write("exit\n")
+                    print("run_script = "+plot_script)
+                    print("log file   = "+logfile)
+                    subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
+                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    print(msg)
+            if i == "daily_aqm_grib2_overlay_p2.py":
+                print("    Start processing "+i)
+                for j in var:
+                    jobid="pgribp2_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
