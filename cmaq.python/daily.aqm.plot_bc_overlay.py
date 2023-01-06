@@ -144,7 +144,7 @@ aqm_ver="v6.1"
 find_dir=[
           "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
           "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir,
-          "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+verification/"+envir,
+          "/lfs/h2/emc/physics/noscrub/"+user+"/verification/aqm/"+envir,
           "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir,
           "/lfs/h2/emc/physics/noscrub/"+user+"/BiasCor_updated/"+envir
          ]

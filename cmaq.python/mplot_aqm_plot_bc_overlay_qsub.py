@@ -99,13 +99,28 @@ else:
 ##                   ]
 if envir == "prod" or envir == "firev4":
     script_name = [
-                  "daily.aqm.plot_bc.py",
-                  "daily.aqm.plot_bc_overlay.py"
+                  "daily.aqm.plot_bc_overlay.py",
+                  ]
+    no_workk_script = [
+                  "daily_aqm_grib2_overlay.py"
+                  "daily.aqm.plot.py", "daily.aqm.plot_bc.py",
+                  "daily.aqm.plot_overlay.py", "daily.aqm.plot_bc_overlay.py",
+                  "diff.aqm.plot_bc.py"
                   ]
 else:
     ## "diff.aqm.plot_48vs72.py",
     script_name = [
-                  "daily.aqm.plot_bc_overlay.py"
+                  "daily.aqm.plot.py", "daily.aqm.plot_bc.py", 
+                  "daily.aqm.plot_specs1.py", "daily.aqm.plot_specs2.py",
+                  "daily.aqm.plot_specs3.py", "daily.aqm.plot_specs4.py",
+                  "diff.aqm.plot.py",
+                  "daily.aqm.plot_dustloc.py",
+                  "fireemis_fire_loc.py",
+                  "gbbepx_fire_loc.py",
+                  "daily.aqm.plot_overlay.py",
+                  "diff.aqm.plot_specs1.py", "diff.aqm.plot_specs2.py",
+                  "diff.aqm.plot_specs3.py", "diff.aqm.plot_specs4.py",
+                  "diff.aqm.plot_bc.py"
                   ]
     no_workk_script = [
                   "daily.aqm.plot_met_v6s1.py", "daily.aqm.plot_met_v6s2.py",
@@ -199,6 +214,8 @@ while date <= edate:
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
                         os.remove(plot_script)
+                    if os.path.exists(logfile):
+                        os.remove(logfile)
                     with open(plot_script, 'a') as sh:
                         sh.write("#!/bin/bash -l\n")
                         sh.write("#PBS -o "+logfile+"\n")
@@ -210,6 +227,48 @@ while date <= edate:
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
                         sh.write("######PBS -l debug=true\n")
                         sh.write("# \n")
+                        sh.write("## module load python/3.8.6\n")
+                        sh.write("## module load netcdf/4.7.4\n")
+                        sh.write("export OMP_NUM_THREADS=1\n")
+                        sh.write("# \n")
+                        sh.write("\n")
+                        sh.write("##\n")
+                        sh.write("##  Plot EMC EXP "+envir+" using python script\n")
+                        sh.write("##\n")
+                        sh.write("set -x\n")
+                        sh.write("\n")
+                        sh.write("   cd "+working_dir+"\n")
+                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("\n")
+                        sh.write("exit\n")
+                    print("run_script = "+plot_script)
+                    print("log file   = "+logfile)
+                    subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
+                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    print(msg)
+            if i == "daily_aqm_grib2_overlay.py":
+                print("    Start processing "+i)
+                for j in var:
+                    jobid="pgrib_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                    logfile=log_dir+"/"+jobid+".log"
+                    if os.path.exists(plot_script):
+                        os.remove(plot_script)
+                    if os.path.exists(logfile):
+                        os.remove(logfile)
+                    with open(plot_script, 'a') as sh:
+                        sh.write("#!/bin/bash -l\n")
+                        sh.write("#PBS -o "+logfile+"\n")
+                        sh.write("#PBS -e "+logfile+"\n")
+                        sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
+                        sh.write("#PBS -N j"+jobid+"\n")
+                        sh.write("#PBS -q dev_transfer\n")
+                        sh.write("#PBS -A AQM-DEV\n")
+                        sh.write("#PBS -l walltime="+task_cpu+"\n")
+                        sh.write("######PBS -l debug=true\n")
+                        sh.write("# \n")
+                        sh.write("## module load python/3.8.6\n")
+                        sh.write("## module load netcdf/4.7.4\n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("# \n")
                         sh.write("\n")
@@ -241,6 +300,8 @@ while date <= edate:
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
@@ -252,6 +313,8 @@ while date <= edate:
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
+                    sh.write("## module load python/3.8.6\n")
+                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -275,6 +338,8 @@ while date <= edate:
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
                         os.remove(plot_script)
+                    if os.path.exists(logfile):
+                        os.remove(logfile)
                     with open(plot_script, 'a') as sh:
                         sh.write("#!/bin/bash -l\n")
                         sh.write("#PBS -o "+logfile+"\n")
@@ -285,9 +350,11 @@ while date <= edate:
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
                         sh.write("###PBS -l debug=true\n")
-                        sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("# \n")
+                        sh.write("## module load python/3.8.6\n")
+                        sh.write("## module load netcdf/4.7.4\n")
                         sh.write("##\n")
+                        sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("##  Plot EMC EXP "+envir+" using python script\n")
                         sh.write("##\n")
                         sh.write("set -x\n")
@@ -315,6 +382,8 @@ while date <= edate:
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
@@ -326,6 +395,8 @@ while date <= edate:
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
+                    sh.write("## module load python/3.8.6\n")
+                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -354,6 +425,8 @@ while date <= edate:
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
                         os.remove(plot_script)
+                    if os.path.exists(logfile):
+                        os.remove(logfile)
                     with open(plot_script, 'a') as sh:
                         sh.write("#!/bin/bash -l\n")
                         sh.write("#PBS -o "+logfile+"\n")
@@ -365,6 +438,8 @@ while date <= edate:
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
                         sh.write("###PBS -l debug=true\n")
                         sh.write("# \n")
+                        sh.write("## module load python/3.8.6\n")
+                        sh.write("## module load netcdf/4.7.4\n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("##\n")
                         sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -388,6 +463,8 @@ while date <= edate:
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
                         os.remove(plot_script)
+                    if os.path.exists(logfile):
+                        os.remove(logfile)
                     with open(plot_script, 'a') as sh:
                         sh.write("#!/bin/bash -l\n")
                         sh.write("#PBS -o "+logfile+"\n")
@@ -399,6 +476,8 @@ while date <= edate:
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
                         sh.write("###PBS -l debug=true\n")
                         sh.write("# \n")
+                        sh.write("## module load python/3.8.6\n")
+                        sh.write("## module load netcdf/4.7.4\n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("##\n")
                         sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -428,6 +507,8 @@ while date <= edate:
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
@@ -468,6 +549,8 @@ while date <= edate:
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
@@ -479,6 +562,8 @@ while date <= edate:
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
+                    sh.write("## module load python/3.8.6\n")
+                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -502,6 +587,8 @@ while date <= edate:
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
                         os.remove(plot_script)
+                    if os.path.exists(logfile):
+                        os.remove(logfile)
                     with open(plot_script, 'a') as sh:
                         sh.write("#!/bin/bash -l\n")
                         sh.write("#PBS -o "+logfile+"\n")
@@ -535,6 +622,8 @@ while date <= edate:
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
@@ -546,6 +635,8 @@ while date <= edate:
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
+                    sh.write("## module load python/3.8.6\n")
+                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -568,6 +659,8 @@ while date <= edate:
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
@@ -601,6 +694,8 @@ while date <= edate:
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
@@ -612,6 +707,8 @@ while date <= edate:
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
+                    sh.write("## module load python/3.8.6\n")
+                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -634,6 +731,8 @@ while date <= edate:
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
@@ -667,6 +766,8 @@ while date <= edate:
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
@@ -678,6 +779,8 @@ while date <= edate:
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
+                    sh.write("## module load python/3.8.6\n")
+                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -700,6 +803,8 @@ while date <= edate:
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
@@ -733,6 +838,8 @@ while date <= edate:
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
@@ -744,6 +851,8 @@ while date <= edate:
                     sh.write("#PBS -l walltime="+task_cpu2+"\n")
                     sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
+                    sh.write("## module load python/3.8.6\n")
+                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -766,6 +875,8 @@ while date <= edate:
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
@@ -799,6 +910,8 @@ while date <= edate:
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
@@ -810,6 +923,8 @@ while date <= edate:
                     sh.write("#PBS -l walltime="+task_cpu2+"\n")
                     sh.write("###PBS -l debug=true\n")
                     sh.write("# \n")
+                    sh.write("## module load python/3.8.6\n")
+                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -832,6 +947,8 @@ while date <= edate:
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
                 with open(plot_script, 'a') as sh:
                     sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
