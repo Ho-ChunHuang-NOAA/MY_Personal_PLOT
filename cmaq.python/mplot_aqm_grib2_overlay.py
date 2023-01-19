@@ -291,7 +291,7 @@ while date <= edate:
             if i == "daily_aqm_grib2_overlay_p1.py":
                 print("    Start processing "+i)
                 for j in var:
-                    jobid="pgribp1_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="pgribp1_"+envir+"obs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
@@ -331,7 +331,7 @@ while date <= edate:
             if i == "daily_aqm_grib2_overlay_p2.py":
                 print("    Start processing "+i)
                 for j in var:
-                    jobid="pgribp2_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="pgribp2_"+envir+"obs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
