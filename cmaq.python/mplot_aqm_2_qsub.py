@@ -102,7 +102,11 @@ if envir == "prod" or envir == "firev4":
                   "gbbepx_fire_loc.py",
                   "daily.aqm.plot_dustloc.py",
                   "daily.aqm.plot_max_ave.py", "daily.aqm.plot_max_ave_bc.py",
+                  "daily.aqm.plot_max_ave_overlay.py",
                   "diff.aqm.plot_max_ave_bc.py", "daily.aqm.plot_aot.py"
+                  ]
+    working_name = [
+                  "daily.aqm.plot_max_ave_overlay.py"
                   ]
 else:
     ## "diff.aqm.plot_48vs72.py",
@@ -126,6 +130,7 @@ else:
                   "diff.aqm.plot_met_v6s1.py", "diff.aqm.plot_met_v6s2.py",
                   "diff.aqm.plot_met_v6s3.py", "diff.aqm.plot_met_v6s4.py",
                   "daily.aqm.plot_dustloc.py",
+                  "daily.aqm.plot_max_ave_overlay.py"
                   ]
     col_var = [ "pm25_col", "pm25c_col" ]
 ## subprocess.call(['cp -p * '+partb], shell=True)
@@ -737,6 +742,79 @@ while date <= edate:
                 print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                 msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                print(msg)
+            if i == "daily.aqm.plot_max_ave_overlay.py":
+                print("    Start processing "+i)
+                jobid="plot_maxave_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                logfile=log_dir+"/"+jobid+".log"
+                if os.path.exists(plot_script):
+                    os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
+                with open(plot_script, 'a') as sh:
+                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
+                    sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
+                    sh.write("#PBS -N j"+jobid+"\n")
+                    sh.write("#PBS -q dev_transfer\n")
+                    sh.write("#PBS -A AQM-DEV\n")
+                    sh.write("#PBS -l walltime="+task_cpu2+"\n")
+                    sh.write("###PBS -l debug=true\n")
+                    sh.write("# \n")
+                    sh.write("## module load python/3.8.6\n")
+                    sh.write("## module load netcdf/4.7.4\n")
+                    sh.write("export OMP_NUM_THREADS=1\n")
+                    sh.write("##\n")
+                    sh.write("##  Plot EMC EXP "+envir+" using python script\n")
+                    sh.write("##\n")
+                    sh.write("set -x\n")
+                    sh.write("\n")
+                    sh.write("   cd "+working_dir+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("\n")
+                    sh.write("exit\n")
+                print("run_script = "+plot_script)
+                print("log file   = "+logfile)
+                subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
+                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                print(msg)
+                print("    Start processing bias correction "+i)
+                jobid="plot_maxave_"+envir+"bc_"+cyc+"_"+date.strftime(YMD_date_format)
+                plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                logfile=log_dir+"/"+jobid+".log"
+                if os.path.exists(plot_script):
+                    os.remove(plot_script)
+                if os.path.exists(logfile):
+                    os.remove(logfile)
+                with open(plot_script, 'a') as sh:
+                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#PBS -o "+logfile+"\n")
+                    sh.write("#PBS -e "+logfile+"\n")
+                    sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
+                    sh.write("#PBS -N j"+jobid+"\n")
+                    sh.write("#PBS -q dev_transfer\n")
+                    sh.write("#PBS -A AQM-DEV\n")
+                    sh.write("#PBS -l walltime="+task_cpu2+"\n")
+                    sh.write("###PBS -l debug=true\n")
+                    sh.write("# \n")
+                    sh.write("## module load python/3.8.6\n")
+                    sh.write("## module load netcdf/4.7.4\n")
+                    sh.write("export OMP_NUM_THREADS=1\n")
+                    sh.write("##\n")
+                    sh.write("##  Plot EMC EXP "+envir+"_bc using python script\n")
+                    sh.write("##\n")
+                    sh.write("set -x\n")
+                    sh.write("\n")
+                    sh.write("   cd "+working_dir+"\n")
+                    sh.write("   python "+i+" "+envir+"_bc "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("\n")
+                    sh.write("exit\n")
+                print("run_script = "+plot_script)
+                print("log file   = "+logfile)
+                subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
+                msg="        python "+i+" "+envir+"_bc "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                 print(msg)
             if i == "daily.aqm.plot_max_ave.py":
                 print("    Start processing "+i)

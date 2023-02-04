@@ -86,6 +86,9 @@ if envir == "prod":
                   "gbbepx_fire_loc.py",
                   "daily.aqm.plot_met_v6.py", "daily.aqm.plot_dustloc.py", "diff.aqm.plot_bc.py"
                   ]
+    working_name = [
+                  "daily.aqm.plot_max_ave_overlay.py"
+                  ]
 else:
     script_name = [
                   "daily.aqm.plot.py", "daily.aqm.plot_bc.py", "daily.aqm.plot_spec.py",
@@ -94,6 +97,9 @@ else:
                   "fireemis_fire_loc.py",
                   "gbbepx_fire_loc.py",
                   "daily.aqm.plot_dustloc.py"
+                  ]
+    working_name = [
+                  "daily.aqm.plot_max_ave_overlay.py"
                   ]
     col_var = [ "pm25_col", "pm25c_col" ]
 ## subprocess.call(['cp -p * '+partb], shell=True)

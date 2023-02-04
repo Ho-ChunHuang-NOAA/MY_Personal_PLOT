@@ -101,20 +101,26 @@ if envir == "prod" or envir == "firev4":
     script_name = [
                   "daily.aqm.plot.py", "daily.aqm.plot_bc.py",
                   "daily.aqm.plot_overlay.py", "daily.aqm.plot_bc_overlay.py",
-                  "diff.aqm.plot_bc.py"
+                  "diff.aqm.plot_bc.py",
+                  "daily.aqm.plot_max_ave.py", "daily.aqm.plot_max_ave_bc.py",
+                  "daily.aqm.plot_max_ave_overlay.py",
+                  "diff.aqm.plot_max_ave_bc.py"
                   ]
     ## using bias_corrected grib2 file before 2022/08/26
-    ## "daily_aqm_grib2_overlay.py", "daily_aqm_grib2_overlay_p1.py", "daily_aqm_grib2_overlay_p2.py",
+    ## "daily_aqm_grib2_overlay_p1.py", "daily_aqm_grib2_overlay_p2.py",
     ## using ozone.corrected.* and pm2.5.corrected.* starting 2022/08/26
     ## "daily.aqm.plot_bc_overlay.py",
     ## "daily.aqm.plot_bc.py",
     no_workk_script = [
+                  "gbbepx_fire_loc.py", "daily.aqm.plot_dustloc.py",
                   "daily.aqm.plot_max_ave_overlay.py",
                   "daily_aqm_grib2_overlay_p1.py",
                   "daily_aqm_grib2_overlay_p2.py",
-                  "daily_aqm_grib2_overlay.py"
+                  "daily_aqm_grib2_overlay.py", "daily.aqm.plot_aot.py"
                   ]
 else:
+    print(" Not for experimental run, use *rrfs*")
+    sys.exit()
     ## "diff.aqm.plot_48vs72.py",
     script_name = [
                   "daily.aqm.plot.py", "daily.aqm.plot_bc.py", 

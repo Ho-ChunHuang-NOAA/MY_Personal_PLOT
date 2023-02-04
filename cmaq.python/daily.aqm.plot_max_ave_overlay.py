@@ -172,8 +172,14 @@ else:
         print("exp="+EXP)
         print("expid="+expid)
         print("BC_append="+BC_append)
-    comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver+"/aqm."+aqm_ver+"."+expid
-    comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
+    if sdate.strftime(Y_date_format) == "2023":
+        ## correct one should be comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver
+        ## Force to use user archived directory
+        comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver+"/"+expid
+    else:
+        ## correct one should be comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
+        ## Force to use user archived directory
+        comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver+"/"+expid
     usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
         if not os.path.exists(usrout+"/cs."+sdate.strftime(YMD_date_format)):
@@ -288,7 +294,10 @@ while date <= edate:
                 elif var[ivar] == "pmmax1":
                     fileid="max_1hr_pm25"
                 check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid198+".grib2"
-                aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+check_file
+                if aqmv7:
+                    aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
+                else:
+                    aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+check_file
                 aqmfilein2=usrout+"/ak."+date.strftime(YMD_date_format)+"/"+check_file
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
@@ -311,7 +320,10 @@ while date <= edate:
                 elif var[ivar] == "pmmax1":
                     fileid="max_1hr_pm25"
                 check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid139+".grib2"
-                aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+check_file
+                if aqmv7:
+                    aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
+                else:
+                    aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+check_file
                 aqmfilein2=usrout+"/hi."+date.strftime(YMD_date_format)+"/"+check_file
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
@@ -354,8 +366,12 @@ while date <= edate:
             print("Start processing "+date.strftime(YMD_date_format)+" "+cycle_time+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
 
             file_hdr="aqm."+cycle_time+"."+fileid+BC_append+"."+exp_grid
-            aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
-            aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
+            if aqmv7:
+                aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+file_hdr+".grib2"
+                aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
+            else:
+                aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
+                aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
                 outfile=working_dir+"/"+file_hdr+".nc"
@@ -369,7 +385,7 @@ while date <= edate:
                 ozpm_cs = cs_aqm.variables[varid][:,:,:]
                 cs_aqm.close()
             elif os.path.exists(aqmfilein2):
-                print(aqmfileia2n+" exists")
+                print(aqmfilein2+" exists")
                 outfile=working_dir+"/"+file_hdr+".nc"
                 subprocess.call([wgrib2+' -netcdf '+outfile+' '+aqmfilein2], shell=True)
                 aqmfilein=outfile
@@ -381,12 +397,15 @@ while date <= edate:
                 ozpm_cs = cs_aqm.variables[varid][:,:,:]
                 cs_aqm.close()
             else:
-                print("Can not find "+aqmfilein)
+                print("Can not find "+aqmfilein+" "+aqmfilein2)
                 continue
     
             if flag_ak == "yes":
                 file_hdr="aqm."+cycle_time+"."+fileid+BC_append+"."+grid198
-                aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
+                if aqmv7:
+                    aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
+                else:
+                    aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
                 aqmfilein2=usrout+"/ak."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
@@ -419,13 +438,16 @@ while date <= edate:
                     ozpm_ak = ak_aqm.variables[varid][:,:,:]
                     ak_aqm.close()
                 else:
-                    print("Can not find "+aqmfilein2)
+                    print("Can not find "+aqmfilein+" "+aqmfilein2)
                     flag_ak = "no"
                     iplot[num_reg-3] = 0
         
             if flag_hi == "yes":
                 file_hdr="aqm."+cycle_time+"."+fileid+BC_append+"."+grid139
-                aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
+                if aqmv7:
+                    aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
+                else:
+                    aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
                 aqmfilein2=usrout+"/hi."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
@@ -458,7 +480,7 @@ while date <= edate:
                     ozpm_hi = hi_aqm.variables[varid][:,:,:]
                     hi_aqm.close()
                 else:
-                    print("Can not find "+aqmfilein2)
+                    print("Can not find "+aqmfilein+" "+aqmfilein2)
                     flag_hi = "no"
                     iplot[num_reg-2] = 0
     
@@ -716,7 +738,7 @@ while date <= edate:
                             ## s = [20*4**n for n in range(len(x))]
                             ## ax.scatter(obs_o3pm_lon,obs_o3pm_lat,c=color,cmap=cmap,marker='o',s=100,zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
                             ax.scatter(obs_o3pm_lon,obs_o3pm_lat,c=color,cmap=cmap,marker='o',s=mksize[ireg],zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
-                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fileid+BC_append+".day"+str(format(nout,'01d'))+".k1.png"
+                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fileid+".day"+str(format(nout,'01d'))+".k1.png"
                         plt.savefig(savefig_name, bbox_inches='tight')
                         plt.close()
             ##
@@ -724,7 +746,7 @@ while date <= edate:
             ##
             os.chdir(figdir)
             parta=os.path.join("/usr", "bin", "scp")
-            if 1 == 2 :
+            if 1 == 1 :
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cycle_time)
             else:
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
