@@ -113,6 +113,7 @@ nfind=envir.find(caseid)
 if nfind == -1:
     print("AQMv6 simulation")
     s1_lead="CMAQ"
+    aqmv6 = True
     aqmv7 = False
     nfind=envir.find("_bc")
     if nfind == -1:
@@ -146,6 +147,7 @@ if nfind == -1:
 else:
     print("AQMv7 simulation")
     s1_lead="Online CMAQ"
+    aqmv6 = False
     aqmv7 = True
     aqm_ver="v7.0"
     exp_grid=grid793
@@ -245,7 +247,7 @@ ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,
 if 1 == 1:
     iplot = [    1, 1,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1, 1 ]
 else:
-    iplot = [    0,  0, 1,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
+    iplot = [    0,  0, 1,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      1,      1, 0 ]
 num_reg=len(iplot)
 
 ##
@@ -333,6 +335,9 @@ while date <= edate:
                     flag_hi="no"
                     print("Can not find "+aqmfilein+" and "+aqmfilein2)
                     break
+        if aqmv7:
+            flag_ak = "yes"
+            flag_hi = "yes"
     else:
         flag_ak = "no"
         flag_hi = "no"
@@ -400,7 +405,17 @@ while date <= edate:
                 print("Can not find "+aqmfilein+" "+aqmfilein2)
                 continue
     
-            if flag_ak == "yes":
+            if aqmv7 and flag_ak == "yes":
+                ak_lat=cs_lat
+                ak_lon=cs_lon
+                ozpm_ak=ozpm_cs
+
+            if aqmv7 and flag_hi == "yes":
+                hi_lat=cs_lat
+                hi_lon=cs_lon
+                ozpm_hi=ozpm_cs
+
+            if aqmv6 and flag_ak == "yes":
                 file_hdr="aqm."+cycle_time+"."+fileid+BC_append+"."+grid198
                 if aqmv7:
                     aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
@@ -442,7 +457,7 @@ while date <= edate:
                     flag_ak = "no"
                     iplot[num_reg-3] = 0
         
-            if flag_hi == "yes":
+            if aqmv6 and flag_hi == "yes":
                 file_hdr="aqm."+cycle_time+"."+fileid+BC_append+"."+grid139
                 if aqmv7:
                     aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file

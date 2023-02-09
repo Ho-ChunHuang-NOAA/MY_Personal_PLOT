@@ -17,27 +17,25 @@ import shutil
 import subprocess
 ### Read data of all time step in once, then print one at a time
 ### PASSED AGRUEMENTS
-if len(sys.argv) < 6:
-    print("you must set 6 arguments as model1[prod|para|...] model2 variabels[o3|pm25|all] cycle[06|12|all]  start_date end_date")
-    sys.exit()
-else:
-    envir1 = sys.argv[1]
-    envir2 = sys.argv[2]
-    sel_var = sys.argv[3]
-    sel_cyc = sys.argv[4]
-    start_date = sys.argv[5]
-    end_date = sys.argv[6]
+user=os.environ['USER']
 
-if envir1 != envir2:
-    print("This routine is designed to show the difference between raw and bias-corrected of same experiment")
+if len(sys.argv) < 5:
+    print("you must set 5 arguments as model1[prod|para|...] variabels[o3|pm25|all] cycle[06|12|all]  start_date end_date")
     sys.exit()
 else:
-    if envir1.lower() == "para":
-        fig_exp1="ncopara"
-    else:
-        fig_exp1=envir1.lower()
-    fig_id=fig_exp1+"bc-"+fig_exp1
-    title_id=fig_exp1.upper()+"BC-"+fig_exp1.upper()
+    envir = sys.argv[1]
+    sel_var = sys.argv[2]
+    sel_cyc = sys.argv[3]
+    start_date = sys.argv[4]
+    end_date = sys.argv[5]
+
+if envir.lower() == "para":
+    fig_exp1="ncopara"
+else:
+    fig_exp1=envir.lower()
+fig_id=fig_exp1+"bc-"+fig_exp1
+title_id=fig_exp1.upper()+"BC-"+fig_exp1.upper()
+
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]))
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]))
 YMDH_date_format = "%Y%m%d/%H"
@@ -49,6 +47,99 @@ D_date_format = "%d"
 H_date_format = "%H"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
+
+grid148="148"
+grid227="227"
+grid198="198"
+grid139="139"
+grid196="196"
+grid793="793"
+
+caseid="v70"
+nfind=envir.find(caseid)
+if nfind == -1:
+    print("AQMv6 simulation")
+    s1_lead="CMAQ"
+    aqmv6 = True
+    aqmv7 = False
+    bcfilehdr_o3="ozone"
+    bcfilehdr_pm25="pm2.5"
+    nfind=envir.find("_bc")
+    if nfind == -1:
+        print("not a bias_correction cases")
+        EXP=envir
+        BC_append=""
+        BC_fig_append=BC_append
+        print("exp="+EXP)
+        print("BC_append="+BC_append)
+    else:
+        print("A bias_correction cases")
+        EXP=envir[0:nfind]
+        BC_append="_bc"
+        BC_fig_append="bc"
+        print("exp="+EXP)
+        print("BC_append="+BC_append)
+    if EXP.lower() == "prod" or EXP.lower() == "para" or EXP.lower() == "firev4":
+        aqm_ver="v6.1"
+        exp_grid=grid148
+        expid="cs"
+        comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
+        comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+EXP.lower()
+        comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
+    else:
+        print("Experiement ID "+EXP.lower()+" not found for this code, Program exit")
+        sys.exit()
+    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
+    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+EXP.lower()
+    biasdir="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/BiasCor_updated/"+EXP.lower()
+    if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
+        if not os.path.exists(usrout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
+            print("Can not find output dir with experiment id "+EXP.lower())
+            sys.exit()
+else:
+    print("AQMv7 simulation")
+    s1_lead="Online CMAQ"
+    aqmv6 = False
+    aqmv7 = True
+    aqm_ver="v7.0"
+    exp_grid=grid793
+
+    bcfilehdr_o3="ozone"
+    bcfilehdr_pm25="pm2.5"
+    nfind=envir.find("_bc")
+    if nfind == -1:
+        print("not a bias_correction cases")
+        EXP=envir
+        n0=len(caseid)
+        n1=len(EXP)
+        expid=envir[n0:n1]
+        BC_append=""
+        BC_fig_append=BC_append
+        print("exp="+EXP)
+        print("expid="+expid)
+        print("BC_append="+BC_append)
+    else:
+        EXP=envir[0:nfind]
+        n0=len(caseid)
+        n1=len(EXP)
+        expid=EXP[n0:n1]
+        BC_append="_bc"
+        BC_fig_append="bc"
+        print("exp="+EXP)
+        print("expid="+expid)
+        print("BC_append="+BC_append)
+    comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver+"/aqm."+aqm_ver+"."+expid
+    comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
+    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
+    if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
+        if not os.path.exists(usrout+"/cs."+sdate.strftime(YMD_date_format)):
+            print("Can not find output dir with experiment id "+EXP.lower())
+            sys.exit()
+
+if EXP.lower() == "para":
+    fig_exp="ncopara"
+else:
+    fig_exp=EXP.lower()+BC_fig_append
 
 if sel_var == "all":
    var=[ "o3", "pm25" ]
@@ -92,78 +183,55 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## Current operational CMAQ does not apply Bias-Correction procedure for AK and HI domain
 ## Current EMC development CMAQ does not apply Bias-Correction procedure for AK and HI domain
 ##
-if envir1 != envir2:
-    print("Experiemnt "+envir1+" and Experiemnt "+envir2+" shoule be the same for bias_correction difference")
-    sys.exit()
 
-aqm_ver="v6.1"
-user=os.environ['USER']
-find_dir=[
-          "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
-          "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir,
-          "/lfs/h2/emc/physics/noscrub/"+user+"/verification/aqm/"+envir,
-          "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir,
-          "/lfs/h2/emc/physics/noscrub/"+user+"/BiasCor_updated/"+envir
-         ]
 metout1="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
 metout2="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
+
+flag_ak = "no"
+flag_hi = "no"
+
+flag_biasdir=False
 flag_find_idir="no"
-for idir in find_dir:
-    if envir1 == "prod":
-        comout1="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
-    elif envir1 == "ncopara":
-        comout1="/lfs/h1/ops/para/com/aqm/"+aqm_ver
+flag_find_cyc="yes"
+for cyc in cycle:
+    check_file1=comout+"/cs."+sdate.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
+    check_file2=usrout+"/cs."+sdate.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
+    if os.path.exists(check_file1):
+        comout1=comout
+    elif os.path.exists(check_file2):
+        comout1=usrout
     else:
-        comout1=idir+envir1
-    print("check "+idir)
-    flag_find_cyc="yes"
-    for cyc in cycle:
-        check_file="aqm."+cyc+".aconc_sfc.ncf"
-        aqmfilein=comout1+"/cs."+sdate.strftime(YMD_date_format)+"/"+check_file
-        if os.path.exists(aqmfilein):
-            print(aqmfilein+" exists")
+        flag_find_cyc="no"
+        print("Can not find "+check_file1)
+        print("Can not find "+check_file2)
+        break
+    for ivar in range(0,num_var):
+        if var[ivar] == "o3":
+            check_file1=comout+"/cs."+sdate.strftime(YMD_date_format)+"/"+bcfilehdr_o3+".corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+            check_file2=usrout+"/cs."+sdate.strftime(YMD_date_format)+"/"+bcfilehdr_o3+".corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+            check_file_bias=biasdir+"/"+bcfilehdr_o3+".corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+        if  var[ivar] == "pm25":
+            check_file1=comout+"/cs."+sdate.strftime(YMD_date_format)+"/"+bcfilehdr_pm25+".corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+            check_file2=usrout+"/cs."+sdate.strftime(YMD_date_format)+"/"+bcfilehdr_pm25+".corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+            check_file_bias=biasdir+"/"+bcfilehdr_pm25+".corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+        if os.path.exists(check_file1):
+            comout2=comout
+        elif os.path.exists(check_file2):
+            comout2=usrout
+        elif os.path.exists(check_file_bias):
+            comout2=biasdir
+            flag_biasdir=True
         else:
             flag_find_cyc="no"
-            print("Can not find "+aqmfilein)
+            print("Can not find "+check_file1)
+            print("Can not find "+check_file2)
+            print("Can not find "+check_bias)
             break
     if flag_find_cyc == "yes":
         flag_find_idir="yes"
         break
 if flag_find_idir == "yes":
     print("comout1 set to "+comout1)
-else:
-    sys.exit()
-
-flag_ak = "no"
-flag_hi = "no"
-
-flag_find_idir="no"
-for idir in find_dir:
-    if envir2 == "prod":
-        comout2="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
-    elif envir2 == "ncopara":
-        comout2="/lfs/h1/ops/para/com/aqm/"+aqm_ver
-    else:
-        comout2=idir+envir2
-    print("check "+idir)
-    flag_find_cyc="yes"
-    for cyc in cycle:
-        check_file1="ozone.corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
-        check_file2="pm2.5.corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
-        aqmfilein1=comout2+"/cs."+sdate.strftime(YMD_date_format)+"/"+check_file1
-        aqmfilein2=comout2+"/cs."+sdate.strftime(YMD_date_format)+"/"+check_file2
-        if os.path.exists(aqmfilein1) and os.path.exists(aqmfilein2):
-            print(aqmfilein1+" exists")
-            print(aqmfilein2+" exists")
-        else:
-            flag_find_cyc="no"
-            print("Can not find "+aqmfilein1)
-            print("Can not find "+aqmfilein2)
-            break
-    if flag_find_cyc == "yes":
-        flag_find_idir="yes"
-        break
-if flag_find_idir == "yes":
     print("comout2 set to "+comout2)
 else:
     sys.exit()
@@ -229,233 +297,43 @@ while date <= edate:
                 elif var[ivar] == "pm25":
                     pm_cs1 = cs_aqm.variables['PM25_TOT'][:,0,:,:]
             cs_aqm.close()
+        
+        ##
+        ## Read ozone bias correction
+        ##
+        if flag_biasdir:
+            model_filein=comout2+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
         else:
-            aqmfilein=usrout1+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
-            if os.path.exists(aqmfilein):
-                print(aqmfilein+" exists")
-                cs_aqm = netcdf.Dataset(aqmfilein)
-                cs_var = cs_aqm.variables['TFLAG'][:,0,:]
-                nstep=len(cs_var)
-                for ivar in range(0,num_var):
-                    if var[ivar] == "o3":
-                        o3_cs1 = cs_aqm.variables['O3'][:,0,:,:]*1000.
-                    elif var[ivar] == "pm25":
-                        pm_cs1 = cs_aqm.variables['PM25_TOT'][:,0,:,:]
-                cs_aqm.close()
-            else:
-                print("Can not find "+aqmfilein)
-                sys.exit()
-
-        model_filein=comout2+"/cs."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+            model_filein=comout2+"/cs."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
         if os.path.exists(model_filein):
             print(model_filein+" exists")
             model_data = netcdf.Dataset(model_filein)
             o3_cs2  = model_data.variables['O3'][:,0,:,:] * 1000.
             model_data.close()
         else:
-            model_filein=usrout2+"/cs."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
-            if os.path.exists(model_filein):
-                print(model_filein+" exists")
-                model_data = netcdf.Dataset(model_filein)
-                o3_cs2  = model_data.variables['O3'][:,0,:,:] * 1000.
-                model_data.close()
-            else:
-                print("Can not find "+model_filein)
-                sys.exit()
+            print("Can not find "+model_filein)
+            sys.exit()
 
-        model_filein=comout2+"/cs."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+        ##
+        ## Read ozone bias correction
+        ##
+        if flag_biasdir:
+            model_filein=comout2+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+        else:
+            model_filein=comout2+"/cs."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
         if os.path.exists(model_filein):
             print(model_filein+" exists")
             model_data = netcdf.Dataset(model_filein)
             pm_cs2 = model_data.variables['pm25'][:,0,:,:]
             model_data.close()
         else:
-            model_filein=usrout2+"/cs."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
-            if os.path.exists(model_filein):
-                print(model_filein+" exists")
-                model_data = netcdf.Dataset(model_filein)
-                pm_cs2 = model_data.variables['pm25'][:,0,:,:]
-                model_data.close()
-            else:
-                print("Can not find "+model_filein)
-                sys.exit()
-
-        if flag_ak == "yes":
-            metfilein=metout1+"/ak."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
-            if os.path.exists(metfilein):
-                print(metfilein+" exists")
-                model_data = netcdf.Dataset(metfilein)
-                ak_lat = model_data.variables['LAT'][0,0,:,:]
-                ak_lon = model_data.variables['LON'][0,0,:,:]
-                model_data.close()
-            else:
-                print("Can not find "+metfilein)
-                flag_ak = "no"
-                iplot[num_reg-3] = 0
-    
-            aqmfilein=comout1+"/ak."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
-            if os.path.exists(aqmfilein):
-                print(aqmfilein+" exists")
-                ak_aqm = netcdf.Dataset(aqmfilein)
-                ak_var = ak_aqm.variables['TFLAG'][:,0,:]
-                nstep_ak=len(ak_var)
-                if nstep_ak != nstep:
-                    print("time step of AK domain "+str(nstep_ak)+" is different from CONUS domain "+str(nstep))
-                    sys.exit()
-                for ivar in range(0,num_var):
-                    if var[ivar] == "o3":
-                        o3_ak1 = ak_aqm.variables['O3'][:,0,:,:]*1000.
-                    elif var[ivar] == "pm25":
-                        pm_ak1 = ak_aqm.variables['PM25_TOT'][:,0,:,:]
-                ak_aqm.close()
-            else:
-                aqmfilein=usrout1+"/ak."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
-                if os.path.exists(aqmfilein):
-                    print(aqmfilein+" exists")
-                    ak_aqm = netcdf.Dataset(aqmfilein)
-                    ak_var = ak_aqm.variables['TFLAG'][:,0,:]
-                    nstep_ak=len(ak_var)
-                    if nstep_ak != nstep:
-                        print("time step of AK domain "+str(nstep_ak)+" is different from CONUS domain "+str(nstep))
-                        sys.exit()
-                    for ivar in range(0,num_var):
-                        if var[ivar] == "o3":
-                            o3_ak1 = ak_aqm.variables['O3'][:,0,:,:]*1000.
-                        elif var[ivar] == "pm25":
-                            pm_ak1 = ak_aqm.variables['PM25_TOT'][:,0,:,:]
-                    ak_aqm.close()
-                else:
-                    print("Can not find "+aqmfilein)
-                    flag_ak = "no"
-                    iplot[num_reg-3] = 0
-    
-            model_filein=comout2+"/ak."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
-            if os.path.exists(model_filein):
-                print(model_filein+" exists")
-                model_data = netcdf.Dataset(model_filein)
-                o3_ak2  = model_data.variables['O3'][:,0,:,:] * 1000.
-                model_data.close()
-            else:
-                model_filein=usrout2+"/ak."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
-                if os.path.exists(model_filein):
-                    print(model_filein+" exists")
-                    model_data = netcdf.Dataset(model_filein)
-                    o3_ak2  = model_data.variables['O3'][:,0,:,:] * 1000.
-                    model_data.close()
-                else:
-                    print("Can not find "+model_filein)
-                    flag_ak = "no"
-                    iplot[num_reg-3] = 0
-        
-            model_filein=comout2+"/ak."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
-            if os.path.exists(model_filein):
-                print(model_filein+" exists")
-                model_data = netcdf.Dataset(model_filein)
-                pm_ak2 = model_data.variables['pm25'][:,0,:,:]
-                model_data.close()
-            else:
-                model_filein=usrout2+"/ak."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
-                if os.path.exists(model_filein):
-                    print(model_filein+" exists")
-                    model_data = netcdf.Dataset(model_filein)
-                    pm_ak2 = model_data.variables['pm25'][:,0,:,:]
-                    model_data.close()
-                else:
-                    print("Can not find "+model_filein)
-                    flag_ak = "no"
-                    iplot[num_reg-3] = 0
-    
-        if flag_hi == "yes":
-            metfilein=metout1+"/hi."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
-            if os.path.exists(metfilein):
-                print(metfilein+" exists")
-                model_data = netcdf.Dataset(metfilein)
-                hi_lat = model_data.variables['LAT'][0,0,:,:]
-                hi_lon = model_data.variables['LON'][0,0,:,:]
-                model_data.close()
-            else:
-                print("Can not find "+metfilein)
-                flag_hi = "no"
-                iplot[num_reg-2] = 0
-    
-            aqmfilein=comout1+"/hi."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
-            if os.path.exists(aqmfilein):
-                print(aqmfilein+" exists")
-                hi_aqm = netcdf.Dataset(aqmfilein)
-                hi_var = hi_aqm.variables['TFLAG'][:,0,:]
-                nstep_hi=len(hi_var)
-                nstep_hi= nstep
-                if nstep_hi != nstep:
-                    print("time step of HI domain "+str(nstep_hi)+" is different from CONUS domain "+str(nstep))
-                    sys.exit()
-                for ivar in range(0,num_var):
-                    if var[ivar] == "o3":
-                        o3_hi1 = hi_aqm.variables['O3'][:,0,:,:]*1000.
-                    elif var[ivar] == "pm25":
-                        pm_hi2 = hi_aqm.variables['PM25_TOT'][:,0,:,:]
-                hi_aqm.close()
-            else:
-                aqmfilein=usrout1+"/hi."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
-                if os.path.exists(aqmfilein):
-                    print(aqmfilein+" exists")
-                    hi_aqm = netcdf.Dataset(aqmfilein)
-                    hi_var = hi_aqm.variables['TFLAG'][:,0,:]
-                    nstep_hi=len(hi_var)
-                    nstep_hi= nstep
-                    if nstep_hi != nstep:
-                        print("time step of HI domain "+str(nstep_hi)+" is different from CONUS domain "+str(nstep))
-                        sys.exit()
-                    for ivar in range(0,num_var):
-                        if var[ivar] == "o3":
-                            o3_hi1 = hi_aqm.variables['O3'][:,0,:,:]*1000.
-                        elif var[ivar] == "pm25":
-                            pm_hi2 = hi_aqm.variables['PM25_TOT'][:,0,:,:]
-                    hi_aqm.close()
-                else:
-                    print("Can not find "+aqmfilein)
-                    flag_hi = "no"
-                    iplot[num_reg-2] = 0
-    
-            model_filein=comout2+"/hi."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
-            if os.path.exists(model_filein):
-                print(model_filein+" exists")
-                model_data = netcdf.Dataset(model_filein)
-                o3_hi2  = model_data.variables['O3'][:,0,:,:] * 1000.
-                model_data.close()
-            else:
-                model_filein=usrout2+"/hi."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
-                if os.path.exists(model_filein):
-                    print(model_filein+" exists")
-                    model_data = netcdf.Dataset(model_filein)
-                    o3_hi2  = model_data.variables['O3'][:,0,:,:] * 1000.
-                    model_data.close()
-                else:
-                    print("Can not find "+model_filein)
-                    flag_hi = "no"
-                    iplot[num_reg-2] = 0
-        
-            model_filein=comout2+"/hi."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
-            if os.path.exists(model_filein):
-                print(model_filein+" exists")
-                model_data = netcdf.Dataset(model_filein)
-                pm_hi2 = model_data.variables['pm25'][:,0,:,:]
-                model_data.close()
-            else:
-                model_filein=usrout2+"/hi."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
-                if os.path.exists(model_filein):
-                    print(model_filein+" exists")
-                    model_data = netcdf.Dataset(model_filein)
-                    pm_hi2 = model_data.variables['pm25'][:,0,:,:]
-                    model_data.close()
-                else:
-                    print("Can not find "+model_filein)
-                    flag_hi = "no"
-                    iplot[num_reg-2] = 0
+            print("Can not find "+model_filein)
+            sys.exit()
 
         for ivar in range(0,num_var):
             msg=datetime.datetime.now()
             print("Start processing "+var[ivar])
-            figdir = figout+"/aqm"+"_"+envir2+"bc-"+envir1+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"_"+cyc+"_diff"
+            figdir = figout+"/aqm"+"_"+envir+"bc-"+envir+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"_"+cyc+"_diff"
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)
             os.makedirs(figdir)

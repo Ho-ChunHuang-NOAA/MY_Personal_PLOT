@@ -99,9 +99,11 @@ else:
 ##                   ]
 if envir == "prod":
     script_name = [
-                  "daily_aqm_grib2_overlay.py"
+                  "daily_aqm_grib2_overlay_p1.py",
+                  "daily_aqm_grib2_overlay_p2.py"
                   ]
     no_workk_script = [
+                  "daily_aqm_grib2_overlay.py"
                   "daily.aqm.plot.py", "daily.aqm.plot_bc.py",
                   "daily.aqm.plot_overlay.py", "daily.aqm.plot_bc_overlay.py",
                   "diff.aqm.plot_bc.py"
@@ -291,7 +293,7 @@ while date <= edate:
             if i == "daily_aqm_grib2_overlay_p1.py":
                 print("    Start processing "+i)
                 for j in var:
-                    jobid="pgribp1_"+envir+"obs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="pgribp1_"+envir+"bcobs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
@@ -320,7 +322,7 @@ while date <= edate:
                         sh.write("set -x\n")
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
-                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+i+" "+envir+"_bc "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
@@ -331,7 +333,7 @@ while date <= edate:
             if i == "daily_aqm_grib2_overlay_p2.py":
                 print("    Start processing "+i)
                 for j in var:
-                    jobid="pgribp2_"+envir+"obs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="pgribp2_"+envir+"bcobs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
@@ -366,7 +368,7 @@ while date <= edate:
                     print("run_script = "+plot_script)
                     print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    msg="        python "+i+" "+envir+"_bc "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                     print(msg)
             if i == "daily.aqm.plot_specs1.py" or i == "daily.aqm.plot_specs2.py" or i == "daily.aqm.plot_specs3.py" or i == "daily.aqm.plot_specs4.py" or i == "daily.aqm.plot_spec_xsel.py":
                 print("    Start processing "+i)
