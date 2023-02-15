@@ -4,7 +4,7 @@
                         os.remove(transfer_file)
                     with open(transfer_file, 'a') as sh:
                         root_dir=data_dir+"/"+model+"/"+exp
-                        sh.write("#!/bin/bash -l\n")
+                        sh.write("#!/bin/bash\n")
                         sh.write("#PBS -o "+log_dir+"/"+model+"_"+icnt+"_scp.out\n")
                         sh.write("#PBS -e "+log_dir+"/"+model+"_"+icnt+"_scp.out\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")

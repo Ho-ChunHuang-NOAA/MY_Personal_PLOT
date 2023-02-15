@@ -9,7 +9,7 @@
             if os.path.exists(plot_script):
                 os.remove(plot_script)
             with open(plot_script, 'a') as sh:
-                sh.write("#!/bin/bash -l\n")
+                sh.write("#!/bin/bash\n")
                 sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
                 sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
                 sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
@@ -17,7 +17,8 @@
                 sh.write("#PBS -q dev_transfer\n")
                 sh.write("#PBS -A AQM-DEV\n")
                 sh.write("#PBS -l walltime="+task_cpu+"\n")
-                sh.write("######PBS -l debug=true\n")
+                sh.write("###PBS -l debug=true\n")
+                sh.write("SHELL=/bin/bash -l\n")
                 sh.write("# \n")
                 sh.write("export OMP_NUM_THREADS=1\n")
                 sh.write("\n")
