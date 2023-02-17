@@ -328,10 +328,6 @@ while date <= edate:
                 scale=1.
                 clevs = [ 3., 6., 9., 12., 25., 35., 45., 55., 65., 70., 75., 85., 95., 105. ]
                 var_cs=o3_cs*scale
-                if flag_ak == "yes":
-                    var_ak=o3_ak*scale
-                if flag_hi == "yes":
-                    var_hi=o3_hi*scale
                 cmap = mpl.colors.ListedColormap([
                       (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
                       (0.0000,0.7490,1.0000), (0.0000,1.0000,1.0000),
@@ -346,10 +342,6 @@ while date <= edate:
                 scale=1.
                 clevs = [ 3., 6., 9., 12., 15., 35., 55., 75., 100., 125., 150., 250., 300., 400., 500., 600., 750. ]
                 var_cs=pm_cs
-                if flag_ak == "yes":
-                    var_ak=pm_ak
-                if flag_hi == "yes":
-                    var_hi=pm_hi
                 cmap = mpl.colors.ListedColormap([
                       (0.0000,0.7060,0.0000), (0.0000,0.9060,0.0000), (0.3020,1.0000,0.3020),
                       (1.0000,1.0000,0.4980), (1.0000,0.8745,0.0000), (1.0000,0.6471,0.0000),
@@ -364,10 +356,6 @@ while date <= edate:
                 scale=1.
                 clevs = [ 0., 3., 6., 9., 12., 25., 35., 45., 55., 65., 75., 85., 95., 105. ]
                 var_cs=pm_cs
-                if flag_ak == "yes":
-                    var_ak=pm_ak
-                if flag_hi == "yes":
-                    var_hi=pm_hi
                 cmap = mpl.colors.ListedColormap([
                       (0.9412,0.9412,0.9412), (0.8627,0.8627,1.0000), (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
                       (0.2157,0.2157,1.0000), (0.0000,0.7843,0.7843), (0.0000,0.8627,0.0000), (0.6275,0.9020,0.1961),
@@ -473,32 +461,10 @@ while date <= edate:
                         ax.add_feature(cfeature.BORDERS, facecolor='none', linestyle=':')
                         ax.add_feature(cfeature.LAKES, facecolor='None', edgecolor='black', alpha=0.5)
                         ## ax.add_feature(cfeature.RIVERS)
-                        if figarea == "ak":
-                            cf1 = ax.contourf(
-                                     ak_lon, ak_lat, pvar_ak,
-                                     levels=clevs, cmap=cmap, norm=norm, extend='both',
-                                     transform=ccrs.PlateCarree() )
-                        elif figarea == "hi":
-                            cf1 = ax.contourf(
-                                     hi_lon, hi_lat, pvar_hi,
-                                     levels=clevs, cmap=cmap, norm=norm, extend='both',
-                                     transform=ccrs.PlateCarree() )
-                        else:
-                            cf1 = ax.contourf(
-                                     cs_lon, cs_lat, pvar_cs,
-                                     levels=clevs, cmap=cmap, norm=norm, extend='both',
-                                     transform=ccrs.PlateCarree() )
-                            if figarea == "dset":
-                                if flag_ak == "yes":
-                                    ax.contourf(
-                                         ak_lon, ak_lat, pvar_ak,
-                                         levels=clevs, cmap=cmap, norm=norm, extend='both',
-                                         transform=ccrs.PlateCarree() )
-                                if flag_hi == "yes":
-                                    ax.contourf(
-                                         hi_lon, hi_lat, pvar_hi,
-                                         levels=clevs, cmap=cmap, norm=norm, extend='both',
-                                         transform=ccrs.PlateCarree() )
+                        cf1 = ax.contourf(
+                                 cs_lon, cs_lat, pvar_cs,
+                                 levels=clevs, cmap=cmap, norm=norm, extend='both',
+                                 transform=ccrs.PlateCarree() )
                         ax.set_title(title)
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
