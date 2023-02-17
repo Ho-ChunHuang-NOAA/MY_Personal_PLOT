@@ -27,6 +27,36 @@ script_dir=os.getcwd()
 print("Script directory is "+script_dir)
 
 user=os.environ['USER']
+ifile="/u/ho-chun.huang/versions/run.ver"
+rfile=open(ifile, 'r')
+for line in rfile:
+    nfind=line.find("export")
+    if nfind != -1:
+        line=line.rstrip("\n")
+        ver=line.split("=")
+        ver_name=ver[0].split(" ")
+        if ver_name[1] == "envvar_ver":
+            envvar_ver=ver[1]
+        if ver_name[1] == "PrgEnv_intel_ver":
+            PrgEnv_intel_ver=ver[1]
+        if ver_name[1] == "intel_ver":
+            intel_ver=ver[1]
+        if ver_name[1] == "craype_ver":
+            craype_ver=ver[1]
+        if ver_name[1] == "cray_mpich_ver":
+            cray_mpich_ver=ver[1]
+        if ver_name[1] == "python_ver":
+            python_ver=ver[1]
+        if ver_name[1] == "netcdf_ver":
+            netcdf_ver=ver[1]
+## print("envvar_ver="+envvar_ver)
+## print("PrgEnv_intel_ver="+PrgEnv_intel_ver)
+## print("intel_ver="+intel_ver)
+## print("craype_ver="+craype_ver)
+## print("envvar_ver="+envvar_ver)
+## print("cray_mpich_ver="+cray_mpich_ver)
+## print("python_ver="+python_ver)
+## print("netcdf_ver="+netcdf_ver)
 
 stmp_dir="/lfs/h2/emc/stmp/"+user
 if not os.path.exists(stmp_dir):
@@ -88,36 +118,34 @@ else:
 
 if envir == "prod" or envir == "firev4":
     script_name = [
-                  "daily.aqm.plot_bc_overlay.py",
+                  "daily.aqm.plot_bc_overlay.py"
                   ]
+    ## using bias_corrected grib2 file before 2022/08/26 (excep 202201-202202)
+    ## "daily_aqm_grib2_overlay_p1.py", "daily_aqm_grib2_overlay_p2.py",
+    ## using ozone.corrected.* and pm2.5.corrected.* starting 2022/08/26
+    ## "daily.aqm.plot_bc_overlay.py",
+    ## "daily.aqm.plot_bc.py",
     no_workk_script = [
-                  "daily_aqm_grib2_overlay.py"
-                  "daily.aqm.plot.py", "daily.aqm.plot_bc.py",
-                  "daily.aqm.plot_overlay.py", "daily.aqm.plot_bc_overlay.py",
-                  "diff.aqm.plot_bc.py"
+                  "daily_aqm_grib2_overlay_p1.py",
+                  "daily_aqm_grib2_overlay_p2.py",
+                  "daily.aqm.plot.py",
+                  "daily.aqm.plot_overlay.py",
+                  "daily.aqm.plot_bc.py",
+                  "diff_aqm_plot_bc.py",
+                  "daily.aqm.plot_max_ave.py", "daily.aqm.plot_max_ave_bc.py",
+                  "daily.aqm.plot_max_ave_overlay.py",
+                  "diff.aqm.plot_max_ave_bc.py"
+                  "diff.aqm.plot_bc.py",
+                  "gbbepx_fire_loc.py", "daily.aqm.plot_dustloc.py",
+                  "daily.aqm.plot_max_ave_overlay.py",
+                  "daily_aqm_grib2_overlay.py", "daily.aqm.plot_aot.py"
                   ]
 else:
-    ## "diff.aqm.plot_48vs72.py",
     script_name = [
-                  "daily.aqm.plot.py", "daily.aqm.plot_bc.py", 
-                  "daily.aqm.plot_specs1.py", "daily.aqm.plot_specs2.py",
-                  "daily.aqm.plot_specs3.py", "daily.aqm.plot_specs4.py",
-                  "diff.aqm.plot.py",
-                  "daily.aqm.plot_dustloc.py",
-                  "fireemis_fire_loc.py",
-                  "gbbepx_fire_loc.py",
-                  "daily.aqm.plot_overlay.py",
-                  "diff.aqm.plot_specs1.py", "diff.aqm.plot_specs2.py",
-                  "diff.aqm.plot_specs3.py", "diff.aqm.plot_specs4.py",
-                  "diff.aqm.plot_bc.py"
-                  ]
+                  "daily_aqm_grib2_overlay_p1.py",
+                  "daily_aqm_grib2_overlay_p2.py"
     no_workk_script = [
-                  "daily.aqm.plot_met_v6s1.py", "daily.aqm.plot_met_v6s2.py",
-                  "daily.aqm.plot_met_v6s3.py", "daily.aqm.plot_met_v6s4.py",
-                  "daily.aqm.plot_met_v6s5.py", 
-                  "diff.aqm.plot_met_v6s1.py", "diff.aqm.plot_met_v6s2.py",
-                  "diff.aqm.plot_met_v6s3.py", "diff.aqm.plot_met_v6s4.py",
-                  "daily.aqm.plot_dustloc.py",
+                  "daily.aqm.plot_bc_overlay.py"
                   ]
     col_var = [ "pm25_col", "pm25c_col" ]
 ## subprocess.call(['cp -p * '+partb], shell=True)
@@ -206,7 +234,7 @@ while date <= edate:
                     if os.path.exists(logfile):
                         os.remove(logfile)
                     with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash -l\n")
+                        sh.write("#!/bin/bash\n")
                         sh.write("#PBS -o "+logfile+"\n")
                         sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -215,9 +243,14 @@ while date <= edate:
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
                         sh.write("###PBS -l debug=true\n")
+                        sh.write("module load envvar/"+envvar_ver+"\n")
+                        sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                        sh.write("module load intel/"+intel_ver+"\n")
+                        sh.write("module load craype/"+craype_ver+"\n")
+                        sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                        sh.write("module load python/"+python_ver+"\n")
+                        sh.write("module load netcdf/"+netcdf_ver+"\n")
                         sh.write("# \n")
-                        sh.write("## module load python/3.8.6\n")
-                        sh.write("## module load netcdf/4.7.4\n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("# \n")
                         sh.write("\n")
@@ -246,7 +279,7 @@ while date <= edate:
                     if os.path.exists(logfile):
                         os.remove(logfile)
                     with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash -l\n")
+                        sh.write("#!/bin/bash\n")
                         sh.write("#PBS -o "+logfile+"\n")
                         sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -255,9 +288,14 @@ while date <= edate:
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
                         sh.write("###PBS -l debug=true\n")
+                        sh.write("module load envvar/"+envvar_ver+"\n")
+                        sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                        sh.write("module load intel/"+intel_ver+"\n")
+                        sh.write("module load craype/"+craype_ver+"\n")
+                        sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                        sh.write("module load python/"+python_ver+"\n")
+                        sh.write("module load netcdf/"+netcdf_ver+"\n")
                         sh.write("# \n")
-                        sh.write("## module load python/3.8.6\n")
-                        sh.write("## module load netcdf/4.7.4\n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("# \n")
                         sh.write("\n")
@@ -286,7 +324,7 @@ while date <= edate:
                     if os.path.exists(logfile):
                         os.remove(logfile)
                     with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash -l\n")
+                        sh.write("#!/bin/bash\n")
                         sh.write("#PBS -o "+logfile+"\n")
                         sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -295,9 +333,14 @@ while date <= edate:
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
                         sh.write("###PBS -l debug=true\n")
+                        sh.write("module load envvar/"+envvar_ver+"\n")
+                        sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                        sh.write("module load intel/"+intel_ver+"\n")
+                        sh.write("module load craype/"+craype_ver+"\n")
+                        sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                        sh.write("module load python/"+python_ver+"\n")
+                        sh.write("module load netcdf/"+netcdf_ver+"\n")
                         sh.write("# \n")
-                        sh.write("## module load python/3.8.6\n")
-                        sh.write("## module load netcdf/4.7.4\n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("# \n")
                         sh.write("\n")
@@ -325,7 +368,7 @@ while date <= edate:
                     if os.path.exists(logfile):
                         os.remove(logfile)
                     with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash -l\n")
+                        sh.write("#!/bin/bash\n")
                         sh.write("#PBS -o "+logfile+"\n")
                         sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -334,9 +377,14 @@ while date <= edate:
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
                         sh.write("###PBS -l debug=true\n")
+                        sh.write("module load envvar/"+envvar_ver+"\n")
+                        sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                        sh.write("module load intel/"+intel_ver+"\n")
+                        sh.write("module load craype/"+craype_ver+"\n")
+                        sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                        sh.write("module load python/"+python_ver+"\n")
+                        sh.write("module load netcdf/"+netcdf_ver+"\n")
                         sh.write("# \n")
-                        sh.write("## module load python/3.8.6\n")
-                        sh.write("## module load netcdf/4.7.4\n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("# \n")
                         sh.write("\n")
@@ -371,7 +419,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#!/bin/bash\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -380,9 +428,14 @@ while date <= edate:
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
+                    sh.write("module load envvar/"+envvar_ver+"\n")
+                    sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                    sh.write("module load intel/"+intel_ver+"\n")
+                    sh.write("module load craype/"+craype_ver+"\n")
+                    sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                    sh.write("module load python/"+python_ver+"\n")
+                    sh.write("module load netcdf/"+netcdf_ver+"\n")
                     sh.write("# \n")
-                    sh.write("## module load python/3.8.6\n")
-                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -409,7 +462,7 @@ while date <= edate:
                     if os.path.exists(logfile):
                         os.remove(logfile)
                     with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash -l\n")
+                        sh.write("#!/bin/bash\n")
                         sh.write("#PBS -o "+logfile+"\n")
                         sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -418,10 +471,14 @@ while date <= edate:
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
                         sh.write("###PBS -l debug=true\n")
+                        sh.write("module load envvar/"+envvar_ver+"\n")
+                        sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                        sh.write("module load intel/"+intel_ver+"\n")
+                        sh.write("module load craype/"+craype_ver+"\n")
+                        sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                        sh.write("module load python/"+python_ver+"\n")
+                        sh.write("module load netcdf/"+netcdf_ver+"\n")
                         sh.write("# \n")
-                        sh.write("## module load python/3.8.6\n")
-                        sh.write("## module load netcdf/4.7.4\n")
-                        sh.write("##\n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("##  Plot EMC EXP "+envir+" using python script\n")
                         sh.write("##\n")
@@ -447,7 +504,7 @@ while date <= edate:
                     if os.path.exists(logfile):
                         os.remove(logfile)
                     with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash -l\n")
+                        sh.write("#!/bin/bash\n")
                         sh.write("#PBS -o "+logfile+"\n")
                         sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -456,10 +513,14 @@ while date <= edate:
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
                         sh.write("###PBS -l debug=true\n")
+                        sh.write("module load envvar/"+envvar_ver+"\n")
+                        sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                        sh.write("module load intel/"+intel_ver+"\n")
+                        sh.write("module load craype/"+craype_ver+"\n")
+                        sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                        sh.write("module load python/"+python_ver+"\n")
+                        sh.write("module load netcdf/"+netcdf_ver+"\n")
                         sh.write("# \n")
-                        sh.write("## module load python/3.8.6\n")
-                        sh.write("## module load netcdf/4.7.4\n")
-                        sh.write("##\n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("##  Plot EMC EXP "+envir+" using python script\n")
                         sh.write("##\n")
@@ -491,7 +552,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#!/bin/bash\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -500,9 +561,14 @@ while date <= edate:
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
+                    sh.write("module load envvar/"+envvar_ver+"\n")
+                    sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                    sh.write("module load intel/"+intel_ver+"\n")
+                    sh.write("module load craype/"+craype_ver+"\n")
+                    sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                    sh.write("module load python/"+python_ver+"\n")
+                    sh.write("module load netcdf/"+netcdf_ver+"\n")
                     sh.write("# \n")
-                    sh.write("## module load python/3.8.6\n")
-                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -534,7 +600,7 @@ while date <= edate:
                     if os.path.exists(logfile):
                         os.remove(logfile)
                     with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash -l\n")
+                        sh.write("#!/bin/bash\n")
                         sh.write("#PBS -o "+logfile+"\n")
                         sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -543,9 +609,14 @@ while date <= edate:
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
                         sh.write("###PBS -l debug=true\n")
+                        sh.write("module load envvar/"+envvar_ver+"\n")
+                        sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                        sh.write("module load intel/"+intel_ver+"\n")
+                        sh.write("module load craype/"+craype_ver+"\n")
+                        sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                        sh.write("module load python/"+python_ver+"\n")
+                        sh.write("module load netcdf/"+netcdf_ver+"\n")
                         sh.write("# \n")
-                        sh.write("## module load python/3.8.6\n")
-                        sh.write("## module load netcdf/4.7.4\n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("##\n")
                         sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -572,7 +643,7 @@ while date <= edate:
                     if os.path.exists(logfile):
                         os.remove(logfile)
                     with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash -l\n")
+                        sh.write("#!/bin/bash\n")
                         sh.write("#PBS -o "+logfile+"\n")
                         sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -581,9 +652,14 @@ while date <= edate:
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
                         sh.write("###PBS -l debug=true\n")
+                        sh.write("module load envvar/"+envvar_ver+"\n")
+                        sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                        sh.write("module load intel/"+intel_ver+"\n")
+                        sh.write("module load craype/"+craype_ver+"\n")
+                        sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                        sh.write("module load python/"+python_ver+"\n")
+                        sh.write("module load netcdf/"+netcdf_ver+"\n")
                         sh.write("# \n")
-                        sh.write("## module load python/3.8.6\n")
-                        sh.write("## module load netcdf/4.7.4\n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("##\n")
                         sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -616,7 +692,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#!/bin/bash\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -625,6 +701,13 @@ while date <= edate:
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
+                    sh.write("module load envvar/"+envvar_ver+"\n")
+                    sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                    sh.write("module load intel/"+intel_ver+"\n")
+                    sh.write("module load craype/"+craype_ver+"\n")
+                    sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                    sh.write("module load python/"+python_ver+"\n")
+                    sh.write("module load netcdf/"+netcdf_ver+"\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
@@ -658,7 +741,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#!/bin/bash\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -667,9 +750,14 @@ while date <= edate:
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
+                    sh.write("module load envvar/"+envvar_ver+"\n")
+                    sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                    sh.write("module load intel/"+intel_ver+"\n")
+                    sh.write("module load craype/"+craype_ver+"\n")
+                    sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                    sh.write("module load python/"+python_ver+"\n")
+                    sh.write("module load netcdf/"+netcdf_ver+"\n")
                     sh.write("# \n")
-                    sh.write("## module load python/3.8.6\n")
-                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -696,7 +784,7 @@ while date <= edate:
                     if os.path.exists(logfile):
                         os.remove(logfile)
                     with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash -l\n")
+                        sh.write("#!/bin/bash\n")
                         sh.write("#PBS -o "+logfile+"\n")
                         sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -705,6 +793,13 @@ while date <= edate:
                         sh.write("#PBS -A AQM-DEV\n")
                         sh.write("#PBS -l walltime="+task_cpu+"\n")
                         sh.write("###PBS -l debug=true\n")
+                        sh.write("module load envvar/"+envvar_ver+"\n")
+                        sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                        sh.write("module load intel/"+intel_ver+"\n")
+                        sh.write("module load craype/"+craype_ver+"\n")
+                        sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                        sh.write("module load python/"+python_ver+"\n")
+                        sh.write("module load netcdf/"+netcdf_ver+"\n")
                         sh.write("# \n")
                         sh.write("export OMP_NUM_THREADS=1\n")
                         sh.write("##\n")
@@ -731,7 +826,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#!/bin/bash\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -740,9 +835,14 @@ while date <= edate:
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
+                    sh.write("module load envvar/"+envvar_ver+"\n")
+                    sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                    sh.write("module load intel/"+intel_ver+"\n")
+                    sh.write("module load craype/"+craype_ver+"\n")
+                    sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                    sh.write("module load python/"+python_ver+"\n")
+                    sh.write("module load netcdf/"+netcdf_ver+"\n")
                     sh.write("# \n")
-                    sh.write("## module load python/3.8.6\n")
-                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -768,7 +868,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#!/bin/bash\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -777,6 +877,13 @@ while date <= edate:
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
+                    sh.write("module load envvar/"+envvar_ver+"\n")
+                    sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                    sh.write("module load intel/"+intel_ver+"\n")
+                    sh.write("module load craype/"+craype_ver+"\n")
+                    sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                    sh.write("module load python/"+python_ver+"\n")
+                    sh.write("module load netcdf/"+netcdf_ver+"\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
@@ -803,7 +910,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#!/bin/bash\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -812,9 +919,14 @@ while date <= edate:
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
+                    sh.write("module load envvar/"+envvar_ver+"\n")
+                    sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                    sh.write("module load intel/"+intel_ver+"\n")
+                    sh.write("module load craype/"+craype_ver+"\n")
+                    sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                    sh.write("module load python/"+python_ver+"\n")
+                    sh.write("module load netcdf/"+netcdf_ver+"\n")
                     sh.write("# \n")
-                    sh.write("## module load python/3.8.6\n")
-                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -840,7 +952,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#!/bin/bash\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -849,6 +961,13 @@ while date <= edate:
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
+                    sh.write("module load envvar/"+envvar_ver+"\n")
+                    sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                    sh.write("module load intel/"+intel_ver+"\n")
+                    sh.write("module load craype/"+craype_ver+"\n")
+                    sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                    sh.write("module load python/"+python_ver+"\n")
+                    sh.write("module load netcdf/"+netcdf_ver+"\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
@@ -875,7 +994,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#!/bin/bash\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -884,9 +1003,14 @@ while date <= edate:
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
+                    sh.write("module load envvar/"+envvar_ver+"\n")
+                    sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                    sh.write("module load intel/"+intel_ver+"\n")
+                    sh.write("module load craype/"+craype_ver+"\n")
+                    sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                    sh.write("module load python/"+python_ver+"\n")
+                    sh.write("module load netcdf/"+netcdf_ver+"\n")
                     sh.write("# \n")
-                    sh.write("## module load python/3.8.6\n")
-                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -912,7 +1036,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#!/bin/bash\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -921,6 +1045,13 @@ while date <= edate:
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
+                    sh.write("module load envvar/"+envvar_ver+"\n")
+                    sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                    sh.write("module load intel/"+intel_ver+"\n")
+                    sh.write("module load craype/"+craype_ver+"\n")
+                    sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                    sh.write("module load python/"+python_ver+"\n")
+                    sh.write("module load netcdf/"+netcdf_ver+"\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
@@ -947,7 +1078,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#!/bin/bash\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -956,9 +1087,14 @@ while date <= edate:
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu2+"\n")
                     sh.write("###PBS -l debug=true\n")
+                    sh.write("module load envvar/"+envvar_ver+"\n")
+                    sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                    sh.write("module load intel/"+intel_ver+"\n")
+                    sh.write("module load craype/"+craype_ver+"\n")
+                    sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                    sh.write("module load python/"+python_ver+"\n")
+                    sh.write("module load netcdf/"+netcdf_ver+"\n")
                     sh.write("# \n")
-                    sh.write("## module load python/3.8.6\n")
-                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -983,7 +1119,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#!/bin/bash\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -992,9 +1128,14 @@ while date <= edate:
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu2+"\n")
                     sh.write("###PBS -l debug=true\n")
+                    sh.write("module load envvar/"+envvar_ver+"\n")
+                    sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                    sh.write("module load intel/"+intel_ver+"\n")
+                    sh.write("module load craype/"+craype_ver+"\n")
+                    sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                    sh.write("module load python/"+python_ver+"\n")
+                    sh.write("module load netcdf/"+netcdf_ver+"\n")
                     sh.write("# \n")
-                    sh.write("## module load python/3.8.6\n")
-                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+"_bc using python script\n")
@@ -1020,7 +1161,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#!/bin/bash\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -1029,9 +1170,14 @@ while date <= edate:
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu2+"\n")
                     sh.write("###PBS -l debug=true\n")
+                    sh.write("module load envvar/"+envvar_ver+"\n")
+                    sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                    sh.write("module load intel/"+intel_ver+"\n")
+                    sh.write("module load craype/"+craype_ver+"\n")
+                    sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                    sh.write("module load python/"+python_ver+"\n")
+                    sh.write("module load netcdf/"+netcdf_ver+"\n")
                     sh.write("# \n")
-                    sh.write("## module load python/3.8.6\n")
-                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -1057,7 +1203,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#!/bin/bash\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -1066,6 +1212,13 @@ while date <= edate:
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu2+"\n")
                     sh.write("###PBS -l debug=true\n")
+                    sh.write("module load envvar/"+envvar_ver+"\n")
+                    sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                    sh.write("module load intel/"+intel_ver+"\n")
+                    sh.write("module load craype/"+craype_ver+"\n")
+                    sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                    sh.write("module load python/"+python_ver+"\n")
+                    sh.write("module load netcdf/"+netcdf_ver+"\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
@@ -1092,7 +1245,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#!/bin/bash\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -1101,9 +1254,14 @@ while date <= edate:
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu2+"\n")
                     sh.write("###PBS -l debug=true\n")
+                    sh.write("module load envvar/"+envvar_ver+"\n")
+                    sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                    sh.write("module load intel/"+intel_ver+"\n")
+                    sh.write("module load craype/"+craype_ver+"\n")
+                    sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                    sh.write("module load python/"+python_ver+"\n")
+                    sh.write("module load netcdf/"+netcdf_ver+"\n")
                     sh.write("# \n")
-                    sh.write("## module load python/3.8.6\n")
-                    sh.write("## module load netcdf/4.7.4\n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")
                     sh.write("##  Plot EMC EXP "+envir+" using python script\n")
@@ -1129,7 +1287,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash -l\n")
+                    sh.write("#!/bin/bash\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -1138,6 +1296,13 @@ while date <= edate:
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
+                    sh.write("module load envvar/"+envvar_ver+"\n")
+                    sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                    sh.write("module load intel/"+intel_ver+"\n")
+                    sh.write("module load craype/"+craype_ver+"\n")
+                    sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                    sh.write("module load python/"+python_ver+"\n")
+                    sh.write("module load netcdf/"+netcdf_ver+"\n")
                     sh.write("# \n")
                     sh.write("export OMP_NUM_THREADS=1\n")
                     sh.write("##\n")

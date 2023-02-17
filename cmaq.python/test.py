@@ -16,13 +16,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
-now = True
-now = False
-if now:
-    print("The statement is true")
-else:
-    print("The statement is false")
-sys.exit()
 ### PASSED AGRUEMENTS
 if len(sys.argv) < 0:
     print("you must set 3 arguments as model_exp [prod|para1...#] start_date end_date in yyyymmdd")
@@ -32,6 +25,46 @@ else:
     ## start_date = sys.argv[2]
     ## end_date = sys.argv[3]
 
+ifile="/u/ho-chun.huang/versions/run.ver"
+rfile=open(ifile, 'r')
+for line in rfile:
+    nfind=line.find("export")
+    if nfind == -1:
+        print(line)
+    else:
+        line=line.rstrip("\n")
+        ver=line.split("=")
+        ver_name=ver[0].split(" ")
+        if ver_name[1] == "envvar_ver":
+            envvar_ver=ver[1]
+        if ver_name[1] == "PrgEnv_intel_ver":
+            PrgEnv_intel_ver=ver[1]
+        if ver_name[1] == "intel_ver":
+            intel_ver=ver[1]
+        if ver_name[1] == "craype_ver":
+            craype_ver=ver[1]
+        if ver_name[1] == "cray_mpich_ver":
+            cray_mpich_ver=ver[1]
+        if ver_name[1] == "python_ver":
+            python_ver=ver[1]
+        if ver_name[1] == "netcdf_ver":
+            netcdf_ver=ver[1]
+print("envvar_ver="+envvar_ver)
+print("PrgEnv_intel_ver="+PrgEnv_intel_ver)
+print("intel_ver="+intel_ver)
+print("craype_ver="+craype_ver)
+print("envvar_ver="+envvar_ver)
+print("cray_mpich_ver="+cray_mpich_ver)
+print("python_ver="+python_ver)
+print("envvar_ver="+envvar_ver)
+sys.exit()
+now = True
+now = False
+if now:
+    print("The statement is true")
+else:
+    print("The statement is false")
+sys.exit()
 caseid="v70"
 nfind=envir.find(caseid)
 if nfind == -1:
@@ -71,7 +104,6 @@ else:
         print("exp="+EXP)
         print("expid="+expid)
         print("BC_append="+BC_append)
-sys.exit()
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]), 00)
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]), 23)
 date_inc = datetime.timedelta(hours=24)
