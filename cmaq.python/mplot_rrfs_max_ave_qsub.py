@@ -190,7 +190,7 @@ while date <= edate:
                     if os.path.exists(logfile):
                         os.remove(logfile)
                     with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash\n")
+                        sh.write("#!/bin/bash -l\n")
                         sh.write("#PBS -o "+logfile+"\n")
                         sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -230,7 +230,7 @@ while date <= edate:
                     if os.path.exists(logfile):
                         os.remove(logfile)
                     with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash\n")
+                        sh.write("#!/bin/bash -l\n")
                         sh.write("#PBS -o "+logfile+"\n")
                         sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -270,7 +270,7 @@ while date <= edate:
                     if os.path.exists(logfile):
                         os.remove(logfile)
                     with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash\n")
+                        sh.write("#!/bin/bash -l\n")
                         sh.write("#PBS -o "+logfile+"\n")
                         sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -309,7 +309,7 @@ while date <= edate:
                     if os.path.exists(logfile):
                         os.remove(logfile)
                     with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash\n")
+                        sh.write("#!/bin/bash -l\n")
                         sh.write("#PBS -o "+logfile+"\n")
                         sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -355,7 +355,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash\n")
+                    sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -393,7 +393,7 @@ while date <= edate:
                     if os.path.exists(logfile):
                         os.remove(logfile)
                     with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash\n")
+                        sh.write("#!/bin/bash -l\n")
                         sh.write("#PBS -o "+logfile+"\n")
                         sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -431,7 +431,7 @@ while date <= edate:
                     if os.path.exists(logfile):
                         os.remove(logfile)
                     with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash\n")
+                        sh.write("#!/bin/bash -l\n")
                         sh.write("#PBS -o "+logfile+"\n")
                         sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -475,7 +475,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash\n")
+                    sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -518,7 +518,7 @@ while date <= edate:
                     if os.path.exists(logfile):
                         os.remove(logfile)
                     with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash\n")
+                        sh.write("#!/bin/bash -l\n")
                         sh.write("#PBS -o "+logfile+"\n")
                         sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -556,7 +556,7 @@ while date <= edate:
                     if os.path.exists(logfile):
                         os.remove(logfile)
                     with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash\n")
+                        sh.write("#!/bin/bash -l\n")
                         sh.write("#PBS -o "+logfile+"\n")
                         sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -600,7 +600,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash\n")
+                    sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -642,7 +642,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash\n")
+                    sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -680,7 +680,7 @@ while date <= edate:
                     if os.path.exists(logfile):
                         os.remove(logfile)
                     with open(plot_script, 'a') as sh:
-                        sh.write("#!/bin/bash\n")
+                        sh.write("#!/bin/bash -l\n")
                         sh.write("#PBS -o "+logfile+"\n")
                         sh.write("#PBS -e "+logfile+"\n")
                         sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -715,7 +715,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash\n")
+                    sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -752,7 +752,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash\n")
+                    sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -787,7 +787,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash\n")
+                    sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -824,7 +824,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash\n")
+                    sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -859,7 +859,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash\n")
+                    sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -896,7 +896,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash\n")
+                    sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -931,7 +931,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash\n")
+                    sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -967,7 +967,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash\n")
+                    sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -1004,7 +1004,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash\n")
+                    sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -1041,7 +1041,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash\n")
+                    sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -1076,7 +1076,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash\n")
+                    sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -1113,7 +1113,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash\n")
+                    sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+logfile+"\n")
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
@@ -1149,7 +1149,7 @@ while date <= edate:
                 if os.path.exists(plot_log):
                     os.remove(plot_log)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash\n")
+                    sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+plot_log+"\n")
                     sh.write("#PBS -e "+plot_log+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
@@ -1185,7 +1185,7 @@ while date <= edate:
                 if os.path.exists(plot_log):
                     os.remove(plot_log)
                 with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash\n")
+                    sh.write("#!/bin/bash -l\n")
                     sh.write("#PBS -o "+plot_log+"\n")
                     sh.write("#PBS -e "+plot_log+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4500MB\n")
