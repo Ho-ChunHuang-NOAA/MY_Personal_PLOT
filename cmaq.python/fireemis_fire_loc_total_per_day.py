@@ -87,6 +87,20 @@ else:
     end_date = sys.argv[4]
 
 user=os.environ['USER']
+ifile="/u/ho-chun.huang/versions/run.ver"
+rfile=open(ifile, 'r')
+for line in rfile:
+    nfind=line.find("export")
+    if nfind != -1:
+        line=line.rstrip("\n")
+        ver=line.split("=")
+        ver_name=ver[0].split(" ")
+        if ver_name[1] == "aqm_ver":
+            aqm_ver=ver[1]
+rfile.close()
+if aqm_ver="":
+    aqm_ver="v6.1"
+print("aqm_ver="+aqm_ver)
 
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]), 00)
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]), 23)
@@ -135,7 +149,6 @@ ilen=len(iplot)
 print("iplot length = "+str(ilen))
 
 model="aqm"
-aqm_ver="v6.1"
 cycle=[]
 cycle.append(cyc_in)
 working_dir="/lfs/h2/emc/stmp/"+os.environ['USER']+"/working/fireemis/"+envir

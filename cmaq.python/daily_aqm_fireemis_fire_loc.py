@@ -148,13 +148,26 @@ else:
     sys.exit()
 
 user=os.environ['USER']
+ifile="/u/ho-chun.huang/versions/run.ver"
+rfile=open(ifile, 'r')
+for line in rfile:
+    nfind=line.find("export")
+    if nfind != -1:
+        line=line.rstrip("\n")
+        ver=line.split("=")
+        ver_name=ver[0].split(" ")
+        if ver_name[1] == "aqm_ver":
+            aqm_ver=ver[1]
+rfile.close()
+if aqm_ver="":
+    aqm_ver="v6.1"
+print("aqm_ver="+aqm_ver)
 figdir="/lfs/h2/emc/stmp/"+user
 working_dir="/lfs/h2/emc/stmp/"+user+"/figout_aqm_fireloc_"+envir
 if not os.path.exists(working_dir):
     os.mkdir(working_dir)
 
 model="aqm"
-aqm_ver="v6.1"
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver+"/cs."+grdcro2d_date
 date = sdate
 while date <= edate:

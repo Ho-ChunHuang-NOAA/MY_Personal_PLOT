@@ -35,6 +35,20 @@ script_dir=os.getcwd()
 print("Script directory is "+script_dir)
 
 user=os.environ['USER']
+ifile="/u/ho-chun.huang/versions/run.ver"
+rfile=open(ifile, 'r')
+for line in rfile:
+    nfind=line.find("export")
+    if nfind != -1:
+        line=line.rstrip("\n")
+        ver=line.split("=")
+        ver_name=ver[0].split(" ")
+        if ver_name[1] == "aqm_ver":
+            aqm_ver=ver[1]
+rfile.close()
+if aqm_ver="":
+    aqm_ver="v6.1"
+print("aqm_ver="+aqm_ver)
 wgrib2=os.environ['WGRIB2']
 if wgrib2 == "":
     print("No definition of WGRIB2 can be found, please load module wgrib2/2.0.8")
@@ -140,7 +154,6 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## print("experiment is "+envir[0:ilen])
 ## sys.exit()
 
-aqm_ver="v6.1"
 comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
 usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
 usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir

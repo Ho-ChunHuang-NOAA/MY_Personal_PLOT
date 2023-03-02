@@ -85,6 +85,21 @@ else:
     start_date = sys.argv[2]
     end_date = sys.argv[3]
 
+ifile="/u/ho-chun.huang/versions/run.ver"
+rfile=open(ifile, 'r')
+for line in rfile:
+    nfind=line.find("export")
+    if nfind != -1:
+        line=line.rstrip("\n")
+        ver=line.split("=")
+        ver_name=ver[0].split(" ")
+        if ver_name[1] == "aqm_ver":
+            aqm_ver=ver[1]
+rfile.close()
+if aqm_ver="":
+    aqm_ver="v6.1"
+print("aqm_ver="+aqm_ver)
+
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]), 00)
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]), 23)
 date_inc = datetime.timedelta(hours=24)
@@ -136,7 +151,6 @@ working_dir="/lfs/h2/emc/stmp/"+user+"/working/rrfs_fireemis/"+envir
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver/"+model+"."+grdcro2d_date
 date = sdate
 while date <= edate:
-    aqm_ver="v6.1"
     find_dir=[
               "/gpfs/dell2/emc/modeling/noscrub/RRFS_CMAQ/emissions/GSCE/GBBEPx.in."+emission_version.upper()+"/Reprocessed/"+date.strftime(YMD_date_format),
               "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format),

@@ -18,6 +18,20 @@ import subprocess
 import pandas as pd
 
 user=os.environ['USER']
+ifile="/u/ho-chun.huang/versions/run.ver"
+rfile=open(ifile, 'r')
+for line in rfile:
+    nfind=line.find("export")
+    if nfind != -1:
+        line=line.rstrip("\n")
+        ver=line.split("=")
+        ver_name=ver[0].split(" ")
+        if ver_name[1] == "aqm_ver":
+            aqm_ver_prod=ver[1]
+rfile.close()
+if aqm_ver_prod="":
+    aqm_ver_prod="v6.1"
+print("aqm_ver="+aqm_ver_prod)
 wgrib2=os.environ['WGRIB2']
 if wgrib2 == "":
     print("No definition of WGRIB2 can be found, please load module wgrib2/2.0.8")
@@ -132,7 +146,7 @@ if nfind == -1:
         print("exp="+EXP)
         print("BC_append="+BC_append)
     if EXP.lower() == "prod" or EXP.lower() == "para" or EXP.lower() == "firev4":
-        aqm_ver="v6.1"
+        aqm_ver=aqm_ver_prod
         exp_grid=grid148
         expid="cs"
         comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver

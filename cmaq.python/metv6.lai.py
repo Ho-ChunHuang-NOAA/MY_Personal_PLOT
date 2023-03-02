@@ -26,6 +26,21 @@ else:
     start_date = sys.argv[3]
     end_date = sys.argv[4]
 
+ifile="/u/ho-chun.huang/versions/run.ver"
+rfile=open(ifile, 'r')
+for line in rfile:
+    nfind=line.find("export")
+    if nfind != -1:
+        line=line.rstrip("\n")
+        ver=line.split("=")
+        ver_name=ver[0].split(" ")
+        if ver_name[1] == "aqm_ver":
+            aqm_ver=ver[1]
+rfile.close()
+if aqm_ver="":
+    aqm_ver="v6.1"
+print("aqm_ver="+aqm_ver)
+
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]))
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]))
 YMDH_date_format = "%Y%m%d/%H"
@@ -72,7 +87,6 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## Current operational CMAQ does include runs for AK and HI domain
 ## Current EMC development CMAQ does not include runs for AK and HI domain
 ##
-aqm_ver="v6.1"
 find_dir=[
           "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir,
           "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir+".met",

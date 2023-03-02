@@ -96,8 +96,21 @@ if envir1 != envir2:
     print("Experiemnt "+envir1+" and Experiemnt "+envir2+" shoule be the same for bias_correction difference")
     sys.exit()
 
-aqm_ver="v6.1"
 user=os.environ['USER']
+ifile="/u/ho-chun.huang/versions/run.ver"
+rfile=open(ifile, 'r')
+for line in rfile:
+    nfind=line.find("export")
+    if nfind != -1:
+        line=line.rstrip("\n")
+        ver=line.split("=")
+        ver_name=ver[0].split(" ")
+        if ver_name[1] == "aqm_ver":
+            aqm_ver=ver[1]
+rfile.close()
+if aqm_ver="":
+    aqm_ver="v6.1"
+print("aqm_ver="+aqm_ver)
 find_dir=[
           "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
           "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir,

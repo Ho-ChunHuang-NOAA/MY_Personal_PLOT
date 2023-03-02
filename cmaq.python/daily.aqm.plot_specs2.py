@@ -35,6 +35,20 @@ script_dir=os.getcwd()
 print("Script directory is "+script_dir)
 
 user=os.environ['USER']
+ifile="/u/ho-chun.huang/versions/run.ver"
+rfile=open(ifile, 'r')
+for line in rfile:
+    nfind=line.find("export")
+    if nfind != -1:
+        line=line.rstrip("\n")
+        ver=line.split("=")
+        ver_name=ver[0].split(" ")
+        if ver_name[1] == "aqm_ver":
+            aqm_ver=ver[1]
+rfile.close()
+if aqm_ver="":
+    aqm_ver="v6.1"
+print("aqm_ver="+aqm_ver)
 
 stmp_dir="/lfs/h2/emc/stmp/"+user
 if not os.path.exists(stmp_dir):
@@ -132,7 +146,6 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## Current operational CMAQ does include runs for AK and HI domain
 ## Current EMC development CMAQ does not include runs for AK and HI domain
 ##
-aqm_ver="v6.1"
 find_dir=[
           "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
           "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir,
