@@ -99,6 +99,8 @@ else:
     start_date = sys.argv[4]
     end_date = sys.argv[5]
 
+flag_obs=False
+
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]))
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]))
 
@@ -274,7 +276,7 @@ else:
 xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
 ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
 if 1 == 1:
-    iplot = [    1, 1,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1, 1 ]
+    iplot = [    0, 0,   0,      0,       0,      0,      0,      0,      1,      1,      1,      1,      1,      1,      1, 1 ]
 else:
     iplot = [    0,  0, 1,      0,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
 num_reg=len(iplot)
@@ -301,7 +303,7 @@ while date <= edate:
 
         for ivar in range(0,num_var):
             fcst_hour=fcst_ini
-            figdir = figout+"/aqm"+"_"+EXP.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cycle_time+BC_append.lower()
+            figdir = figout+"/aqm"+"_"+EXP.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cycle_time+BC_append.lower()+"_p2"
             print(figdir)
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)
@@ -335,7 +337,7 @@ while date <= edate:
                 ##    else:
                 ##        print("Can not find "+obsfile)
 
-                if flag_find_epa_ascii == "yes":
+                if flag_obs and flag_find_epa_ascii == "yes":
                     airnow = []
                     colnames = ['Latitude','Longitude','ValidDate','ValidTime','PM25','PM25_Unit','OZONE','OZONE_Unit']
     
@@ -561,7 +563,7 @@ while date <= edate:
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
 
-                        if flag_find_epa_ascii == "yes":
+                        if flag_obs and flag_find_epa_ascii == "yes":
                             #######################################################
                             ##########      PLOTTING OBS DATA            ##########
                             #######################################################

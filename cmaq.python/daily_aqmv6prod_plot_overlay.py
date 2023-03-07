@@ -59,7 +59,7 @@ for line in rfile:
         ver_name=ver[0].split(" ")
         if ver_name[1] == "aqm_ver":
             aqm_ver=ver[1]
-if aqm_ver="":
+if aqm_ver=="":
     aqm_ver="v6.1"
 print("aqm_ver="+aqm_ver)
 
@@ -264,7 +264,7 @@ while date <= edate:
                 print("Can not find "+metfilein)
                 sys.exit()
 
-        aqmfilein=comout+"//"+regid+"."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
+        aqmfilein=comout+"/"+regid+"."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
         if os.path.exists(aqmfilein):
             print(aqmfilein+" exists")
             pvar_aqm = netcdf.Dataset(aqmfilein)

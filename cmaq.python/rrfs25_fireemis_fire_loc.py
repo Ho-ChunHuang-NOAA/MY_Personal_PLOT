@@ -96,7 +96,7 @@ for line in rfile:
         if ver_name[1] == "aqm_ver":
             aqm_ver=ver[1]
 rfile.close()
-if aqm_ver="":
+if aqm_ver=="":
     aqm_ver="v6.1"
 print("aqm_ver="+aqm_ver)
 

@@ -46,7 +46,7 @@ for line in rfile:
         if ver_name[1] == "aqm_ver":
             aqm_ver=ver[1]
 rfile.close()
-if aqm_ver="":
+if aqm_ver=="":
     aqm_ver="v6.1"
 print("aqm_ver="+aqm_ver)
 wgrib2=os.environ['WGRIB2']
@@ -188,7 +188,7 @@ else:
 xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
 ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
 if 1 == 1:
-    iplot = [    1, 1,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      0,      0, 1 ]
+    iplot = [    1, 1,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1, 1 ]
 else:
     iplot = [    0,  0, 1,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
 num_reg=len(iplot)

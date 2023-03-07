@@ -99,6 +99,8 @@ else:
     start_date = sys.argv[4]
     end_date = sys.argv[5]
 
+flag_obs=False
+
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]))
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]))
 
@@ -335,7 +337,7 @@ while date <= edate:
                 ##    else:
                 ##        print("Can not find "+obsfile)
 
-                if flag_find_epa_ascii == "yes":
+                if flag_obs and flag_find_epa_ascii == "yes":
                     airnow = []
                     colnames = ['Latitude','Longitude','ValidDate','ValidTime','PM25','PM25_Unit','OZONE','OZONE_Unit']
     
@@ -561,7 +563,7 @@ while date <= edate:
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
 
-                        if flag_find_epa_ascii == "yes":
+                        if flag_obs and flag_find_epa_ascii == "yes":
                             #######################################################
                             ##########      PLOTTING OBS DATA            ##########
                             #######################################################

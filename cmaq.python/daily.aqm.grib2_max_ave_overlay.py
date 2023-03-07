@@ -29,7 +29,7 @@ for line in rfile:
         if ver_name[1] == "aqm_ver":
             aqm_ver_prod=ver[1]
 rfile.close()
-if aqm_ver_prod="":
+if aqm_ver_prod=="":
     aqm_ver_prod="v6.1"
 print("aqm_ver="+aqm_ver_prod)
 wgrib2=os.environ['WGRIB2']

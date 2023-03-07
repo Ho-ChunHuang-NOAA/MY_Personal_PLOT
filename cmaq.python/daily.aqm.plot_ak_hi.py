@@ -47,7 +47,7 @@ for line in rfile:
         if ver_name[1] == "aqm_ver":
             aqm_ver=ver[1]
 rfile.close()
-if aqm_ver="":
+if aqm_ver=="":
     aqm_ver="v6.1"
 print("aqm_ver="+aqm_ver)
 
@@ -153,7 +153,6 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ##
 find_dir=[
           "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
-          "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir,
           "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir
          ]
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
