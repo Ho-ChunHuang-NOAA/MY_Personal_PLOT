@@ -276,7 +276,7 @@ else:
 xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
 ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
 if 1 == 1:
-    iplot = [    0, 0,   0,      0,       0,      0,      0,      0,      1,      1,      1,      1,      1,      1,      1, 1 ]
+    iplot = [    0, 0,   0,      0,       0,      0,      0,      0,      1,      1,      0,      0,      1,      1,      1, 0 ]
 else:
     iplot = [    0,  0, 1,      0,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
 num_reg=len(iplot)
@@ -663,7 +663,10 @@ while date <= edate:
                             ## ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=100,zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
                             ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=mksize[ireg],zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
 
-                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
+                        if flag_obs:
+                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
+                        else:
+                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
                         plt.savefig(savefig_name, bbox_inches='tight')
                         plt.close()
             ## scp by cycle and variable
