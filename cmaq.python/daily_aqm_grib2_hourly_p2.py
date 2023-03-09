@@ -126,12 +126,14 @@ grid139="139"
 grid196="196"
 grid793="793"
 
+aqmv6=False
+aqmv7=False
 caseid="v70"
 nfind=envir.find(caseid)
 if nfind == -1:
     print("AQMv6 simulation")
     s1_lead="CMAQ"
-    aqmv7 = False
+    aqmv6 = True
     nfind=envir.find("_bc")
     if nfind == -1:
         print("not a bias_correction cases")
@@ -291,8 +293,18 @@ while date <= edate:
         date = date + date_inc
         continue
     
-    flag_ak = "no"
-    flag_hi = "no"
+    if aqmv6:
+        flag_ak = False
+        flag_hi = False
+
+    if aqmv7:
+        flag_ak = True
+        flag_hi = True
+
+    if not flag_ak and iplot[num_reg-3] == 1:
+        iplot[num_reg-3] = 0
+    if not flag_hi and iplot[num_reg-2] == 1:
+        iplot[num_reg-2] = 0
 
     for cyc in cycle:
         cycle_time="t"+cyc+"z"
@@ -303,13 +315,15 @@ while date <= edate:
 
         for ivar in range(0,num_var):
             fcst_hour=fcst_ini
-            figdir = figout+"/aqm"+"_"+EXP.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cycle_time+BC_append.lower()+"_p2"
+            if flag_obs:
+                figdir = figout+"/aqm"+"_"+EXP.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cycle_time+BC_append.lower()+"_hrlyp2"
+            else:
+                figdir = figout+"/aqm"+"_"+EXP.lower()+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cycle_time+BC_append.lower()+"_p2"
             print(figdir)
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)
             os.makedirs(figdir)
             print("working on "+date.strftime(YMD_date_format)+" t"+cyc+"z "+var[ivar])
-            flag_read_latlon="no"
             hour_end = 72
             for fcst_hr in range(0,hour_end):
                 nout=fcst_hr+1
@@ -432,12 +446,6 @@ while date <= edate:
                         continue
                         ## sys.exit()
 
-            ## if flag_ak == "no" and iplot[num_reg-3] == 1:
-            ##     iplot[num_reg-3] = 0
-            ## if flag_hi == "no" and iplot[num_reg-2] == 1:
-            ##     iplot[num_reg-2] = 0
-            ## print("iplot length = "+str(num_reg))
-            ##
                 s2_title = fcst_hour.strftime(YMDH_date_format)+"00V"+fhh3
                 ##    for ivar in range(0,num_var):
                 msg=datetime.datetime.now()
@@ -446,10 +454,6 @@ while date <= edate:
                     s3_title="Ozone sfc_conc (ppbV)"
                     clevs = [ 3., 6., 9., 12., 25., 35., 45., 55., 65., 70., 75., 85., 95., 105. ]
                     var_cs=o3_cs*scale
-                    if flag_ak == "yes":
-                        var_ak=o3_ak*scale
-                    if flag_hi == "yes":
-                        var_hi=o3_hi*scale
                     cmap = mpl.colors.ListedColormap([
                           (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
                           (0.0000,0.7490,1.0000), (0.0000,1.0000,1.0000),
@@ -464,10 +468,6 @@ while date <= edate:
                     scale=1.
                     clevs = [ 3., 6., 9., 12., 15., 35., 55., 75., 100., 125., 150., 250., 300., 400., 500., 600., 750. ]
                     var_cs=pm_cs
-                    if flag_ak == "yes":
-                        var_ak=pm_ak
-                    if flag_hi == "yes":
-                        var_hi=pm_hi
                     cmap = mpl.colors.ListedColormap([
                           (0.0000,0.7060,0.0000), (0.0000,0.9060,0.0000), (0.3020,1.0000,0.3020),
                           (1.0000,1.0000,0.4980), (1.0000,0.8745,0.0000), (1.0000,0.6471,0.0000),
@@ -482,10 +482,6 @@ while date <= edate:
                     scale=1.
                     clevs = [ 0., 3., 6., 9., 12., 25., 35., 45., 55., 65., 75., 85., 95., 105. ]
                     var_cs=pm_cs
-                    if flag_ak == "yes":
-                        var_ak=pm_ak
-                    if flag_hi == "yes":
-                        var_hi=pm_hi
                     cmap = mpl.colors.ListedColormap([
                           (0.9412,0.9412,0.9412), (0.8627,0.8627,1.0000), (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
                           (0.2157,0.2157,1.0000), (0.0000,0.7843,0.7843), (0.0000,0.8627,0.0000), (0.6275,0.9020,0.1961),
@@ -499,10 +495,6 @@ while date <= edate:
 
                 title=s1_title+"\n"+s2_title+" "+s3_title
                 pvar_cs = var_cs[:,:]
-                if flag_ak == "yes":
-                    pvar_ak = var_ak[:,:]
-                if flag_hi == "yes":
-                    pvar_hi = var_hi[:,:]
                 for ireg in range(0,num_reg):
                     if iplot[ireg] == 1:
                         figarea=regname[ireg]
@@ -533,32 +525,10 @@ while date <= edate:
                         ax.add_feature(cfeature.BORDERS, facecolor='none', linestyle=':')
                         ax.add_feature(cfeature.LAKES, facecolor='None', edgecolor='black', alpha=0.5)
                         ## ax.add_feature(cfeature.RIVERS)
-                        if figarea == "ak":
-                            cf1 = ax.contourf(
-                                     ak_lon, ak_lat, pvar_ak,
-                                     levels=clevs, cmap=cmap, norm=norm, extend='both',
-                                     transform=ccrs.PlateCarree() )
-                        elif figarea == "hi":
-                            cf1 = ax.contourf(
-                                     hi_lon, hi_lat, pvar_hi,
-                                     levels=clevs, cmap=cmap, norm=norm, extend='both',
-                                     transform=ccrs.PlateCarree() )
-                        else:
-                            cf1 = ax.contourf(
-                                     cs_lon, cs_lat, pvar_cs,
-                                     levels=clevs, cmap=cmap, norm=norm, extend='both',
-                                     transform=ccrs.PlateCarree() )
-                            if figarea == "dset":
-                                if flag_ak == "yes":
-                                    ax.contourf(
-                                         ak_lon, ak_lat, pvar_ak,
-                                         levels=clevs, cmap=cmap, norm=norm, extend='both',
-                                         transform=ccrs.PlateCarree() )
-                                if flag_hi == "yes":
-                                    ax.contourf(
-                                         hi_lon, hi_lat, pvar_hi,
-                                         levels=clevs, cmap=cmap, norm=norm, extend='both',
-                                         transform=ccrs.PlateCarree() )
+                        cf1 = ax.contourf(
+                                 cs_lon, cs_lat, pvar_cs,
+                                 levels=clevs, cmap=cmap, norm=norm, extend='both',
+                                 transform=ccrs.PlateCarree() )
                         ax.set_title(title)
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)

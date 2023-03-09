@@ -122,13 +122,14 @@ grid139="139"
 grid196="196"
 grid793="793"
 
+aqmv6=False
+aqmv7=False
 caseid="v70"
 nfind=envir.find(caseid)
 if nfind == -1:
     print("AQMv6 simulation")
     s1_lead="CMAQ"
     aqmv6 = True
-    aqmv7 = False
     nfind=envir.find("_bc")
     if nfind == -1:
         print("not a bias_correction cases")
@@ -161,7 +162,6 @@ if nfind == -1:
 else:
     print("AQMv7 simulation")
     s1_lead="Online CMAQ"
-    aqmv6 = False
     aqmv7 = True
     aqm_ver="v7.0"
     exp_grid=grid793
@@ -297,7 +297,7 @@ obsfile="daily_data_v2.dat"
 date=sdate
 while date <= edate:
     if BC_append == "":
-        flag_ak = "yes"
+        flag_ak = True
         for cyc in cycle:
             cycle_time="t"+cyc+"z"
             for ivar in range(0,num_var):
@@ -309,21 +309,23 @@ while date <= edate:
                     fileid="ave_24hr_pm25"
                 elif var[ivar] == "pmmax1":
                     fileid="max_1hr_pm25"
-                check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid198+".grib2"
                 if aqmv7:
-                    aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
+                    check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid793+".grib2"
+                    aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
+                    aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
                 else:
+                    check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid198+".grib2"
                     aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+check_file
-                aqmfilein2=usrout+"/ak."+date.strftime(YMD_date_format)+"/"+check_file
+                    aqmfilein2=usrout+"/ak."+date.strftime(YMD_date_format)+"/"+check_file
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
                 elif os.path.exists(aqmfilein2):
                     print(aqmfilein2+" exists")
                 else:
-                    flag_ak="no"
+                    flag_ak=False
                     print("Can not find "+aqmfilein+" and "+aqmfilein2)
                     break
-        flag_hi = "yes"
+        flag_hi = True
         for cyc in cycle:
             cycle_time="t"+cyc+"z"
             for ivar in range(0,num_var):
@@ -335,26 +337,36 @@ while date <= edate:
                     fileid="ave_24hr_pm25"
                 elif var[ivar] == "pmmax1":
                     fileid="max_1hr_pm25"
-                check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid139+".grib2"
                 if aqmv7:
-                    aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
+                    check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid793+".grib2"
+                    aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
+                    aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
                 else:
+                    check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid196+".grib2"
                     aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+check_file
-                aqmfilein2=usrout+"/hi."+date.strftime(YMD_date_format)+"/"+check_file
+                    ## check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid139+".grib2"
+                    aqmfilein2=usrout+"/hi."+date.strftime(YMD_date_format)+"/"+check_file
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
                 elif os.path.exists(aqmfilein2):
                     print(aqmfilein2+" exists")
                 else:
-                    flag_hi="no"
+                    flag_hi=False
                     print("Can not find "+aqmfilein+" and "+aqmfilein2)
                     break
-        if aqmv7:
-            flag_ak = "yes"
-            flag_hi = "yes"
     else:
-        flag_ak = "no"
-        flag_hi = "no"
+        if aqmv7:
+            flag_ak = True
+            flag_hi = True
+        else:
+            flag_ak = False
+            flag_hi = False
+
+    if not flag_ak and iplot[num_reg-3] == 1:
+        iplot[num_reg-3] = 0
+    if not flag_hi and iplot[num_reg-2] == 1:
+        iplot[num_reg-2] = 0
+    print("iplot length = "+str(num_reg))
 
     for cyc in cycle:
         cycle_time="t"+cyc+"z"
@@ -419,22 +431,19 @@ while date <= edate:
                 print("Can not find "+aqmfilein+" "+aqmfilein2)
                 continue
     
-            if aqmv7 and flag_ak == "yes":
+            if aqmv7 and flag_ak:
                 ak_lat=cs_lat
                 ak_lon=cs_lon
                 ozpm_ak=ozpm_cs
 
-            if aqmv7 and flag_hi == "yes":
+            if aqmv7 and flag_hi:
                 hi_lat=cs_lat
                 hi_lon=cs_lon
                 ozpm_hi=ozpm_cs
 
-            if aqmv6 and flag_ak == "yes":
+            if aqmv6 and flag_ak:
                 file_hdr="aqm."+cycle_time+"."+fileid+BC_append+"."+grid198
-                if aqmv7:
-                    aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
-                else:
-                    aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
+                aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
                 aqmfilein2=usrout+"/ak."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
@@ -468,15 +477,13 @@ while date <= edate:
                     ak_aqm.close()
                 else:
                     print("Can not find "+aqmfilein+" "+aqmfilein2)
-                    flag_ak = "no"
+                    flag_ak = False
                     iplot[num_reg-3] = 0
         
-            if aqmv6 and flag_hi == "yes":
-                file_hdr="aqm."+cycle_time+"."+fileid+BC_append+"."+grid139
-                if aqmv7:
-                    aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
-                else:
-                    aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
+            if aqmv6 and flag_hi:
+                file_hdr="aqm."+cycle_time+"."+fileid+BC_append+"."+grid196
+                aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
+                ## file_hdr="aqm."+cycle_time+"."+fileid+BC_append+"."+grid139
                 aqmfilein2=usrout+"/hi."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
@@ -484,8 +491,8 @@ while date <= edate:
                     subprocess.call([wgrib2+' -netcdf '+outfile+' '+aqmfilein], shell=True)
                     aqmfilein=outfile
                     hi_aqm = netcdf.Dataset(aqmfilein)
-                    hi_lat = hi_aqm.variables['latitude'][:,:]
-                    hi_lon = hi_aqm.variables['longitude'][:,:]
+                    hi_lat = hi_aqm.variables['latitude'][:]
+                    hi_lon = hi_aqm.variables['longitude'][:]
                     hi_var = hi_aqm.variables['time'][:]
                     nstep_hi=len(hi_var)
                     if nstep_hi != nstep:
@@ -499,8 +506,8 @@ while date <= edate:
                     subprocess.call([wgrib2+' -netcdf '+outfile+' '+aqmfilein2], shell=True)
                     aqmfilein2=outfile
                     hi_aqm = netcdf.Dataset(aqmfilein2)
-                    hi_lat = hi_aqm.variables['latitude'][:,:]
-                    hi_lon = hi_aqm.variables['longitude'][:,:]
+                    hi_lat = hi_aqm.variables['latitude'][:]
+                    hi_lon = hi_aqm.variables['longitude'][:]
                     hi_var = hi_aqm.variables['time'][:]
                     nstep_hi=len(hi_var)
                     if nstep_hi != nstep:
@@ -510,15 +517,9 @@ while date <= edate:
                     hi_aqm.close()
                 else:
                     print("Can not find "+aqmfilein+" "+aqmfilein2)
-                    flag_hi = "no"
+                    flag_hi = False
                     iplot[num_reg-2] = 0
     
-            if flag_ak == "no" and iplot[num_reg-3] == 1:
-                iplot[num_reg-3] = 0
-            if flag_hi == "no" and iplot[num_reg-2] == 1:
-                iplot[num_reg-2] = 0
-            print("iplot length = "+str(num_reg))
-
             msg=datetime.datetime.now()
             print("Start processing "+var[ivar])
             jobid="aqm"+"_"+envir+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"_"+cyc
@@ -534,9 +535,9 @@ while date <= edate:
                 scale=1.
                 clevs = [ 3., 6., 9., 12., 25., 35., 45., 55., 65., 70., 75., 85., 95., 105. ]
                 var_cs=ozpm_cs*scale
-                if flag_ak == "yes":
+                if flag_ak:
                     var_ak=ozpm_ak*scale
-                if flag_hi == "yes":
+                if flag_hi:
                     var_hi=ozpm_hi*scale
                 cmap = mpl.colors.ListedColormap([
                       (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
@@ -553,9 +554,9 @@ while date <= edate:
                 scale=1.
                 clevs = [ 3., 6., 9., 12., 15., 35., 55., 75., 100., 125., 150., 250., 300., 400., 500., 600., 750. ]
                 var_cs=ozpm_cs
-                if flag_ak == "yes":
+                if flag_ak:
                     var_ak=ozpm_ak
-                if flag_hi == "yes":
+                if flag_hi:
                     var_hi=ozpm_hi
                 cmap = mpl.colors.ListedColormap([
                       (0.0000,0.7060,0.0000), (0.0000,0.9060,0.0000), (0.3020,1.0000,0.3020),
@@ -572,9 +573,9 @@ while date <= edate:
                 scale=1.
                 clevs = [ 0., 3., 6., 9., 12., 25., 35., 45., 55., 65., 75., 85., 95., 105. ]
                 var_cs=ozpm_cs
-                if flag_ak == "yes":
+                if flag_ak:
                     var_ak=ozpm_ak
-                if flag_hi == "yes":
+                if flag_hi:
                     var_hi=ozpm_hi
                 cmap = mpl.colors.ListedColormap([
                       (0.9412,0.9412,0.9412), (0.8627,0.8627,1.0000), (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
@@ -635,9 +636,9 @@ while date <= edate:
                 s2_title = begdate+"-"+enddate
                 title=s1_title+"\n"+s2_title+" "+s3_title
                 pvar_cs = var_cs[n,:,:]
-                if flag_ak == "yes":
+                if flag_ak:
                     pvar_ak = var_ak[n,:,:]
-                if flag_hi == "yes":
+                if flag_hi:
                     pvar_hi = var_hi[n,:,:]
                 for ireg in range(0,num_reg):
                     if iplot[ireg] == 1:
@@ -685,12 +686,12 @@ while date <= edate:
                                      levels=clevs, cmap=cmap, norm=norm, extend='both',
                                      transform=ccrs.PlateCarree() )
                             if figarea == "dset":
-                                if flag_ak == "yes":
+                                if flag_ak:
                                     ax.contourf(
                                          ak_lon, ak_lat, pvar_ak,
                                          levels=clevs, cmap=cmap, norm=norm, extend='both',
                                          transform=ccrs.PlateCarree() )
-                                if flag_hi == "yes":
+                                if flag_hi:
                                     ax.contourf(
                                          hi_lon, hi_lat, pvar_hi,
                                          levels=clevs, cmap=cmap, norm=norm, extend='both',
@@ -723,13 +724,13 @@ while date <= edate:
                                     elif obs_o3pm[i] >= clevs[nlev-1]:
                                         color.append((0.9412,0.9412,0.9412))
                                     else:
-                                        flag_find_color="no"
+                                        flag_find_color=False
                                         for j in range(0,nlev-1):
                                             if obs_o3pm[i] >= clevs[j] and obs_o3pm[i] < clevs[j+1]:
                                                 color.append(ccols[j])
-                                                flag_find_color="yes"
+                                                flag_find_color=True
                                                 break
-                                        if flag_find_color =="no":
+                                        if not flag_find_color:
                                             print("Can not assign proper value for color, program stop")
                                             sys.exit()
     
@@ -754,20 +755,23 @@ while date <= edate:
                                     elif obs_o3pm[i] >= clevs[nlev-1]:
                                         color.append((0.4310,0.2780,0.7250))
                                     else:
-                                        flag_find_color='no'
+                                        flag_find_color=False
                                         for j in range(0,nlev-1):
                                             if obs_o3pm[i] >= clevs[j] and obs_o3pm[i] < clevs[j+1]:
                                                 color.append(ccols[j])
-                                                flag_find_color='yes'
+                                                flag_find_color=True
                                                 break
-                                        if flag_find_color =='no':
+                                        if not flag_find_color:
                                             print('Can not assign proper value for color, program stop')
                                             sys.exit()
     
                             ## s = [20*4**n for n in range(len(x))]
                             ## ax.scatter(obs_o3pm_lon,obs_o3pm_lat,c=color,cmap=cmap,marker='o',s=100,zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
                             ax.scatter(obs_o3pm_lon,obs_o3pm_lat,c=color,cmap=cmap,marker='o',s=mksize[ireg],zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
-                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fileid+".day"+str(format(nout,'01d'))+".k1.png"
+                        if flag_with_obs:
+                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fileid+".day"+str(format(nout,'01d'))+".k1.png"
+                        else:
+                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fileid+".day"+str(format(nout,'01d'))+".k1.png"
                         plt.savefig(savefig_name, bbox_inches='tight')
                         plt.close()
             ##

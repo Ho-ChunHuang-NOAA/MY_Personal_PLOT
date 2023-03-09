@@ -133,7 +133,7 @@ if envir == "prod" or envir == "firev4":
                   "diff_aqm_plot_bc.py",
                   "daily.aqm.plot_max_ave.py", "daily.aqm.plot_max_ave_bc.py",
                   "daily.aqm.plot_max_ave_overlay.py",
-                  "diff.aqm.plot_max_ave_bc.py"
+                  "diff.aqm.plot_max_ave_bc.py",
                   "daily_aqm_grib2_overlay_p1.py",
                   "daily_aqm_grib2_overlay_p2.py",
                   "diff.aqm.plot_bc.py",

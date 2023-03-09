@@ -344,6 +344,7 @@ while date <= edate:
                     aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
                 else:
                     aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+check_file
+                ## check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid139+".grib2"
                 aqmfilein2=usrout+"/hi."+date.strftime(YMD_date_format)+"/"+check_file
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
@@ -469,10 +470,8 @@ while date <= edate:
         
             if aqmv6 and flag_hi:
                 file_hdr="aqm."+cycle_time+"."+fileid+BC_append+"."+grid196
-                if aqmv7:
-                    aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
-                else:
-                    aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
+                aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
+                ## file_hdr="aqm."+cycle_time+"."+fileid+BC_append+"."+grid139
                 aqmfilein2=usrout+"/hi."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
