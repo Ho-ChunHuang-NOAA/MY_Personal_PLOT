@@ -69,13 +69,16 @@ grid139="139"
 grid196="196"
 grid793="793"
 
+flag_ak=True
+flag_hi=True
+aqmv6 = False
+aqmv7 = False
 caseid="v70"
 nfind=envir.find(caseid)
 if nfind == -1:
     print("AQMv6 simulation")
     s1_lead="CMAQ"
     aqmv6 = True
-    aqmv7 = False
     bcfilehdr_o3="ozone"
     bcfilehdr_pm25="pm2.5"
     nfind=envir.find("_bc")
@@ -86,6 +89,8 @@ if nfind == -1:
         BC_fig_append=BC_append
         print("exp="+EXP)
         print("BC_append="+BC_append)
+        flag_ak=True
+        flag_hi=True
     else:
         print("A bias_correction cases")
         EXP=envir[0:nfind]
@@ -93,6 +98,8 @@ if nfind == -1:
         BC_fig_append="bc"
         print("exp="+EXP)
         print("BC_append="+BC_append)
+        flag_ak=False
+        flag_hi=False
     if EXP.lower() == "prod" or EXP.lower() == "para" or EXP.lower() == "firev4":
         aqm_ver=aqm_ver_prod
         exp_grid=grid148
@@ -112,8 +119,9 @@ if nfind == -1:
             sys.exit()
 else:
     print("AQMv7 simulation")
+    print("The difference plot is not for AQMv7")
+    sys.exit()
     s1_lead="Online CMAQ"
-    aqmv6 = False
     aqmv7 = True
     aqm_ver="v7.0"
     exp_grid=grid793
@@ -132,6 +140,8 @@ else:
         print("exp="+EXP)
         print("expid="+expid)
         print("BC_append="+BC_append)
+        flag_ak=True
+        flag_hi=True
     else:
         EXP=envir[0:nfind]
         n0=len(caseid)
@@ -142,6 +152,8 @@ else:
         print("exp="+EXP)
         print("expid="+expid)
         print("BC_append="+BC_append)
+        flag_ak=False
+        flag_hi=False
     comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver+"/aqm."+aqm_ver+"."+expid
     comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
     usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
@@ -201,12 +213,12 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 metout1="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
 metout2="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
 
-flag_ak = "no"
-flag_hi = "no"
+flag_ak = False
+flag_hi = False
 
 flag_biasdir=False
-flag_find_idir="no"
-flag_find_cyc="yes"
+flag_find_idir=False
+flag_find_cyc=True
 for cyc in cycle:
     check_file1=comout+"/cs."+sdate.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
     check_file2=usrout+"/cs."+sdate.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
@@ -215,7 +227,7 @@ for cyc in cycle:
     elif os.path.exists(check_file2):
         comout1=usrout
     else:
-        flag_find_cyc="no"
+        flag_find_cyc=False
         print("Can not find "+check_file1)
         print("Can not find "+check_file2)
         break
@@ -236,22 +248,23 @@ for cyc in cycle:
             comout2=biasdir
             flag_biasdir=True
         else:
-            flag_find_cyc="no"
+            flag_find_cyc=False
             print("Can not find "+check_file1)
             print("Can not find "+check_file2)
             print("Can not find "+check_bias)
             break
-    if flag_find_cyc == "yes":
-        flag_find_idir="yes"
+    if flag_find_cyc:
+        flag_find_idir=True
         break
-if flag_find_idir == "yes":
+if flag_find_idir:
     print("comout1 set to "+comout1)
     print("comout2 set to "+comout2)
 else:
     sys.exit()
 
-flag_ak = "no"
-flag_hi = "no"
+## No bias correction fo AK and HI, thus no difference for Ak and HI
+flag_ak = False
+flag_hi = False
 
 figout="/lfs/h2/emc/stmp/"+user
 
@@ -271,13 +284,14 @@ else:
 xsize = [     10,     10,       8,      8,      8,      8,      8,      8,      8,      8,      8,      8,     10 ]
 ysize = [      8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      8,      8,      8 ]
 if 1 == 1:
-    iplot = [    0, 0,   1,      1,       1,      1,      1,      1,      1,      1,      0,      0,      1,      1,      1, 0 ]
+    iplot = [    0, 0,   1,      1,       1,      1,      1,      1,      1,      1,      0,      0,      1,      0,      0, 0 ]
 else:
     iplot = [      1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1 ]
 num_reg=len(iplot)
-if flag_ak == "no" and iplot[num_reg-3] == 1:
+
+if not flag_ak and iplot[num_reg-3] == 1:
     iplot[num_reg-3] = 0
-if flag_hi == "no" and iplot[num_reg-2] == 1:
+if not flag_hi and iplot[num_reg-2] == 1:
     iplot[num_reg-2] = 0
 print("iplot length = "+str(num_reg))
 
@@ -388,14 +402,14 @@ while date <= edate:
                     for x, y in zip(val2, val1):
                         diff.append(x-y)
                     pvar_cs= diff 
-                    if flag_ak == "yes":
+                    if flag_ak:
                         val1 = o3_ak1[n,:,:]
                         val2 = o3_ak2[n,:,:]
                         diff = []
                         for x, y in zip(val2, val1):
                             diff.append(x-y)
                         pvar_ak= diff
-                    if flag_hi == "yes":
+                    if flag_hi:
                         val1 = o3_hi1[n,:,:]
                         val2 = o3_hi2[n,:,:]
                         diff = []
@@ -409,14 +423,14 @@ while date <= edate:
                     for x, y in zip(val2, val1):
                         diff.append(x-y)
                     pvar_cs= diff
-                    if flag_ak == "yes":
+                    if flag_ak:
                         val1 = pm_ak1[n,:,:]
                         val2 = pm_ak2[n,:,:]
                         diff = []
                         for x, y in zip(val2, val1):
                             diff.append(x-y)
                         pvar_ak= diff
-                    if flag_hi == "yes":
+                    if flag_hi:
                         val1 = pm_hi1[n,:,:]
                         val2 = pm_hi2[n,:,:]
                         diff = []
@@ -453,12 +467,12 @@ while date <= edate:
                         ax.add_feature(cfeature.BORDERS, facecolor='none', linestyle=':')
                         ax.add_feature(cfeature.LAKES, facecolor='None', edgecolor='black', alpha=0.5)
                         ## ax.add_feature(cfeature.RIVERS)
-                        if figarea == "ak" and flag_ak == "yes":
+                        if figarea == "ak" and flag_ak:
                             cf1 = ax.contourf(
                                      ak_lon, ak_lat, pvar_ak,
                                      levels=clevs, cmap=cmap, norm=norm, extend='both',
                                      transform=ccrs.PlateCarree() )
-                        elif figarea == "hi" and flag_hi == "yes":
+                        elif figarea == "hi" and flag_hi:
                             cf1 = ax.contourf(
                                      hi_lon, hi_lat, pvar_hi,
                                      levels=clevs, cmap=cmap, norm=norm, extend='both',
@@ -469,12 +483,12 @@ while date <= edate:
                                      levels=clevs, cmap=cmap, norm=norm, extend='both',
                                      transform=ccrs.PlateCarree() )
                             if figarea == "dset":
-                                if flag_ak == "yes":
+                                if flag_ak:
                                     ax.contourf(
                                          ak_lon, ak_lat, pvar_ak,
                                          levels=clevs, cmap=cmap, norm=norm, extend='both',
                                          transform=ccrs.PlateCarree() )
-                                if flag_hi == "yes":
+                                if flag_hi:
                                     ax.contourf(
                                          hi_lon, hi_lat, pvar_hi,
                                          levels=clevs, cmap=cmap, norm=norm, extend='both',

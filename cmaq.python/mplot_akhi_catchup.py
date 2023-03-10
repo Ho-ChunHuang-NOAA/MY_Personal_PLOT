@@ -118,7 +118,7 @@ else:
 
 if envir == "prod" or envir == "firev4":
     script_name = [
-                  "daily.akhi.plot_max_ave_overlay.py"
+                  "daily.akhi.plot_overlay.py"
                   ]
     ## using bias_corrected grib2 file before 2022/08/26 (excep 202201-202202)
     ## "daily_aqm_grib2_overlay_p1.py", "daily_aqm_grib2_overlay_p2.py",
@@ -126,6 +126,8 @@ if envir == "prod" or envir == "firev4":
     ## "daily.aqm.plot_bc_overlay.py",
     ## "daily.aqm.plot_bc.py",
     no_workk_script = [
+                  "daily.akhi.plot_overlay.py",
+                  "daily.akhi.plot_max_ave_overlay.py",
                   "daily.aqm.plot.py",
                   "daily.aqm.plot_overlay.py",
                   "daily.aqm.plot_bc.py",
@@ -310,6 +312,51 @@ while date <= edate:
                     print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                     msg="        python "+i+" "+envir+"bcobs "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    print(msg)
+            if i == "daily.akhi.plot_overlay.py":
+                print("    Start processing "+i)
+                for j in var:
+                    jobid="akhi_hrly_"+envir+"obs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                    logfile=log_dir+"/"+jobid+".log"
+                    if os.path.exists(plot_script):
+                        os.remove(plot_script)
+                    if os.path.exists(logfile):
+                        os.remove(logfile)
+                    with open(plot_script, 'a') as sh:
+                        sh.write("#!/bin/bash\n")
+                        sh.write("#PBS -o "+logfile+"\n")
+                        sh.write("#PBS -e "+logfile+"\n")
+                        sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
+                        sh.write("#PBS -N j"+jobid+"\n")
+                        sh.write("#PBS -q dev_transfer\n")
+                        sh.write("#PBS -A AQM-DEV\n")
+                        sh.write("#PBS -l walltime="+task_cpu+"\n")
+                        sh.write("###PBS -l debug=true\n")
+                        sh.write("module load envvar/"+envvar_ver+"\n")
+                        sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                        sh.write("module load intel/"+intel_ver+"\n")
+                        sh.write("module load craype/"+craype_ver+"\n")
+                        sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                        sh.write("module load python/"+python_ver+"\n")
+                        sh.write("module load netcdf/"+netcdf_ver+"\n")
+                        sh.write("# \n")
+                        sh.write("export OMP_NUM_THREADS=1\n")
+                        sh.write("# \n")
+                        sh.write("\n")
+                        sh.write("##\n")
+                        sh.write("##  Plot EMC EXP "+envir+" using python script\n")
+                        sh.write("##\n")
+                        sh.write("set -x\n")
+                        sh.write("\n")
+                        sh.write("   cd "+working_dir+"\n")
+                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("\n")
+                        sh.write("exit\n")
+                    print("run_script = "+plot_script)
+                    print("log file   = "+logfile)
+                    subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
+                    msg="        python "+i+" "+envir+"obs "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                     print(msg)
             if i == "daily_aqm_grib2_overlay_p2.py":
                 print("    Start processing "+i)
@@ -1151,7 +1198,7 @@ while date <= edate:
                 print(msg)
             if i == "daily.akhi.plot_max_ave_overlay.py":
                 print("    Start processing "+i)
-                jobid="plot_maxave_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                jobid="plot_akhi_maxave_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):

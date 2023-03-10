@@ -154,13 +154,8 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## Current operational CMAQ does include runs for AK and HI domain
 ## Current EMC development CMAQ does not include runs for AK and HI domain
 ##
-find_dir=[
-          "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir,
-          "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
-          "/lfs/h2/emc/ptmp/"+os.environ['USER']+"/com/aqm/"+envir,
-          "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir
-         ]
-metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
+nrtout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0"
+usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
 
 figout=stmp_dir
 
@@ -185,6 +180,7 @@ else:
     rlat1 = [   45., 40., 70.0,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   41.8,   72.0,   23.0,   70.0 ]
 xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
 ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
+## no bias corrected solution for AK and HI
 if 1 == 1:
     iplot = [    0, 0,   1,      1,       1,      1,      1,      1,      1,      1,      0,      0,      1,      0,      0, 0 ]
 else:
@@ -193,43 +189,41 @@ num_reg=len(iplot)
 
 date=sdate
 while date <= edate:
-    flag_find_idir="no"
-    for idir in find_dir:
-        comout=idir
-        print("check "+idir)
-        flag_find_cyc="yes"
-        for cyc in cycle:
-            for ivar in range(0,num_var):
-                if var[ivar] == "ozmax8":
-                    fileid="max_8hr_o3"
-                elif var[ivar] == "ozmax1":
-                    fileid="max_1hr_o3"
-                elif var[ivar] == "pmave24":
-                    fileid="ave_24hr_pm25"
-                elif var[ivar] == "pmmax1":
-                    fileid="max_1hr_pm25"
-                check_file="aqm."+cyc+"."+fileid+"_bc."+grid793+".grib2"
-                aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
-                if os.path.exists(aqmfilein):
-                    print(aqmfilein+" exists")
+    flag_find_cyc=True
+    for cyc in cycle:
+        for ivar in range(0,num_var):
+            if var[ivar] == "ozmax8":
+                fileid="max_8hr_o3"
+            elif var[ivar] == "ozmax1":
+                fileid="max_1hr_o3"
+            elif var[ivar] == "pmave24":
+                fileid="ave_24hr_pm25"
+            elif var[ivar] == "pmmax1":
+                fileid="max_1hr_pm25"
+            check_file="aqm."+cyc+"."+fileid+"_bc."+grid793+".grib2"
+            aqmfilein=nrtout+"/c55."+date.strftime(YMD_date_format)+"/"+check_file
+            aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
+            if os.path.exists(aqmfilein):
+                comout=nrtout
+                dirid="c55"
+                print(aqmfilein+" exists")
+                break
+            else:
+                if os.path.exists(aqmfilein2):
+                    comout=usrout
+                    dirid="cs"
+                    print(aqmfilein2+" exists")
                     break
                 else:
-                    flag_find_cyc="no"
+                    flag_find_cyc=False
                     print("Can not find "+aqmfilein)
-            if flag_find_cyc == "yes":
-                flag_find_idir="yes"
-                break
-        if flag_find_idir == "yes":
-            print("comout set to "+comout)
-            break
-        else:
-            date = date + date_inc
-            continue
+                    print("Can not find "+aqmfilein2)
+    if flag_find_cyc:
+        print("comout set to "+comout)
+    else:
+        date = date + date_inc
+        continue
     
-    # No bias_correction been applied to AK and HI domain
-    flag_ak = "no"
-    flag_hi = "no"
-
     for cyc in cycle:
         working_dir=working_root+"/"+date.strftime(YMD_date_format)+cyc
         if not os.path.exists(working_dir):
@@ -254,7 +248,7 @@ while date <= edate:
             print("Start processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
 
             file_hdr="aqm."+cyc+"."+fileid+"_bc."+grid793
-            aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
+            aqmfilein=comout+"/"+dirid+"."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
                 outfile=working_dir+"/"+file_hdr+".nc"

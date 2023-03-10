@@ -151,11 +151,11 @@ else:
     sys.exit()
 
 aqm_ver="v7.0"
-## comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0/aqm.v7.0."+runid
 comout="/lfs/h2/emc/aqmtemp/para/com/aqm/v7.0"
+comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0"
 usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
 
-if not os.path.exists(comout+"/na."+sdate.strftime(YMD_date_format)):
+if not os.path.exists(comout+"/c55."+sdate.strftime(YMD_date_format)):
     if not os.path.exists(usrout):
         print("Can not find ioutput dir with experiment id "+envir)
         sys.exit()
@@ -194,9 +194,9 @@ num_reg=len(iplot)
 
 date=sdate
 while date <= edate:
-    flag_find_idir = "yes"
+    flag_find_idir = True
 
-    if flag_find_idir == "yes":
+    if flag_find_idir:
         print("comout set to "+comout)
     else:
         date = date + date_inc
@@ -227,7 +227,7 @@ while date <= edate:
                 shutil.rmtree(figdir)
             os.makedirs(figdir)
             print("working on "+date.strftime(YMD_date_format)+" t"+cyc+"z "+var[ivar])
-            flag_read_latlon="no"
+            flag_read_latlon=False
             hour_end = 72
             for fcst_hr in range(0,hour_end):
                 nout=fcst_hr+1
@@ -237,24 +237,24 @@ while date <= edate:
                 fhh2=str_fcst_hr.zfill(2)
                 fcst_hour=fcst_hour+hour_inc
                 if var[ivar] == "pm25":
-                    aqmfilein=comout+"/na."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    aqmfilein=comout+"/c55."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     aqmfilein2=usrout+"/aqm."+date.strftime(YMD_date_format)+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     if os.path.exists(aqmfilein2):
                         ## print(aqmfilein2+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein2)
-                        if flag_read_latlon == "no":
+                        if not flag_read_latlon:
                             cs_lat = cs_aqm.variables['lat'][:,:]
                             cs_lon = cs_aqm.variables['lon'][:,:]
-                            flag_read_latlon="yes"
+                            flag_read_latlon=True
                         pm_cs = cs_aqm.variables['PM25_TOT'][0,:,:]
                         cs_aqm.close()
                     elif os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein)
-                        if flag_read_latlon == "no":
+                        if not flag_read_latlon:
                             cs_lat = cs_aqm.variables['lat'][:,:]
                             cs_lon = cs_aqm.variables['lon'][:,:]
-                            flag_read_latlon="yes"
+                            flag_read_latlon=True
                         pm_cs = cs_aqm.variables['PM25_TOT'][0,:,:]
                         cs_aqm.close()
                     else:
@@ -263,25 +263,25 @@ while date <= edate:
                         sys.exit()
                 ## in ppm
                 if var[ivar] == "o3":
-                    aqmfilein=comout+"/na."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    aqmfilein=comout+"/c55."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     aqmfilein2=usrout+"/aqm."+date.strftime(YMD_date_format)+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     if os.path.exists(aqmfilein2):
                         ## print(aqmfilein2+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein2)
-                        if flag_read_latlon == "no":
+                        if not flag_read_latlon:
                             cs_lat = cs_aqm.variables['lat'][:,:]
                             cs_lon = cs_aqm.variables['lon'][:,:]
-                            flag_read_latlon="yes"
+                            flag_read_latlon=True
                         o3_cs = cs_aqm.variables['o3'][0,:,:]
                         scale= 1.
                         cs_aqm.close()
                     elif os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein)
-                        if flag_read_latlon == "no":
+                        if not flag_read_latlon:
                             cs_lat = cs_aqm.variables['lat'][:,:]
                             cs_lon = cs_aqm.variables['lon'][:,:]
-                            flag_read_latlon="yes"
+                            flag_read_latlon=True
                         o3_cs = cs_aqm.variables['o3'][0,:,:]
                         scale= 1.
                         cs_aqm.close()

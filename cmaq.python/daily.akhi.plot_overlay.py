@@ -162,9 +162,9 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ##
 find_dir=[
           "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir,
-          "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
           "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir,
-          "/lfs/h2/emc/ptmp/"+os.environ['USER']+"/com/aqm/"+envir
+          "/lfs/h2/emc/ptmp/"+os.environ['USER']+"/com/aqm/"+envir,
+          "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver
          ]
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
 dcomout="/lfs/h1/ops/prod/dcom"
@@ -197,10 +197,10 @@ else:
     rlat1 = [   45., 40., 70.0,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   41.8,   72.0,   23.0,   70.0 ]
 xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
 ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
-if 1 == 1:
+if 1 == 2:
     iplot = [    0, 0,   1,      1,       1,      1,      1,      1,      1,      1,      0,      0,      1,      1,      1, 0 ]
 else:
-    iplot = [    1, 1,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1, 1 ]
+    iplot = [    0, 0,   0,      0,       0,      0,      0,      0,      0,      0,      0,      0,      0,      1,      1, 0 ]
 num_reg=len(iplot)
 
 date=sdate
@@ -212,7 +212,7 @@ while date <= edate:
         flag_find_cyc=True
         for cyc in cycle:
             check_file="aqm."+cyc+".aconc_sfc.ncf"
-            aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
+            aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+check_file
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
             else:
@@ -229,6 +229,8 @@ while date <= edate:
         continue
     
     if envir == "prod" or envir == "firev4" or envir == "para6d":
+        nstep_ak=-99
+        nstep_hi=-99
         flag_ak = True
         for cyc in cycle:
             check_file="aqm."+cyc+".aconc_sfc.ncf"
@@ -249,42 +251,12 @@ while date <= edate:
                 flag_hi=False
                 print("Can not find "+aqmfilein)
                 break
-    else:
-        flag_ak = False
-        flag_hi = False
 
     for cyc in cycle:
         msg=datetime.datetime.now()
         print("Start processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
         s1_title="CMAQ "+fig_exp.upper()+" "+date.strftime(YMD_date_format)+" "+cyc
         fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[1:3]))
-
-        metfilein=metout+"/cs."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
-        if os.path.exists(metfilein):
-            print(metfilein+" exists")
-            model_data = netcdf.Dataset(metfilein)
-            cs_lat = model_data.variables['LAT'][0,0,:,:]
-            cs_lon = model_data.variables['LON'][0,0,:,:]
-            model_data.close()
-        else:
-            print("Can not find "+metfilein)
-
-        aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
-        if os.path.exists(aqmfilein):
-            print(aqmfilein+" exists")
-            cs_aqm = netcdf.Dataset(aqmfilein)
-            cs_var = cs_aqm.variables['TFLAG'][:,0,:]
-            nstep=len(cs_var)
-            for ivar in range(0,num_var):
-                if var[ivar] == "o3":
-                    o3_cs = cs_aqm.variables['O3'][:,0,:,:]
-                elif var[ivar] == "pm25":
-                    pm_cs = cs_aqm.variables['PM25_TOT'][:,0,:,:]
-            cs_aqm.close()
-        else:
-            print("Can not find "+aqmfilein)
-            sys.exit()
-
         if flag_ak:
             metfilein=metout+"/ak."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
             if os.path.exists(metfilein):
@@ -334,7 +306,6 @@ while date <= edate:
                 hi_aqm = netcdf.Dataset(aqmfilein)
                 hi_var = hi_aqm.variables['TFLAG'][:,0,:]
                 nstep_hi=len(hi_var)
-                nstep_hi= nstep
                 for ivar in range(0,num_var):
                     if var[ivar] == "o3":
                         o3_hi = hi_aqm.variables['O3'][:,0,:,:]
@@ -346,6 +317,20 @@ while date <= edate:
                 flag_hi = False
                 iplot[num_reg-2] = 0
 
+        if flag_ak and flag_hi:
+            if nstep_ak == nstep_hi:
+                nstep=nstep_ak
+            else:
+                print("nstep_ak "+str(nstep_ak)+" is different from nstep_hi "+str(nstep_hi))
+                sys.exit()
+        if flag_ak and not flag_hi:
+            nstep=nstep_ak
+        if not flag_ak and flag_hi:
+            nstep=nstep_hi
+        if not flag_ak and not flag_hi:
+            date = date + date_inc
+            continue
+
         if not flag_ak and iplot[num_reg-3] == 1:
             iplot[num_reg-3] = 0
         if not flag_hi and iplot[num_reg-2] == 1:
@@ -355,7 +340,7 @@ while date <= edate:
         for ivar in range(0,num_var):
             msg=datetime.datetime.now()
             print("Start processing "+var[ivar])
-            jobid="aqm"+"_"+envir+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"_"+cyc
+            jobid="akhi_hrly_"+envir+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"_"+cyc
             figdir = figout+"/"+jobid
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)
@@ -366,7 +351,6 @@ while date <= edate:
                 s3_title="Ozone sfc_conc (ppbV)"
                 scale=1000.
                 clevs = [ 3., 6., 9., 12., 25., 35., 45., 55., 65., 70., 75., 85., 95., 105. ]
-                var_cs=o3_cs*scale
                 if flag_ak:
                     var_ak=o3_ak*scale
                 if flag_hi:
@@ -384,7 +368,6 @@ while date <= edate:
                 s3_title="PM25 sfc_conc ($\u03bcg/m^3$)"
                 scale=1.
                 clevs = [ 3., 6., 9., 12., 15., 35., 55., 75., 100., 125., 150., 250., 300., 400., 500., 600., 750. ]
-                var_cs=pm_cs
                 if flag_ak:
                     var_ak=pm_ak
                 if flag_hi:
@@ -402,7 +385,6 @@ while date <= edate:
                 s3_title="PM25 sfc_conc ($\u03bcg/m^3$)"
                 scale=1.
                 clevs = [ 0., 3., 6., 9., 12., 25., 35., 45., 55., 65., 75., 85., 95., 105. ]
-                var_cs=pm_cs
                 if flag_ak:
                     var_ak=pm_ak
                 if flag_hi:
@@ -481,7 +463,6 @@ while date <= edate:
 
                 s2_title = fcst_hour.strftime(YMDH_date_format)+"00V"+fhh
                 title=s1_title+"\n"+s2_title+" "+s3_title
-                pvar_cs = var_cs[n,:,:]
                 if flag_ak:
                     pvar_ak = var_ak[n,:,:]
                 if flag_hi:
@@ -526,22 +507,6 @@ while date <= edate:
                                      hi_lon, hi_lat, pvar_hi,
                                      levels=clevs, cmap=cmap, norm=norm, extend='both',
                                      transform=ccrs.PlateCarree() )
-                        else:
-                            cf1 = ax.contourf(
-                                     cs_lon, cs_lat, pvar_cs,
-                                     levels=clevs, cmap=cmap, norm=norm, extend='both',
-                                     transform=ccrs.PlateCarree() )
-                            if figarea == "dset":
-                                if flag_ak:
-                                    ax.contourf(
-                                         ak_lon, ak_lat, pvar_ak,
-                                         levels=clevs, cmap=cmap, norm=norm, extend='both',
-                                         transform=ccrs.PlateCarree() )
-                                if flag_hi:
-                                    ax.contourf(
-                                         hi_lon, hi_lat, pvar_hi,
-                                         levels=clevs, cmap=cmap, norm=norm, extend='both',
-                                         transform=ccrs.PlateCarree() )
                         ax.set_title(title)
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
@@ -634,13 +599,13 @@ while date <= edate:
                                     elif plot_var[i] >= clevs[nlev-1]:
                                         color.append((0.4310,0.2780,0.7250))
                                     else:
-                                        flag_find_color=False
+                                        flag_find_color='no'
                                         for j in range(0,nlev-1):
                                             if plot_var[i] >= clevs[j] and plot_var[i] < clevs[j+1]:
                                                 color.append(ccols[j])
-                                                flag_find_color=True
+                                                flag_find_color='yes'
                                                 break
-                                        if not flag_find_color:
+                                        if flag_find_color =='no':
                                             print('Can not assign proper value for color, program stop')
                                             sys.exit()
     

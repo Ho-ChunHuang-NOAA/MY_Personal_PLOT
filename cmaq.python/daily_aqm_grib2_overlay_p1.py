@@ -124,6 +124,8 @@ grid139="139"
 grid196="196"
 grid793="793"
 
+flag_ak=True
+flag_hi=True
 aqmv6=False
 aqmv7=False
 caseid="v70"
@@ -140,6 +142,11 @@ if nfind == -1:
         BC_fig_append=BC_append
         print("exp="+EXP)
         print("BC_append="+BC_append)
+        flag_ak=True
+        flag_hi=True
+        ## the code below does nto read in aqmv6 ak.yyyymmdd and hi.yyyymmdd
+        flag_ak=False
+        flag_hi=False
     else:
         print("A bias_correction cases")
         EXP=envir[0:nfind]
@@ -147,6 +154,8 @@ if nfind == -1:
         BC_fig_append="bc"
         print("exp="+EXP)
         print("BC_append="+BC_append)
+        flag_ak=False
+        flag_hi=False
     if EXP.lower() == "prod" or EXP.lower() == "para" or EXP.lower() == "firev4":
         aqm_ver=aqm_ver_prod
         exp_grid=grid148
@@ -182,6 +191,8 @@ else:
         print("exp="+EXP)
         print("expid="+expid)
         print("BC_append="+BC_append)
+        flag_ak=True
+        flag_hi=True
     else:
         EXP=envir[0:nfind]
         n0=len(caseid)
@@ -192,8 +203,10 @@ else:
         print("exp="+EXP)
         print("expid="+expid)
         print("BC_append="+BC_append)
-    comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver+"/aqm."+aqm_ver+"."+expid
+        flag_ak=False
+        flag_hi=False
     comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
+    comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver
     usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
         if not os.path.exists(usrout+"/cs."+sdate.strftime(YMD_date_format)):
@@ -283,22 +296,6 @@ num_reg=len(iplot)
 
 date=sdate
 while date <= edate:
-    flag_find_idir=True
-
-    if flag_find_idir:
-        print("comout set to "+comout)
-    else:
-        date = date + date_inc
-        continue
-    
-    # no bias_correction for AK and HI
-    if aqmv6:
-        flag_ak = False
-        flag_hi = False
-
-    if aqmv7:
-        flag_ak = True
-        flag_hi = True
 
     if not flag_ak and iplot[num_reg-3] == 1:
         iplot[num_reg-3] = 0
@@ -616,13 +613,13 @@ while date <= edate:
                                     elif plot_var[i] >= clevs[nlev-1]:
                                         color.append((0.4310,0.2780,0.7250))
                                     else:
-                                        flag_find_color='no'
+                                        flag_find_color=False
                                         for j in range(0,nlev-1):
                                             if plot_var[i] >= clevs[j] and plot_var[i] < clevs[j+1]:
                                                 color.append(ccols[j])
-                                                flag_find_color='yes'
+                                                flag_find_color=True
                                                 break
-                                        if flag_find_color =='no':
+                                        if not flag_find_color:
                                             print('Can not assign proper value for color, program stop')
                                             sys.exit()
     

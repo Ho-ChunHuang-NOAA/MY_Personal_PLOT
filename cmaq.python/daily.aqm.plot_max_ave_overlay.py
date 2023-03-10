@@ -122,6 +122,8 @@ grid139="139"
 grid196="196"
 grid793="793"
 
+flag_ak=True
+flag_hi=True
 aqmv6=False
 aqmv7=False
 caseid="v70"
@@ -138,6 +140,8 @@ if nfind == -1:
         BC_fig_append=BC_append
         print("exp="+EXP)
         print("BC_append="+BC_append)
+        flag_ak=True
+        flag_hi=True
     else:
         print("A bias_correction cases")
         EXP=envir[0:nfind]
@@ -145,6 +149,8 @@ if nfind == -1:
         BC_fig_append="bc"
         print("exp="+EXP)
         print("BC_append="+BC_append)
+        flag_ak=False
+        flag_hi=False
     if EXP.lower() == "prod" or EXP.lower() == "para" or EXP.lower() == "firev4":
         aqm_ver=aqm_ver_prod
         exp_grid=grid148
@@ -178,6 +184,8 @@ else:
         print("exp="+EXP)
         print("expid="+expid)
         print("BC_append="+BC_append)
+        flag_ak=True
+        flag_hi=True
     else:
         EXP=envir[0:nfind]
         n0=len(caseid)
@@ -188,14 +196,16 @@ else:
         print("exp="+EXP)
         print("expid="+expid)
         print("BC_append="+BC_append)
+        flag_ak=False
+        flag_hi=False
     if sdate.strftime(Y_date_format) == "2023":
         ## correct one should be comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver
         ## Force to use user archived directory
-        comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver+"/"+expid
+        comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver
     else:
         ## correct one should be comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
         ## Force to use user archived directory
-        comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver+"/"+expid
+        comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
     usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
         if not os.path.exists(usrout+"/cs."+sdate.strftime(YMD_date_format)):
@@ -296,8 +306,7 @@ for n in range(0,nhdr):
 obsfile="daily_data_v2.dat"
 date=sdate
 while date <= edate:
-    if BC_append == "":
-        flag_ak = True
+    if flag_ak:
         for cyc in cycle:
             cycle_time="t"+cyc+"z"
             for ivar in range(0,num_var):
@@ -311,9 +320,9 @@ while date <= edate:
                     fileid="max_1hr_pm25"
                 if aqmv7:
                     check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid793+".grib2"
-                    aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
+                    aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
                     aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
-                else:
+                if aqmv6:
                     check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid198+".grib2"
                     aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+check_file
                     aqmfilein2=usrout+"/ak."+date.strftime(YMD_date_format)+"/"+check_file
@@ -325,7 +334,7 @@ while date <= edate:
                     flag_ak=False
                     print("Can not find "+aqmfilein+" and "+aqmfilein2)
                     break
-        flag_hi = True
+    if flag_hi:
         for cyc in cycle:
             cycle_time="t"+cyc+"z"
             for ivar in range(0,num_var):
@@ -339,9 +348,9 @@ while date <= edate:
                     fileid="max_1hr_pm25"
                 if aqmv7:
                     check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid793+".grib2"
-                    aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
+                    aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
                     aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
-                else:
+                if aqmv6:
                     check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid196+".grib2"
                     aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+check_file
                     ## check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid139+".grib2"
@@ -354,13 +363,6 @@ while date <= edate:
                     flag_hi=False
                     print("Can not find "+aqmfilein+" and "+aqmfilein2)
                     break
-    else:
-        if aqmv7:
-            flag_ak = True
-            flag_hi = True
-        else:
-            flag_ak = False
-            flag_hi = False
 
     if not flag_ak and iplot[num_reg-3] == 1:
         iplot[num_reg-3] = 0
@@ -400,7 +402,7 @@ while date <= edate:
             if aqmv7:
                 aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+file_hdr+".grib2"
                 aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
-            else:
+            if aqmv6:
                 aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
                 aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
             if os.path.exists(aqmfilein):
@@ -455,9 +457,6 @@ while date <= edate:
                     ak_lon = ak_aqm.variables['longitude'][:,:]
                     ak_var = ak_aqm.variables['time'][:]
                     nstep_ak=len(ak_var)
-                    if nstep_ak != nstep:
-                        print("time step of AK domain "+str(nstep_ak)+" is different from CONUS domain "+str(nstep))
-                        sys.exit()
                     ozpm_ak = ak_aqm.variables[varid][:,:,:]
                     ak_aqm.close()
                 elif os.path.exists(aqmfilein2):
@@ -470,9 +469,6 @@ while date <= edate:
                     ak_lon = ak_aqm.variables['longitude'][:,:]
                     ak_var = ak_aqm.variables['time'][:]
                     nstep_ak=len(ak_var)
-                    if nstep_ak != nstep:
-                        print("time step of AK domain "+str(nstep_ak)+" is different from CONUS domain "+str(nstep))
-                        sys.exit()
                     ozpm_ak = ak_aqm.variables[varid][:,:,:]
                     ak_aqm.close()
                 else:
@@ -483,7 +479,6 @@ while date <= edate:
             if aqmv6 and flag_hi:
                 file_hdr="aqm."+cycle_time+"."+fileid+BC_append+"."+grid196
                 aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
-                ## file_hdr="aqm."+cycle_time+"."+fileid+BC_append+"."+grid139
                 aqmfilein2=usrout+"/hi."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
@@ -495,9 +490,6 @@ while date <= edate:
                     hi_lon = hi_aqm.variables['longitude'][:]
                     hi_var = hi_aqm.variables['time'][:]
                     nstep_hi=len(hi_var)
-                    if nstep_hi != nstep:
-                        print("time step of HI domain "+str(nstep_hi)+" is different from CONUS domain "+str(nstep))
-                        sys.exit()
                     ozpm_hi = hi_aqm.variables[varid][:,:,:]
                     hi_aqm.close()
                 elif os.path.exists(aqmfilein2):
@@ -510,9 +502,6 @@ while date <= edate:
                     hi_lon = hi_aqm.variables['longitude'][:]
                     hi_var = hi_aqm.variables['time'][:]
                     nstep_hi=len(hi_var)
-                    if nstep_hi != nstep:
-                        print("time step of HI domain "+str(nstep_hi)+" is different from CONUS domain "+str(nstep))
-                        sys.exit()
                     ozpm_hi = hi_aqm.variables[varid][:,:,:]
                     hi_aqm.close()
                 else:
@@ -588,6 +577,16 @@ while date <= edate:
             norm = mpl.colors.BoundaryNorm(boundaries=clevs, ncolors=cmap.N)
             gs = gridspec.GridSpec(1,1)
             fcst_hour=fcst_ini
+            try:
+                nstep
+            except NameError:
+                if flag_ak:
+                    nstep = nstep_ak
+                elif flag_hi:
+                    nstep = nstep_hi
+                else:
+                    print(" no nstep ahs been defined")
+                    sys.exit()
             ## for n in range(0,2):
             for n in range(0,nstep):
                 obs_hour=fcst_hour

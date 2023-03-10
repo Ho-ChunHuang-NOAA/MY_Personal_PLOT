@@ -126,6 +126,8 @@ grid139="139"
 grid196="196"
 grid793="793"
 
+flag_ak=True
+flag_hi=True
 aqmv6=False
 aqmv7=False
 caseid="v70"
@@ -142,6 +144,11 @@ if nfind == -1:
         BC_fig_append=BC_append
         print("exp="+EXP)
         print("BC_append="+BC_append)
+        flag_ak=True
+        flag_hi=True
+        ## the code below does nto read in aqmv6 ak.yyyymmdd and hi.yyyymmdd
+        flag_ak=False
+        flag_hi=False
     else:
         print("A bias_correction cases")
         EXP=envir[0:nfind]
@@ -149,6 +156,8 @@ if nfind == -1:
         BC_fig_append="bc"
         print("exp="+EXP)
         print("BC_append="+BC_append)
+        flag_ak=False
+        flag_hi=False
     if EXP.lower() == "prod" or EXP.lower() == "para" or EXP.lower() == "firev4":
         aqm_ver=aqm_ver_prod
         exp_grid=grid148
@@ -184,6 +193,8 @@ else:
         print("exp="+EXP)
         print("expid="+expid)
         print("BC_append="+BC_append)
+        flag_ak=True
+        flag_hi=True
     else:
         EXP=envir[0:nfind]
         n0=len(caseid)
@@ -194,8 +205,10 @@ else:
         print("exp="+EXP)
         print("expid="+expid)
         print("BC_append="+BC_append)
-    comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver+"/aqm."+aqm_ver+"."+expid
+        flag_ak=False
+        flag_hi=False
     comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
+    comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver
     usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
         if not os.path.exists(usrout+"/cs."+sdate.strftime(YMD_date_format)):
@@ -285,22 +298,6 @@ num_reg=len(iplot)
 
 date=sdate
 while date <= edate:
-    flag_find_idir = "yes"
-
-    if flag_find_idir == "yes":
-        print("comout set to "+comout)
-    else:
-        date = date + date_inc
-        continue
-    
-    if aqmv6:
-        flag_ak = False
-        flag_hi = False
-
-    if aqmv7:
-        flag_ak = True
-        flag_hi = True
-
     if not flag_ak and iplot[num_reg-3] == 1:
         iplot[num_reg-3] = 0
     if not flag_hi and iplot[num_reg-2] == 1:
@@ -339,19 +336,19 @@ while date <= edate:
                 ## Read in one hourly data at a time
                 base_dir = obsdir+"/"+obs_hour.strftime(Y_date_format)+'/'+obs_hour.strftime(YMD_date_format)+'/'
                 obsfile= base_dir+'HourlyAQObs_'+obs_hour.strftime(obs_YMDH_date_format)+'.dat'
-                flag_find_epa_ascii="no"
+                flag_find_epa_ascii=False
                 if os.path.exists(obsfile):
                 ##    print(obsfile+" exists")
-                    flag_find_epa_ascii="yes"
+                    flag_find_epa_ascii=True
                 else:
                     base_dir = dcomout+"/"+obs_hour.strftime(YMD_date_format)+'/airnow/'
                     obsfile= base_dir+'HourlyAQObs_'+obs_hour.strftime(obs_YMDH_date_format)+'.dat'
                     if os.path.exists(obsfile):
-                        flag_find_epa_ascii="yes"
+                        flag_find_epa_ascii=True
                 ##    else:
                 ##        print("Can not find "+obsfile)
 
-                if flag_obs and flag_find_epa_ascii == "yes":
+                if flag_obs and flag_find_epa_ascii:
                     airnow = []
                     colnames = ['Latitude','Longitude','ValidDate','ValidTime','PM25','PM25_Unit','OZONE','OZONE_Unit']
     
@@ -533,7 +530,7 @@ while date <= edate:
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
 
-                        if flag_obs and flag_find_epa_ascii == "yes":
+                        if flag_obs and flag_find_epa_ascii:
                             #######################################################
                             ##########      PLOTTING OBS DATA            ##########
                             #######################################################
@@ -588,13 +585,13 @@ while date <= edate:
                                     elif plot_var[i] >= clevs[nlev-1]:
                                         color.append((0.9412,0.9412,0.9412))
                                     else:
-                                        flag_find_color="no"
+                                        flag_find_color=False
                                         for j in range(0,nlev-1):
                                             if plot_var[i] >= clevs[j] and plot_var[i] < clevs[j+1]:
                                                 color.append(ccols[j])
-                                                flag_find_color="yes"
+                                                flag_find_color=True
                                                 break
-                                        if flag_find_color =="no":
+                                        if not flag_find_color:
                                             print("Can not assign proper value for color, program stop")
                                             sys.exit()
     
@@ -619,13 +616,13 @@ while date <= edate:
                                     elif plot_var[i] >= clevs[nlev-1]:
                                         color.append((0.4310,0.2780,0.7250))
                                     else:
-                                        flag_find_color='no'
+                                        flag_find_color=False
                                         for j in range(0,nlev-1):
                                             if plot_var[i] >= clevs[j] and plot_var[i] < clevs[j+1]:
                                                 color.append(ccols[j])
-                                                flag_find_color='yes'
+                                                flag_find_color=True
                                                 break
-                                        if flag_find_color =='no':
+                                        if not flag_find_color:
                                             print('Can not assign proper value for color, program stop')
                                             sys.exit()
     

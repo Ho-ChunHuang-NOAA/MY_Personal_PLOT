@@ -156,9 +156,9 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ##
 find_dir=[
           "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
-          "/lfs/h2/emc/ptmp/"+os.environ['USER']+"/com/aqm/"+envir,
+          "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir,
           "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir,
-          "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir
+          "/lfs/h2/emc/ptmp/"+os.environ['USER']+"/com/aqm/"+envir
          ]
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
 
@@ -193,11 +193,11 @@ num_reg=len(iplot)
 
 date=sdate
 while date <= edate:
-    flag_find_idir="no"
+    flag_find_idir=False
     for idir in find_dir:
         comout=idir
         print("check "+idir)
-        flag_find_cyc="yes"
+        flag_find_cyc=True
         for cyc in cycle:
             for ivar in range(0,num_var):
                 if var[ivar] == "ozmax8":
@@ -214,21 +214,21 @@ while date <= edate:
                     print(aqmfilein+" exists")
                     break
                 else:
-                    flag_find_cyc="no"
+                    flag_find_cyc=False
                     print("Can not find "+aqmfilein)
-            if flag_find_cyc == "yes":
-                flag_find_idir="yes"
+            if flag_find_cyc:
+                flag_find_idir=True
                 break
-        if flag_find_idir == "yes":
+        if flag_find_idir:
             print("comout set to "+comout)
             break
     
-    if flag_find_idir == "no":
+    if not flag_find_idir:
         print("Can not define comout, program stop")
         sys.exit()
 
-    if envir == "prod" or envir == "para6x" or envir == "para6b":
-        flag_ak = "yes"
+    if envir == "prod" or envir == "firev4" or envir == "para6d":
+        flag_ak = True
         for cyc in cycle:
             for ivar in range(0,num_var):
                 if var[ivar] == "ozmax8":
@@ -244,10 +244,10 @@ while date <= edate:
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
                 else:
-                    flag_ak="no"
+                    flag_ak=False
                     print("Can not find "+aqmfilein)
                     break
-        flag_hi = "yes"
+        flag_hi = True
         for cyc in cycle:
             for ivar in range(0,num_var):
                 if var[ivar] == "ozmax8":
@@ -258,17 +258,17 @@ while date <= edate:
                     fileid="ave_24hr_pm25"
                 elif var[ivar] == "pmmax1":
                     fileid="max_1hr_pm25"
-                check_file="aqm."+cyc+"."+fileid+"."+grid139+".grib2"
+                check_file="aqm."+cyc+"."+fileid+"."+grid196+".grib2"
                 aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+check_file
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
                 else:
-                    flag_hi="no"
+                    flag_hi=False
                     print("Can not find "+aqmfilein)
                     break
     else:
-        flag_ak = "no"
-        flag_hi = "no"
+        flag_ak = True
+        flag_hi = True
 
     for cyc in cycle:
         working_dir=working_root+"/"+date.strftime(YMD_date_format)+cyc
@@ -311,7 +311,7 @@ while date <= edate:
                 print("Can not find "+aqmfilein)
                 continue
     
-            if flag_ak == "yes":
+            if flag_ak:
                 file_hdr="aqm."+cyc+"."+fileid+"."+grid198
                 aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
                 if os.path.exists(aqmfilein):
@@ -324,18 +324,15 @@ while date <= edate:
                     ak_lon = ak_aqm.variables['longitude'][:,:]
                     ak_var = ak_aqm.variables['time'][:]
                     nstep_ak=len(ak_var)
-                    if nstep_ak != nstep:
-                        print("time step of AK domain "+str(nstep_ak)+" is different from CONUS domain "+str(nstep))
-                        sys.exit()
                     ozpm_ak = ak_aqm.variables[varid][:,:,:]
                     ak_aqm.close()
                 else:
                     print("Can not find "+aqmfilein)
-                    flag_ak = "no"
+                    flag_ak = False
                     iplot[num_reg-3] = 0
         
-            if flag_hi == "yes":
-                file_hdr="aqm."+cyc+"."+fileid+"."+grid139
+            if flag_hi:
+                file_hdr="aqm."+cyc+"."+fileid+"."+grid196
                 aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
@@ -347,19 +344,16 @@ while date <= edate:
                     hi_lon = hi_aqm.variables['longitude'][:,:]
                     hi_var = hi_aqm.variables['time'][:]
                     nstep_hi=len(hi_var)
-                    if nstep_hi != nstep:
-                        print("time step of HI domain "+str(nstep_hi)+" is different from CONUS domain "+str(nstep))
-                        sys.exit()
                     ozpm_hi = hi_aqm.variables[varid][:,:,:]
                     hi_aqm.close()
                 else:
                     print("Can not find "+aqmfilein)
-                    flag_hi = "no"
+                    flag_hi = False
                     iplot[num_reg-2] = 0
     
-            if flag_ak == "no" and iplot[num_reg-3] == 1:
+            if not flag_ak and iplot[num_reg-3] == 1:
                 iplot[num_reg-3] = 0
-            if flag_hi == "no" and iplot[num_reg-2] == 1:
+            if not flag_hi and iplot[num_reg-2] == 1:
                 iplot[num_reg-2] = 0
             print("iplot length = "+str(num_reg))
 
@@ -378,9 +372,9 @@ while date <= edate:
                 scale=1.
                 clevs = [ 3., 6., 9., 12., 25., 35., 45., 55., 65., 70., 75., 85., 95., 105. ]
                 var_cs=ozpm_cs*scale
-                if flag_ak == "yes":
+                if flag_ak:
                     var_ak=ozpm_ak*scale
-                if flag_hi == "yes":
+                if flag_hi:
                     var_hi=ozpm_hi*scale
                 cmap = mpl.colors.ListedColormap([
                       (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
@@ -397,9 +391,9 @@ while date <= edate:
                 scale=1.
                 clevs = [ 3., 6., 9., 12., 15., 35., 55., 75., 100., 125., 150., 250., 300., 400., 500., 600., 750. ]
                 var_cs=ozpm_cs
-                if flag_ak == "yes":
+                if flag_ak:
                     var_ak=ozpm_ak
-                if flag_hi == "yes":
+                if flag_hi:
                     var_hi=ozpm_hi
                 cmap = mpl.colors.ListedColormap([
                       (0.0000,0.7060,0.0000), (0.0000,0.9060,0.0000), (0.3020,1.0000,0.3020),
@@ -416,9 +410,9 @@ while date <= edate:
                 scale=1.
                 clevs = [ 0., 3., 6., 9., 12., 25., 35., 45., 55., 65., 75., 85., 95., 105. ]
                 var_cs=ozpm_cs
-                if flag_ak == "yes":
+                if flag_ak:
                     var_ak=ozpm_ak
-                if flag_hi == "yes":
+                if flag_hi:
                     var_hi=ozpm_hi
                 cmap = mpl.colors.ListedColormap([
                       (0.9412,0.9412,0.9412), (0.8627,0.8627,1.0000), (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
@@ -443,9 +437,9 @@ while date <= edate:
                 s2_title = begdate+"-"+enddate
                 title=s1_title+"\n"+s2_title+" "+s3_title
                 pvar_cs = var_cs[n,:,:]
-                if flag_ak == "yes":
+                if flag_ak:
                     pvar_ak = var_ak[n,:,:]
-                if flag_hi == "yes":
+                if flag_hi:
                     pvar_hi = var_hi[n,:,:]
                 for ireg in range(0,num_reg):
                     if iplot[ireg] == 1:
@@ -493,12 +487,12 @@ while date <= edate:
                                      levels=clevs, cmap=cmap, norm=norm, extend='both',
                                      transform=ccrs.PlateCarree() )
                             if figarea == "dset":
-                                if flag_ak == "yes":
+                                if flag_ak:
                                     ax.contourf(
                                          ak_lon, ak_lat, pvar_ak,
                                          levels=clevs, cmap=cmap, norm=norm, extend='both',
                                          transform=ccrs.PlateCarree() )
-                                if flag_hi == "yes":
+                                if flag_hi:
                                     ax.contourf(
                                          hi_lon, hi_lat, pvar_hi,
                                          levels=clevs, cmap=cmap, norm=norm, extend='both',

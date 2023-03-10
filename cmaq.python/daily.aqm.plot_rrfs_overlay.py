@@ -154,10 +154,10 @@ else:
     sys.exit()
 
 aqm_ver="v7.0"
-comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0/aqm.v7.0."+runid
 comout="/lfs/h2/emc/aqmtemp/para/com/aqm/v7.0"
+comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0"
 usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
-if not os.path.exists(comout+"/na."+sdate.strftime(YMD_date_format)):
+if not os.path.exists(comout+"/c55."+sdate.strftime(YMD_date_format)):
     if not os.path.exists(usrout):
         print("Can not find ioutput dir with experiment id "+envir)
         sys.exit()
@@ -199,9 +199,9 @@ num_reg=len(iplot)
 
 date=sdate
 while date <= edate:
-    flag_find_idir = "yes"
+    flag_find_idir = True
 
-    if flag_find_idir == "yes":
+    if flag_find_idir:
         print("comout set to "+comout)
     else:
         date = date + date_inc
@@ -232,7 +232,7 @@ while date <= edate:
                 shutil.rmtree(figdir)
             os.makedirs(figdir)
             print("working on "+date.strftime(YMD_date_format)+" t"+cyc+"z "+var[ivar])
-            flag_read_latlon="no"
+            flag_read_latlon=False
             hour_end = 72
             for fcst_hr in range(0,hour_end):
                 nout=fcst_hr+1
@@ -248,19 +248,19 @@ while date <= edate:
                 ## Read in one hourly data at a time
                 base_dir = obsdir+"/"+obs_hour.strftime(Y_date_format)+'/'+obs_hour.strftime(YMD_date_format)+'/'
                 obsfile= base_dir+'HourlyAQObs_'+obs_hour.strftime(obs_YMDH_date_format)+'.dat'
-                flag_find_epa_ascii="no"
+                flag_find_epa_ascii=False
                 if os.path.exists(obsfile):
                 ##    print(obsfile+" exists")
-                    flag_find_epa_ascii="yes"
+                    flag_find_epa_ascii=True
                 else:
                     base_dir = dcomout+"/"+obs_hour.strftime(YMD_date_format)+'/airnow/'
                     obsfile= base_dir+'HourlyAQObs_'+obs_hour.strftime(obs_YMDH_date_format)+'.dat'
                     if os.path.exists(obsfile):
-                        flag_find_epa_ascii="yes"
+                        flag_find_epa_ascii=True
                 ##    else:
                 ##        print("Can not find "+obsfile)
 
-                if flag_find_epa_ascii == "yes":
+                if flag_find_epa_ascii:
                     airnow = []
                     colnames = ['Latitude','Longitude','ValidDate','ValidTime','PM25','PM25_Unit','OZONE','OZONE_Unit']
     
@@ -290,24 +290,24 @@ while date <= edate:
                     o3unit = airnow['OZONE_Unit']
 
                 if var[ivar] == "pm25":
-                    aqmfilein=comout+"/na."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    aqmfilein=comout+"/c55"+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     aqmfilein2=usrout+"/aqm."+date.strftime(YMD_date_format)+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein)
-                        if flag_read_latlon == "no":
+                        if not flag_read_latlon:
                             cs_lat = cs_aqm.variables['lat'][:,:]
                             cs_lon = cs_aqm.variables['lon'][:,:]
-                            flag_read_latlon="yes"
+                            flag_read_latlon=True
                         pm_cs = cs_aqm.variables['PM25_TOT'][0,:,:]
                         cs_aqm.close()
                     elif os.path.exists(aqmfilein2):
                         ## print(aqmfilein2+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein2)
-                        if flag_read_latlon == "no":
+                        if not flag_read_latlon:
                             cs_lat = cs_aqm.variables['lat'][:,:]
                             cs_lon = cs_aqm.variables['lon'][:,:]
-                            flag_read_latlon="yes"
+                            flag_read_latlon=True
                         pm_cs = cs_aqm.variables['PM25_TOT'][0,:,:]
                         cs_aqm.close()
                     else:
@@ -316,25 +316,25 @@ while date <= edate:
                         sys.exit()
                 ## in ppm
                 if var[ivar] == "o3":
-                    aqmfilein=comout+"/na."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    aqmfilein=comout+"/c55"+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     aqmfilein2=usrout+"/aqm."+date.strftime(YMD_date_format)+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein)
-                        if flag_read_latlon == "no":
+                        if flag_read_latlon:
                             cs_lat = cs_aqm.variables['lat'][:,:]
                             cs_lon = cs_aqm.variables['lon'][:,:]
-                            flag_read_latlon="yes"
+                            flag_read_latlon=True
                         o3_cs = cs_aqm.variables['o3'][0,:,:]
                         scale= 1.
                         cs_aqm.close()
                     elif os.path.exists(aqmfilein2):
                         ## print(aqmfilein2+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein2)
-                        if flag_read_latlon == "no":
+                        if not flag_read_latlon:
                             cs_lat = cs_aqm.variables['lat'][:,:]
                             cs_lon = cs_aqm.variables['lon'][:,:]
-                            flag_read_latlon="yes"
+                            flag_read_latlon=True
                         o3_cs = cs_aqm.variables['o3'][0,:,:]
                         scale= 1.
                         cs_aqm.close()
@@ -430,7 +430,7 @@ while date <= edate:
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
 
-                        if flag_find_epa_ascii == "yes":
+                        if flag_find_epa_ascii:
                             #######################################################
                             ##########      PLOTTING OBS DATA            ##########
                             #######################################################
@@ -485,13 +485,13 @@ while date <= edate:
                                     elif plot_var[i] >= clevs[nlev-1]:
                                         color.append((0.9412,0.9412,0.9412))
                                     else:
-                                        flag_find_color="no"
+                                        flag_find_color=False
                                         for j in range(0,nlev-1):
                                             if plot_var[i] >= clevs[j] and plot_var[i] < clevs[j+1]:
                                                 color.append(ccols[j])
-                                                flag_find_color="yes"
+                                                flag_find_color=True
                                                 break
-                                        if flag_find_color =="no":
+                                        if not flag_find_color:
                                             print("Can not assign proper value for color, program stop")
                                             sys.exit()
     
@@ -516,13 +516,13 @@ while date <= edate:
                                     elif plot_var[i] >= clevs[nlev-1]:
                                         color.append((0.4310,0.2780,0.7250))
                                     else:
-                                        flag_find_color='no'
+                                        flag_find_color=False
                                         for j in range(0,nlev-1):
                                             if plot_var[i] >= clevs[j] and plot_var[i] < clevs[j+1]:
                                                 color.append(ccols[j])
-                                                flag_find_color='yes'
+                                                flag_find_color=True
                                                 break
-                                        if flag_find_color =='no':
+                                        if not flag_find_color:
                                             print('Can not assign proper value for color, program stop')
                                             sys.exit()
     
