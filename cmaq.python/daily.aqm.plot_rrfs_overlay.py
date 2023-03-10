@@ -321,7 +321,7 @@ while date <= edate:
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein)
-                        if flag_read_latlon:
+                        if not flag_read_latlon:
                             cs_lat = cs_aqm.variables['lat'][:,:]
                             cs_lon = cs_aqm.variables['lon'][:,:]
                             flag_read_latlon=True
