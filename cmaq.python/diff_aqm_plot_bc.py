@@ -104,9 +104,9 @@ if nfind == -1:
         aqm_ver=aqm_ver_prod
         exp_grid=grid148
         expid="cs"
-        comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
         comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+EXP.lower()
         comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
+        comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
     else:
         print("Experiement ID "+EXP.lower()+" not found for this code, Program exit")
         sys.exit()

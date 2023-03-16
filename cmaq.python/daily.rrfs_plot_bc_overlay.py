@@ -168,22 +168,21 @@ msg=msg - date_inc
 grdcro2d_date=msg.strftime("%Y%m%d")
 
 find_dir=[
+          "/lfs/h2/emc/physics/noscrub/"+user+"/rrfs_sfc_chem_met/"+envir,
+          "/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0",
           "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
           "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir,
-          "/lfs/h2/emc/physics/noscrub/"+user+"/rrfs_sfc_chem_met/"+envir,
           "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir,
-          "/lfs/h2/emc/physics/noscrub/"+user+"/verification/aqm/"+envir,
-          "/lfs/h2/emc/physics/noscrub/"+user+"/BiasCor_updated/"+envir
+          "/lfs/h2/emc/physics/noscrub/"+user+"/verification/aqm/"+envir
          ]
-metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
-dcomout="/lfs/h1/ops/prod/dcom"
+dcomdir="/lfs/h1/ops/prod/dcom"
 obsdir="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/epa_airnow_acsii"
 
 #
 # Bias-correction only be applied to the CONUS domain
 #
-flag_ak = "no"
-flag_hi = "no"
+flag_ak = False
+flag_hi = False
 
 figout=stmp_dir
 
@@ -213,55 +212,55 @@ else:
 xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
 ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
 if 1 == 1:
-    iplot = [    1, 1,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1, 1 ]
+    iplot = [    0, 0,   1,      1,       1,      1,      1,      1,      1,      1,      0,      0,      1,      0,      0, 0 ]
 else:
-    iplot = [    0,  0, 1,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
+    iplot = [    0,  0, 0,      1,       1,      1,      1,      1,      1,      1,      0,      0,      0,      0,      0, 0 ]
 num_reg=len(iplot)
 
 date=sdate
 while date <= edate:
-    flag_find_idir="no"
+    flag_find_idir=False
     for idir in find_dir:
         comout=idir
         print("check "+idir)
-        flag_find_cyc="yes"
+        flag_find_cyc=True
         for cyc in cycle:
             cycle_time="t"+cyc+"z"
-            flag_find_var="yes"
+            flag_find_var=True
             for ivar in range(0,num_var):
                 if var[ivar] == "o3":
                     check_file="ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
                 elif var[ivar] == "pm25":
                     check_file="pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
-                aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
+                aqmfilein=comout+"/"+cyc+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+check_file
                 aqmfilein2=comout+"/aqm."+date.strftime(YMD_date_format)+"/"+check_file
-                flag_new_dir = "no"
+                flag_new_dir = False
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
                 else:
                     if os.path.exists(aqmfilein2):
                         print(aqmfilein2+" exists")
-                        flag_new_dir = "yes"
+                        flag_new_dir = True
                     else:
-                        flag_find_var="no"
+                        flag_find_var=False
                         print("Can not find "+aqmfilein)
                         print("Can not find "+aqmfilein2)
                         break
-            if flag_find_var == "no":
-                flag_find_cyc="no"
+            if not flag_find_var:
+                flag_find_cyc=False
                 break
-        if flag_find_cyc == "yes":
-            flag_find_idir="yes"
+        if flag_find_cyc:
+            flag_find_idir=True
             break
-    if flag_find_idir == "yes":
+    if flag_find_idir:
         print("comout set to "+comout)
     else:
         date = date + date_inc
         continue
 
-    if flag_ak == "no" and iplot[num_reg-3] == 1:
+    if not flag_ak and iplot[num_reg-3] == 1:
         iplot[num_reg-3] = 0
-    if flag_hi == "no" and iplot[num_reg-2] == 1:
+    if not flag_hi and iplot[num_reg-2] == 1:
         iplot[num_reg-2] = 0
     print("iplot length = "+str(num_reg))
 
@@ -275,43 +274,46 @@ while date <= edate:
 
         for ivar in range(0,num_var):
             if var[ivar] == "o3":
-                if flag_new_dir == "yes":
+                if flag_new_dir:
                     model_filein=comout+"/aqm."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
                 else:
-                    model_filein=comout+"/cs."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
+                    model_filein=comout+"/"+cyc+"/"+expid+"."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
+                    ## model_filein=comout+"/cs."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
                 if os.path.exists(model_filein):
                     print(model_filein+" exists")
                     model_data = netcdf.Dataset(model_filein)
-                    in_cs  = model_data.variables['lat'][:,:]
-                    cs_lat = np.single(in_cs)
-                    in_cs  = model_data.variables['lon'][:,:]
-                    cs_lon = np.single(in_cs)
+                    in_csy = model_data.variables['lat'][:,:]
+                    cs_lat = np.single(in_csy)
+                    in_csx = model_data.variables['lon'][:,:]
+                    cs_lon = np.single(in_csx)
                     ## cs_lat = model_data.variables['lat'][:,:]
                     ## cs_lon = model_data.variables['lon'][:,:]
                     o3_cs  = model_data.variables['o3'][:,:,:]
                     nstep=len(o3_cs)
                     model_data.close()
-                    print(str(nstep))
+                    print("read in o3 time step = "+str(nstep))
                 else:
                     print("Can not find "+model_filein)
                     sys.exit()
             elif var[ivar] == "pm25":
-                if flag_new_dir == "yes":
+                if flag_new_dir:
                     model_filein=comout+"/aqm."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
                 else:
-                    model_filein=comout+"/cs."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
+                    model_filein=comout+"/"+cyc+"/"+expid+"."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
+                    ## model_filein=comout+"/cs."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
                 if os.path.exists(model_filein):
                     print(model_filein+" exists")
                     model_data = netcdf.Dataset(model_filein)
-                    in_cs  = model_data.variables['lat'][:,:]
-                    cs_lat = np.single(in_cs)
-                    in_cs  = model_data.variables['lon'][:,:]
-                    cs_lon = np.single(in_cs)
+                    in_csy  = model_data.variables['lat'][:,:]
+                    cs_lat = np.single(in_csy)
+                    in_csx  = model_data.variables['lon'][:,:]
+                    cs_lon = np.single(in_csx)
                     ## cs_lat = model_data.variables['lat'][:,:]
                     ## cs_lon = model_data.variables['lon'][:,:]
                     pm_cs = model_data.variables['PM25_TOT'][:,:,:]
                     nstep=len(pm_cs)
                     model_data.close()
+                    print("read in pm25  time step = "+str(nstep))
                 else:
                     print("Can not find "+model_filein)
                     sys.exit()
@@ -374,7 +376,10 @@ while date <= edate:
             ## thus, obs and fcst will not sync if n start from the middle
             ## for n in range(0,17):
             ## for n in range(0,nstep):
-            for n in range(0,3):
+            for n in range(0,13):
+                if n < 12:
+                    fcst_hour=fcst_hour+hour_inc
+                    continue
                 nout=n+1
                 str_fcst_hr=str(nout)
                 fhh3=str_fcst_hr.zfill(3)
@@ -384,26 +389,26 @@ while date <= edate:
                 obs_hour=fcst_hour
                 fcst_hour=fcst_hour+hour_inc
 
-                ## Read in one hourly data at a time
-                base_dir = obsdir+"/"+obs_hour.strftime(Y_date_format)+'/'+obs_hour.strftime(YMD_date_format)+'/'
-                obsfile= base_dir+'HourlyAQObs_'+obs_hour.strftime(obs_YMDH_date_format)+'.dat'
-                flag_find_epa_ascii="no"
-                if os.path.exists(obsfile):
-                ##    print(obsfile+" exists")
-                    flag_find_epa_ascii="yes"
+                ## Read in one hourly data one at a time
+                flag_with_obs=True
+                obsfile= "HourlyAQObs_"+obs_hour.strftime(obs_YMDH_date_format)+".dat"
+                ifile=os.path.join(dcomdir,obs_hour.strftime(YMD_date_format),"airnow",obsfile)
+                ifile2=os.path.join(obsdir,obs_hour.strftime(Y_date_format),obs_hour.strftime(YMD_date_format),obsfile)
+                if os.path.exists(ifile):
+                    infile=ifile
+                    print(infile+" exists")
+                elif os.path.exists(ifile2):
+                    infile=ifile2
+                    print(infile+" exists")
                 else:
-                    base_dir = dcomout+"/"+obs_hour.strftime(YMD_date_format)+'/airnow/'
-                    obsfile= base_dir+'HourlyAQObs_'+obs_hour.strftime(obs_YMDH_date_format)+'.dat'
-                    if os.path.exists(obsfile):
-                        flag_find_epa_ascii="yes"
-                ##    else:
-                ##        print("Can not find "+obsfile)
+                    print("Can not find both "+ifile+" and "+ifile2)
+                    flag_with_obs=False
 
-                if flag_find_epa_ascii == "yes":
+                if flag_with_obs:
                     airnow = []
                     colnames = ['Latitude','Longitude','ValidDate','ValidTime','PM25','PM25_Unit','OZONE','OZONE_Unit']
     
-                    df = pd.read_csv(obsfile,usecols=colnames)
+                    df = pd.read_csv(infile,usecols=colnames)
     
                     df[df['PM25']<0]=np.nan # ignore negative PM2.5 values
     
@@ -461,14 +466,38 @@ while date <= edate:
                         ax.add_feature(cfeature.BORDERS, facecolor='none', linestyle=':')
                         ax.add_feature(cfeature.LAKES, facecolor='None', edgecolor='black', alpha=0.5)
                         ## ax.add_feature(cfeature.RIVERS)
-                        cf1 = ax.contourf(
-                                 cs_lon, cs_lat, pvar_cs,
-                                 levels=clevs, cmap=cmap, norm=norm, extend='both',
-                                 transform=ccrs.PlateCarree() )
+                        ## 
+                        ## Full array size is (488,755)
+                        ## if using full array (cs_lat,cs_lon, cs_pvar...), the contour plot  
+                        ## is wild one.
+                        ## Do not know why, but using small doamin as the abse for plotting can produce
+                        ## correct regional figure as that using the grib2 files as the input.
+                        ## 
+                        ## 
+                        ## idimlat=cs_lat.shape[0]
+                        ## jdimlat=cs_lat.shape[1]
+                        ## print("lat dimension is (%d,%d)" % (dimlat,jdimlat) )
+                        ## near Hawaii
+                        ## alat=cs_lat[25:100,25:100]
+                        ## alon=cs_lon[25:100,25:100]
+                        ## acon=pvar_cs[25:100,25:100]
+                        ## for CONUS
+                        ib0=0
+                        ie0=350
+                        jb0=300
+                        je0=775
+                        alat=cs_lat[ib0:ie0,jb0:je0]
+                        alon=cs_lon[ib0:ie0,jb0:je0]
+                        acon=pvar_cs[ib0:ie0,jb0:je0]
+                        ## ax.scatter(alon,alat,marker='o',s=1,zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
+                        ## cf1 = ax.contourf( cs_lon, cs_lat, pvar_cs,
+                        cf1 = ax.contourf( alon, alat, acon,
+                                             levels=clevs, cmap=cmap, norm=norm, extend='both',
+                                             transform=ccrs.PlateCarree() )
                         ax.set_title(title)
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
-                        if flag_find_epa_ascii == "yes":
+                        if flag_with_obs:
                             #######################################################
                             ##########      PLOTTING OBS DATA            ##########
                             #######################################################
@@ -523,13 +552,13 @@ while date <= edate:
                                     elif plot_var[i] >= clevs[nlev-1]:
                                         color.append((0.9412,0.9412,0.9412))
                                     else:
-                                        flag_find_color="no"
+                                        flag_find_color=False
                                         for j in range(0,nlev-1):
                                             if plot_var[i] >= clevs[j] and plot_var[i] < clevs[j+1]:
                                                 color.append(ccols[j])
-                                                flag_find_color="yes"
+                                                flag_find_color=True
                                                 break
-                                        if flag_find_color =="no":
+                                        if not flag_find_color:
                                             print("Can not assign proper value for color, program stop")
                                             sys.exit()
     
@@ -554,13 +583,13 @@ while date <= edate:
                                     elif plot_var[i] >= clevs[nlev-1]:
                                         color.append((0.4310,0.2780,0.7250))
                                     else:
-                                        flag_find_color='no'
+                                        flag_find_color=False
                                         for j in range(0,nlev-1):
                                             if plot_var[i] >= clevs[j] and plot_var[i] < clevs[j+1]:
                                                 color.append(ccols[j])
-                                                flag_find_color='yes'
+                                                flag_find_color=True
                                                 break
-                                        if flag_find_color =='no':
+                                        if not flag_find_color:
                                             print('Can not assign proper value for color, program stop')
                                             sys.exit()
     
@@ -568,7 +597,11 @@ while date <= edate:
                             ## ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=100,zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
                             ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=mksize[ireg],zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
     
-                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
+                        if flag_with_obs:
+                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
+                        else:
+                            ## savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
+                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
                         plt.savefig(savefig_name, bbox_inches='tight')
                         plt.close()
             ##
@@ -576,11 +609,11 @@ while date <= edate:
             ##
             os.chdir(figdir)
             parta=os.path.join("/usr", "bin", "scp")
-            if 1 == 2 :
+            if 1 == 1 :
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cyc)
             else:
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
-                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp2")
+                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
             subprocess.call(['scp -p * '+partb], shell=True)
             msg=datetime.datetime.now()
             print("End   processing "+var[ivar])

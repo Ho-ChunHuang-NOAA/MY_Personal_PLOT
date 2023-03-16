@@ -244,7 +244,7 @@ msg=datetime.datetime.now()
 msg=msg - date_inc
 grdcro2d_date=msg.strftime("%Y%m%d")
 
-dcomout="/lfs/h1/ops/prod/dcom"
+dcomdir="/lfs/h1/ops/prod/dcom"
 obsdir="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/epa_airnow_acsii"
 figout=stmp_dir
 
@@ -281,16 +281,16 @@ num_reg=len(iplot)
 
 date=sdate
 while date <= edate:
-    flag_find_idir = "yes"
+    flag_find_idir = True
 
-    if flag_find_idir == "yes":
+    if flag_find_idir:
         print("comout set to "+comout)
     else:
         date = date + date_inc
         continue
     
-    flag_ak = "no"
-    flag_hi = "no"
+    flag_ak = False
+    flag_hi = False
 
     for cyc in cycle:
         cycle_time="t"+cyc+"z"
@@ -307,7 +307,7 @@ while date <= edate:
                 shutil.rmtree(figdir)
             os.makedirs(figdir)
             print("working on "+date.strftime(YMD_date_format)+" t"+cyc+"z "+var[ivar])
-            flag_read_latlon="no"
+            flag_read_latlon=False
             hour_end = 72
             for fcst_hr in range(0,hour_end):
                 nout=fcst_hr+1
@@ -320,26 +320,26 @@ while date <= edate:
                 obs_hour=fcst_hour
                 fcst_hour=fcst_hour + hour_inc
 
-                ## Read in one hourly data at a time
-                base_dir = obsdir+"/"+obs_hour.strftime(Y_date_format)+'/'+obs_hour.strftime(YMD_date_format)+'/'
-                obsfile= base_dir+'HourlyAQObs_'+obs_hour.strftime(obs_YMDH_date_format)+'.dat'
-                flag_find_epa_ascii="no"
-                if os.path.exists(obsfile):
-                ##    print(obsfile+" exists")
-                    flag_find_epa_ascii="yes"
+                ## Read in one hourly data one at a time
+                flag_with_obs=True
+                obsfile= "HourlyAQObs_"+obs_hour.strftime(obs_YMDH_date_format)+".dat"
+                ifile=os.path.join(dcomdir,obs_hour.strftime(YMD_date_format),"airnow",obsfile)
+                ifile2=os.path.join(obsdir,obs_hour.strftime(Y_date_format),obs_hour.strftime(YMD_date_format),obsfile)
+                if os.path.exists(ifile):
+                    infile=ifile
+                    print(infile+" exists")
+                elif os.path.exists(ifile2):
+                    infile=ifile2
+                    print(infile+" exists")
                 else:
-                    base_dir = dcomout+"/"+obs_hour.strftime(YMD_date_format)+'/airnow/'
-                    obsfile= base_dir+'HourlyAQObs_'+obs_hour.strftime(obs_YMDH_date_format)+'.dat'
-                    if os.path.exists(obsfile):
-                        flag_find_epa_ascii="yes"
-                ##    else:
-                ##        print("Can not find "+obsfile)
+                    print("Can not find both "+ifile+" and "+ifile2)
+                    flag_with_obs=False
 
-                if flag_find_epa_ascii == "yes":
+                if flag_with_obs:
                     airnow = []
                     colnames = ['Latitude','Longitude','ValidDate','ValidTime','PM25','PM25_Unit','OZONE','OZONE_Unit']
     
-                    df = pd.read_csv(obsfile,usecols=colnames)
+                    df = pd.read_csv(infile,usecols=colnames)
     
                     df[df['PM25']<0]=np.nan # ignore negative PM2.5 values
     
@@ -430,9 +430,9 @@ while date <= edate:
                         continue
                         ## sys.exit()
 
-            ## if flag_ak == "no" and iplot[num_reg-3] == 1:
+            ## if not flag_ak and iplot[num_reg-3] == 1:
             ##     iplot[num_reg-3] = 0
-            ## if flag_hi == "no" and iplot[num_reg-2] == 1:
+            ## if not flag_hi and iplot[num_reg-2] == 1:
             ##     iplot[num_reg-2] = 0
             ## print("iplot length = "+str(num_reg))
             ##
@@ -444,9 +444,9 @@ while date <= edate:
                     s3_title="Ozone sfc_conc (ppbV)"
                     clevs = [ 3., 6., 9., 12., 25., 35., 45., 55., 65., 70., 75., 85., 95., 105. ]
                     var_cs=o3_cs*scale
-                    if flag_ak == "yes":
+                    if flag_ak:
                         var_ak=o3_ak*scale
-                    if flag_hi == "yes":
+                    if flag_hi:
                         var_hi=o3_hi*scale
                     cmap = mpl.colors.ListedColormap([
                           (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
@@ -462,9 +462,9 @@ while date <= edate:
                     scale=1.
                     clevs = [ 3., 6., 9., 12., 15., 35., 55., 75., 100., 125., 150., 250., 300., 400., 500., 600., 750. ]
                     var_cs=pm_cs
-                    if flag_ak == "yes":
+                    if flag_ak:
                         var_ak=pm_ak
-                    if flag_hi == "yes":
+                    if flag_hi:
                         var_hi=pm_hi
                     cmap = mpl.colors.ListedColormap([
                           (0.0000,0.7060,0.0000), (0.0000,0.9060,0.0000), (0.3020,1.0000,0.3020),
@@ -480,9 +480,9 @@ while date <= edate:
                     scale=1.
                     clevs = [ 0., 3., 6., 9., 12., 25., 35., 45., 55., 65., 75., 85., 95., 105. ]
                     var_cs=pm_cs
-                    if flag_ak == "yes":
+                    if flag_ak:
                         var_ak=pm_ak
-                    if flag_hi == "yes":
+                    if flag_hi:
                         var_hi=pm_hi
                     cmap = mpl.colors.ListedColormap([
                           (0.9412,0.9412,0.9412), (0.8627,0.8627,1.0000), (0.6471,0.6471,1.0000), (0.4314,0.4314,1.0000),
@@ -497,9 +497,9 @@ while date <= edate:
 
                 title=s1_title+"\n"+s2_title+" "+s3_title
                 pvar_cs = var_cs[:,:]
-                if flag_ak == "yes":
+                if flag_ak:
                     pvar_ak = var_ak[:,:]
-                if flag_hi == "yes":
+                if flag_hi:
                     pvar_hi = var_hi[:,:]
                 for ireg in range(0,num_reg):
                     if iplot[ireg] == 1:
@@ -547,12 +547,12 @@ while date <= edate:
                                      levels=clevs, cmap=cmap, norm=norm, extend='both',
                                      transform=ccrs.PlateCarree() )
                             if figarea == "dset":
-                                if flag_ak == "yes":
+                                if flag_ak:
                                     ax.contourf(
                                          ak_lon, ak_lat, pvar_ak,
                                          levels=clevs, cmap=cmap, norm=norm, extend='both',
                                          transform=ccrs.PlateCarree() )
-                                if flag_hi == "yes":
+                                if flag_hi:
                                     ax.contourf(
                                          hi_lon, hi_lat, pvar_hi,
                                          levels=clevs, cmap=cmap, norm=norm, extend='both',
@@ -561,7 +561,7 @@ while date <= edate:
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
 
-                        if flag_find_epa_ascii == "yes":
+                        if flag_with_obs:
                             #######################################################
                             ##########      PLOTTING OBS DATA            ##########
                             #######################################################
@@ -616,13 +616,13 @@ while date <= edate:
                                     elif plot_var[i] >= clevs[nlev-1]:
                                         color.append((0.9412,0.9412,0.9412))
                                     else:
-                                        flag_find_color="no"
+                                        flag_find_color=False
                                         for j in range(0,nlev-1):
                                             if plot_var[i] >= clevs[j] and plot_var[i] < clevs[j+1]:
                                                 color.append(ccols[j])
-                                                flag_find_color="yes"
+                                                flag_find_color=True
                                                 break
-                                        if flag_find_color =="no":
+                                        if not flag_find_color:
                                             print("Can not assign proper value for color, program stop")
                                             sys.exit()
     
@@ -647,13 +647,13 @@ while date <= edate:
                                     elif plot_var[i] >= clevs[nlev-1]:
                                         color.append((0.4310,0.2780,0.7250))
                                     else:
-                                        flag_find_color='no'
+                                        flag_find_color=False
                                         for j in range(0,nlev-1):
                                             if plot_var[i] >= clevs[j] and plot_var[i] < clevs[j+1]:
                                                 color.append(ccols[j])
-                                                flag_find_color='yes'
+                                                flag_find_color=True
                                                 break
-                                        if flag_find_color =='no':
+                                        if not flag_find_color:
                                             print('Can not assign proper value for color, program stop')
                                             sys.exit()
     
@@ -661,7 +661,11 @@ while date <= edate:
                             ## ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=100,zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
                             ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=mksize[ireg],zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
 
-                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
+                        if flag_with_obs:
+                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
+                        else:
+                            ## savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
+                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
                         plt.savefig(savefig_name, bbox_inches='tight')
                         plt.close()
             ## scp by cycle and variable

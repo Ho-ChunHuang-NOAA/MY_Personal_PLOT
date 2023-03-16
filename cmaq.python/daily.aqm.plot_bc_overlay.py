@@ -156,13 +156,13 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 
 find_dir=[
           "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
+          "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir,
           "/lfs/h2/emc/physics/noscrub/"+user+"/BiasCor_updated/"+envir,
           "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir,
-          "/lfs/h2/emc/physics/noscrub/"+user+"/verification/aqm/"+envir,
-          "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir
+          "/lfs/h2/emc/physics/noscrub/"+user+"/verification/aqm/"+envir
          ]
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
-dcomout="/lfs/h1/ops/prod/dcom"
+dcomdir="/lfs/h1/ops/prod/dcom"
 obsdir="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/epa_airnow_acsii"
 
 #
@@ -427,26 +427,26 @@ while date <= edate:
                 obs_hour=fcst_hour
                 fcst_hour=fcst_hour+hour_inc
 
-                ## Read in one hourly data at a time
-                base_dir = obsdir+"/"+obs_hour.strftime(Y_date_format)+'/'+obs_hour.strftime(YMD_date_format)+'/'
-                obsfile= base_dir+'HourlyAQObs_'+obs_hour.strftime(obs_YMDH_date_format)+'.dat'
-                flag_find_epa_ascii=False
-                if os.path.exists(obsfile):
-                ##    print(obsfile+" exists")
-                    flag_find_epa_ascii=True
+                ## Read in one hourly data one at a time
+                flag_with_obs=True
+                obsfile= "HourlyAQObs_"+obs_hour.strftime(obs_YMDH_date_format)+".dat"
+                ifile=os.path.join(dcomdir,obs_hour.strftime(YMD_date_format),"airnow",obsfile)
+                ifile2=os.path.join(obsdir,obs_hour.strftime(Y_date_format),obs_hour.strftime(YMD_date_format),obsfile)
+                if os.path.exists(ifile):
+                    infile=ifile
+                    print(infile+" exists")
+                elif os.path.exists(ifile2):
+                    infile=ifile2
+                    print(infile+" exists")
                 else:
-                    base_dir = dcomout+"/"+obs_hour.strftime(YMD_date_format)+'/airnow/'
-                    obsfile= base_dir+'HourlyAQObs_'+obs_hour.strftime(obs_YMDH_date_format)+'.dat'
-                    if os.path.exists(obsfile):
-                        flag_find_epa_ascii=True
-                ##    else:
-                ##        print("Can not find "+obsfile)
+                    print("Can not find both "+ifile+" and "+ifile2)
+                    flag_with_obs=False
 
-                if flag_find_epa_ascii:
+                if flag_with_obs:
                     airnow = []
                     colnames = ['Latitude','Longitude','ValidDate','ValidTime','PM25','PM25_Unit','OZONE','OZONE_Unit']
     
-                    df = pd.read_csv(obsfile,usecols=colnames)
+                    df = pd.read_csv(infile,usecols=colnames)
     
                     df[df['PM25']<0]=np.nan # ignore negative PM2.5 values
     
@@ -533,7 +533,7 @@ while date <= edate:
                         ax.set_title(title)
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
-                        if flag_find_epa_ascii:
+                        if flag_with_obs:
                             #######################################################
                             ##########      PLOTTING OBS DATA            ##########
                             #######################################################
@@ -633,7 +633,11 @@ while date <= edate:
                             ## ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=100,zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
                             ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=mksize[ireg],zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
     
-                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"bcobs."+date.strftime(YMD_date_format)+"."+cyc+"."+str(format(nout,'02d'))+"."+var[ivar]+".k1.png"
+                        if flag_with_obs:
+                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"bcobs."+date.strftime(YMD_date_format)+"."+cyc+"."+str(format(nout,'02d'))+"."+var[ivar]+".k1.png"
+                        else:
+                            ## savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"bc."+date.strftime(YMD_date_format)+"."+cyc+"."+str(format(nout,'02d'))+"."+var[ivar]+".k1.png"
+                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"bcobs."+date.strftime(YMD_date_format)+"."+cyc+"."+str(format(nout,'02d'))+"."+var[ivar]+".k1.png"
                         plt.savefig(savefig_name, bbox_inches='tight')
                         plt.close()
             ##

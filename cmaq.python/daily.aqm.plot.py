@@ -152,10 +152,10 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## Current EMC development CMAQ does not include runs for AK and HI domain
 ##
 find_dir=[
-          "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir,
           "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
+          "/lfs/h2/emc/ptmp/"+os.environ['USER']+"/com/aqm/"+envir,
           "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir,
-          "/lfs/h2/emc/ptmp/"+os.environ['USER']+"/com/aqm/"+envir
+          "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir
          ]
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
 

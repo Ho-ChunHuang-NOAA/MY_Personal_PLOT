@@ -129,8 +129,7 @@ else:
                   "daily.rrfs.plot_max_ave.py",
                   "daily.rrfs.plot_max_ave_bc.py",
                   "daily.aqm.plot_max_ave_overlay.py",
-                  "daily_aqm_grib2_overlay_p1.py",
-                  "daily_aqm_grib2_overlay_p2.py",
+                  "daily.rrfs_plot_bc_overlay.py",
                   "daily_aqm_grib2_hourly_p1.py",
                   "daily_aqm_grib2_hourly_p2.py",
                   "daily.aqm.plot_rrfs_overlay.py",
@@ -138,6 +137,8 @@ else:
                   ]
     working_name = [
                   "daily.aqm.plot_max_ave_overlay.py"
+                  "daily_aqm_grib2_overlay_p1.py",
+                  "daily_aqm_grib2_overlay_p2.py",
                    ]
 ## subprocess.call(['cp -p * '+partb], shell=True)
 
@@ -1601,7 +1602,7 @@ while date <= edate:
                         sh.write("set -x\n")
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
-                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+i+" "+envir+"_bc "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)

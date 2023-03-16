@@ -118,7 +118,7 @@ else:
 
 if envir == "prod" or envir == "firev4":
     script_name = [
-                  "daily.akhi.plot_overlay.py"
+                  "daily.akhi.plot_max_ave_overlay.py",
                   ]
     ## using bias_corrected grib2 file before 2022/08/26 (excep 202201-202202)
     ## "daily_aqm_grib2_overlay_p1.py", "daily_aqm_grib2_overlay_p2.py",
@@ -126,8 +126,8 @@ if envir == "prod" or envir == "firev4":
     ## "daily.aqm.plot_bc_overlay.py",
     ## "daily.aqm.plot_bc.py",
     no_workk_script = [
+                  "daily.akhi.plot_overlay.py"
                   "daily.akhi.plot_overlay.py",
-                  "daily.akhi.plot_max_ave_overlay.py",
                   "daily.aqm.plot.py",
                   "daily.aqm.plot_overlay.py",
                   "daily.aqm.plot_bc.py",
