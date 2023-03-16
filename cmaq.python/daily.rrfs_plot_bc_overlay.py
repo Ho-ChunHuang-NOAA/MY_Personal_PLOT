@@ -28,11 +28,6 @@ else:
     start_date = sys.argv[4]
     end_date = sys.argv[5]
 
-if envir.lower() == "para":
-    fig_exp="ncopara"
-else:
-    fig_exp=envir.lower()
-
 caseid="v70"
 nfind=envir.find(caseid)
 if nfind == -1:
@@ -60,6 +55,11 @@ else:
         print("BC_append="+BC_append)
 script_dir=os.getcwd()
 print("Script directory is "+script_dir)
+
+if envir.lower() == "para":
+    fig_exp="ncopara"
+else:
+    fig_exp=EXP.lower()+BC_fig_append
 
 user=os.environ['USER']
 
