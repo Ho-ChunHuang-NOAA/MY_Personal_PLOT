@@ -374,12 +374,12 @@ while date <= edate:
             ## obs_hour and fcst_hour need to be consistently increase by one hour, whike
             ## model forecast output is directly read "n" if model output
             ## thus, obs and fcst will not sync if n start from the middle
+            ## for n in range(0,13):
+            ##     if n < 12:
+            ##         fcst_hour=fcst_hour+hour_inc
+            ##         continue
             ## for n in range(0,17):
-            ## for n in range(0,nstep):
-            for n in range(0,13):
-                if n < 12:
-                    fcst_hour=fcst_hour+hour_inc
-                    continue
+            for n in range(0,nstep):
                 nout=n+1
                 str_fcst_hr=str(nout)
                 fhh3=str_fcst_hr.zfill(3)
