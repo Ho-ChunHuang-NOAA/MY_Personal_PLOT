@@ -144,6 +144,7 @@ else:
     script_name = [
                   "daily_aqm_grib2_overlay_p1.py",
                   "daily_aqm_grib2_overlay_p2.py"
+                  ]
     no_workk_script = [
                   "daily.aqm.plot_bc_overlay.py"
                   ]
