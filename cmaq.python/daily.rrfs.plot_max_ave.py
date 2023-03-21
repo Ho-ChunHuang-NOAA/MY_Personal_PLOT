@@ -73,7 +73,7 @@ log_dir=ptmp_dir+"/batch_logs"
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
-working_root=stmp_dir+"/aqm_plot_working_max_ave_"+envir
+working_root=stmp_dir+"/aqm_plot_rrfs_max_ave_"+envir
 if os.path.exists(working_root):
     os.chdir(working_root)
 else:
@@ -250,7 +250,7 @@ while date <= edate:
             aqmfilein=comout+"/"+dirid+"."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
-                outfile=working_dir+"/"+file_hdr+".nc"
+                outfile=working_dir+"/"+file_hdr+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"
                 subprocess.call([wgrib2+' -netcdf '+outfile+' '+aqmfilein], shell=True)
                 aqmfilein=outfile
                 cs_aqm = netcdf.Dataset(aqmfilein)

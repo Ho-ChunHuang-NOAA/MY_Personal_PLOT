@@ -66,7 +66,7 @@ log_dir=ptmp_dir+"/batch_logs"
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
-working_dir=stmp_dir+"/aqm_plot_working"
+working_dir=stmp_dir+"/aqm_plot_working_aot"
 if os.path.exists(working_dir):
     os.chdir(working_dir)
 else:
@@ -241,7 +241,7 @@ while date <= edate:
                 if var[ivar] == "aot":
                     file_hdr="aqm."+cycle_time+"."+var[ivar]+".f"+fhh+".148"
                     aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
-                    outfile=working_dir+"/"+file_hdr+".nc"
+                    outfile=working_dir+"/"+file_hdr+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"
                     subprocess.call([wgrib2+' -netcdf '+outfile+' '+aqmfilein], shell=True)
                     aqmfilein=outfile
                     if os.path.exists(aqmfilein):

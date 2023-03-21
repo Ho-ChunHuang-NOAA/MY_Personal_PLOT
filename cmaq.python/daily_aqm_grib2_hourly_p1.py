@@ -52,7 +52,7 @@ log_dir=ptmp_dir+"/batch_logs"
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
-working_dir=stmp_dir+"/aqm_plot_working"
+working_dir=stmp_dir+"/aqm_plot_working_hourly"
 if os.path.exists(working_dir):
     os.chdir(working_dir)
 else:
@@ -385,7 +385,7 @@ while date <= edate:
                     aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
-                        outfile=working_dir+"/pm25."+fhh2+".nc"
+                        outfile=working_dir+"/pm25hp1."+fhh2+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"
                         subprocess.call([wgrib2+' -d 1 -netcdf '+outfile+' '+aqmfilein], shell=True)
                         aqmfilein=outfile
                         cs_aqm = netcdf.Dataset(aqmfilein)
@@ -395,7 +395,7 @@ while date <= edate:
                         cs_aqm.close()
                     elif os.path.exists(aqmfilein2):
                         ## print(aqmfilein2+" exists")
-                        outfile=working_dir+"/pm25."+fhh2+".nc"
+                        outfile=working_dir+"/pm25hp1."+fhh2+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"
                         subprocess.call([wgrib2+' -d 1 -netcdf '+outfile+' '+aqmfilein2], shell=True)
                         aqmfilein2=outfile
                         cs_aqm = netcdf.Dataset(aqmfilein2)
@@ -417,7 +417,7 @@ while date <= edate:
                     aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
-                        outfile=working_dir+"/o3."+fhh2+".nc"
+                        outfile=working_dir+"/o3hp1."+fhh2+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"
                         subprocess.call([wgrib2+' -d 1 -netcdf '+outfile+' '+aqmfilein], shell=True)
                         aqmfilein=outfile
                         cs_aqm = netcdf.Dataset(aqmfilein)
@@ -428,7 +428,7 @@ while date <= edate:
                         cs_aqm.close()
                     elif os.path.exists(aqmfilein2):
                         ## print(aqmfilein2+" exists")
-                        outfile=working_dir+"/o3."+fhh2+".nc"
+                        outfile=working_dir+"/o3hp1."+fhh2+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"
                         subprocess.call([wgrib2+' -d 1 -netcdf '+outfile+' '+aqmfilein2], shell=True)
                         aqmfilein2=outfile
                         cs_aqm = netcdf.Dataset(aqmfilein2)
