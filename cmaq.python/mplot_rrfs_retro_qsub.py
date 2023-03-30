@@ -136,11 +136,11 @@ else:
                   "daily.aqm.plot_rrfs.py"
                   ]
     working_name = [
+                  "daily.aqm.plot_max_ave_overlay.py",
                   "daily_aqm_grib2_overlay_p1.py",
                   "daily_aqm_grib2_overlay_p2.py",
                   "rrfs_fireemis_fire_loc_retro1.py",
-                  "rrfs_fireemis_fire_loc_retro2.py",
-                  "daily.aqm.plot_max_ave_overlay.py"
+                  "rrfs_fireemis_fire_loc_retro2.py"
                    ]
 ## subprocess.call(['cp -p * '+partb], shell=True)
 
