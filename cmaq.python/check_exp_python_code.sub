@@ -23,6 +23,7 @@ else:
         EXP=envir
         n0=len(caseid)
         n1=len(EXP)
+        expid=aqm   # after 4/1/2023 directory will be changed into aqm.yyyymmdd
         expid=envir[n0:n1]
         BC_append=""
         print("exp="+EXP)
@@ -32,6 +33,7 @@ else:
         EXP=envir[0:nfind]
         n0=len(caseid)
         n1=len(EXP)
+        expid=aqm   # after 4/1/2023 directory will be changed into aqm.yyyymmdd
         expid=EXP[n0:n1]
         BC_append="_bc"
         print("exp="+EXP)

@@ -187,6 +187,7 @@ else:
     iplot = [    1, 1,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1, 1 ]
 num_reg=len(iplot)
 
+expid=aqm   # after 4/1/2023 directory will be changed into aqm.yyyymmdd
 date=sdate
 while date <= edate:
     flag_find_cyc=True
@@ -201,11 +202,11 @@ while date <= edate:
             elif var[ivar] == "pmmax1":
                 fileid="max_1hr_pm25"
             check_file="aqm."+cyc+"."+fileid+"_bc."+grid793+".grib2"
-            aqmfilein=nrtout+"/c55."+date.strftime(YMD_date_format)+"/"+check_file
+            aqmfilein=nrtout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+check_file
             aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
             if os.path.exists(aqmfilein):
                 comout=nrtout
-                dirid="c55"
+                dirid=expid
                 print(aqmfilein+" exists")
                 break
             else:

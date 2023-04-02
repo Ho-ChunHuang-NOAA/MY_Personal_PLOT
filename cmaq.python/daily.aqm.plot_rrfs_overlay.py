@@ -157,7 +157,7 @@ aqm_ver="v7.0"
 comout="/lfs/h2/emc/aqmtemp/para/com/aqm/v7.0"
 comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0"
 usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
-if not os.path.exists(comout+"/c55."+sdate.strftime(YMD_date_format)):
+if not os.path.exists(comout+"/aqm."+sdate.strftime(YMD_date_format)):
     if not os.path.exists(usrout):
         print("Can not find ioutput dir with experiment id "+envir)
         sys.exit()
@@ -290,7 +290,7 @@ while date <= edate:
                     o3unit = airnow['OZONE_Unit']
 
                 if var[ivar] == "pm25":
-                    aqmfilein=comout+"/c55"+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    aqmfilein=comout+"/aqm."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     aqmfilein2=usrout+"/aqm."+date.strftime(YMD_date_format)+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
@@ -316,7 +316,7 @@ while date <= edate:
                         sys.exit()
                 ## in ppm
                 if var[ivar] == "o3":
-                    aqmfilein=comout+"/c55"+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    aqmfilein=comout+"/aqm."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     aqmfilein2=usrout+"/aqm."+date.strftime(YMD_date_format)+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
