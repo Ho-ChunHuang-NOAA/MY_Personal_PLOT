@@ -186,7 +186,7 @@ else:
     iplot = [    0,  0, 1,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
 num_reg=len(iplot)
 
-expid=aqm   # after 4/1/2023 directory will be changed into aqm.yyyymmdd
+expid="aqm"   # after 4/1/2023 directory will be changed into aqm.yyyymmdd
 date=sdate
 while date <= edate:
     flag_find_cyc=True
