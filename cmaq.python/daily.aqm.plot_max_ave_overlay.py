@@ -424,8 +424,8 @@ while date <= edate:
                 print(aqmfilein2+" exists")
                 outfile=working_dir+"/"+file_hdr+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"
                 subprocess.call([wgrib2+' -netcdf '+outfile+' '+aqmfilein2], shell=True)
-                aqmfilein=outfile
-                cs_aqm = netcdf.Dataset(aqmfilein)
+                aqmfilein2=outfile
+                cs_aqm = netcdf.Dataset(aqmfilein2)
                 cs_lat = cs_aqm.variables['latitude'][:,:]
                 cs_lon = cs_aqm.variables['longitude'][:,:]
                 cs_var = cs_aqm.variables['time'][:]
