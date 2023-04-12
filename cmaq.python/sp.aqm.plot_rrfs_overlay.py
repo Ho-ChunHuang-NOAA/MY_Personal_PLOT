@@ -178,7 +178,7 @@ rlon1 = [ -71.  ]
 rlat0 = [  40.4 ]
 rlat1 = [  42.2 ]
 xsize = [  10   ]
-ysize = [   5   ]
+ysize = [   8   ]
 iplot = [   1   ]
 num_reg=len(iplot)
 
@@ -530,7 +530,7 @@ while date <= edate:
             ##
         os.chdir(figdir)
         parta=os.path.join("/usr", "bin", "scp")
-        if 1 == 2 :
+        if 1 == 1 :
             partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cycle_time)
         else:
             partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
