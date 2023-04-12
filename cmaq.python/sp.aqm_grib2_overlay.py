@@ -487,11 +487,12 @@ while date <= edate:
 
                         ax = plt.axes(projection=aqmproj)
                         ax.set_extent(extent)
-                        ax.coastlines('50m')
+                        ax.coastlines('10m')
                         states_provinces = cfeature.NaturalEarthFeature(
                              category='cultural',
-                             name='admin_1_states_provinces_lines',
-                             scale='50m',
+                             name='admin_1_states_provinces_lakes',
+##                             name='admin_1_states_provinces_lines',
+                             scale='10m',
                              facecolor='none')
                         ax.add_feature(states_provinces, facecolor='none', edgecolor='gray')
                         ## rivers_50m = cfeature.NaturalEarthFeature('physical', 'rivers_lake_centerlines', '50m')

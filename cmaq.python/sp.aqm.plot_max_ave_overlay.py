@@ -16,6 +16,9 @@ import datetime
 import shutil
 import subprocess
 
+## from cartopy import config
+## config['data_dir'] = '/apps/ops/prod/data/cartopy'
+
 user=os.environ['USER']
 ifile="/u/ho-chun.huang/versions/run.ver"
 rfile=open(ifile, 'r')
@@ -646,11 +649,12 @@ while date <= edate:
 
                         ax = plt.axes(projection=aqmproj)
                         ax.set_extent(extent)
-                        ax.coastlines('50m')
+                        ax.coastlines('10m')
                         states_provinces = cfeature.NaturalEarthFeature(
+                             name='admin_1_states_provinces_lakes',
+##                             name='admin_1_states_provinces_lines',
                              category='cultural',
-                             name='admin_1_states_provinces_lines',
-                             scale='50m',
+                             scale='10m',
                              facecolor='none')
                         ax.add_feature(states_provinces, facecolor='none', edgecolor='gray')
                         ## rivers_50m = cfeature.NaturalEarthFeature('physical', 'rivers_lake_centerlines', '50m')
@@ -770,7 +774,7 @@ while date <= edate:
             ##
             os.chdir(figdir)
             parta=os.path.join("/usr", "bin", "scp")
-            if 1 == 1 :
+            if 1 == 2 :
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cycle_time)
             else:
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
