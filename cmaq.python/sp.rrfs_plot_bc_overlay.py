@@ -592,7 +592,7 @@ while date <= edate:
             ##
             os.chdir(figdir)
             parta=os.path.join("/usr", "bin", "scp")
-            if 1 == 1 :
+            if 1 == 2 :
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cycle_time)
             else:
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
