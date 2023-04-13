@@ -1,4 +1,5 @@
 import os
+import math
 import numpy as np
 import netCDF4 as netcdf
 import re
@@ -17,15 +18,14 @@ import shutil
 import subprocess
 ### Read data of all time step in once, then print one at a time
 ### PASSED AGRUEMENTS
-if len(sys.argv) < 5:
-    print("you must set 5 arguments as model[prod|para|...] variabels[o3|pm25|all] cycle[06|12|all]  start_date end_date")
+if len(sys.argv) < 2:
+    print("you must set 2 arguments as model[prod|para|...]  search_date")
     sys.exit()
 else:
     envir = sys.argv[1]
-    sel_var = sys.argv[2]
-    sel_cyc = sys.argv[3]
-    start_date = sys.argv[4]
-    end_date = sys.argv[5]
+    start_date = sys.argv[2]
+
+end_date = start_date
 
 if envir.lower() == "para":
     fig_exp="ncopara"
@@ -63,7 +63,7 @@ log_dir=ptmp_dir+"/batch_logs"
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
-working_dir=stmp_dir+"/aqm_plot_working"
+working_dir=stmp_dir+"/aqm_find_gridij_working"
 if os.path.exists(working_dir):
     os.chdir(working_dir)
 else:
@@ -110,21 +110,6 @@ H_date_format = "%H"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
-var=["no2"]
-## var.append[sel_var]
-num_var=len(var)
-print("var length = "+str(num_var))
-
-if sel_cyc == "all":
-   cycle=[ "t06z", "t12z" ]
-elif sel_cyc == "06":
-   cycle=[ "t06z" ]
-elif sel_cyc == "12":
-   cycle=[ "t12z" ]
-else:
-    print("seletced cycle"+sel_cyc+" can not be recongized.")
-    sys.exit()
-
 warnings.filterwarnings('ignore')
 plt.rcParams['font.weight'] = 'bold'
 plt.rcParams['axes.labelsize'] = 10
@@ -137,6 +122,51 @@ plt.rcParams['axes.formatter.useoffset'] = False
 cbar_num_format = "%d"
 plt.close('all') # close all figures
 
+grid148="148"
+grid227="227"
+grid198="198"
+grid139="139"
+grid196="196"
+grid793="793"
+
+aqmv6=False
+aqmv7=False
+caseid="v70"
+nfind=envir.find(caseid)
+if nfind == -1:
+    print("AQMv6 simulation")
+    aqmv6 = True
+    EXP=envir
+    expid="cs"
+    exp_grid=grid148
+    comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+EXP.lower()
+    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
+    comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+EXP.lower()
+    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+EXP.lower()
+    comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
+    usrout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
+    if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
+        if not os.path.exists(usrout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
+            print("Can not find output dir with experiment id "+EXP.lower())
+            sys.exit()
+else:
+    print("AQMv7 simulation")
+    aqmv7 = True
+    aqm_ver="v7.0"
+    exp_grid=grid793
+    EXP=envir
+    n0=len(caseid)
+    n1=len(EXP)
+    expid=envir[n0:n1]
+    expid="aqm"   # after 4/1/2023 directory will be changed into aqm.yyyymmdd
+    comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver
+    comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
+    comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+EXP.lower()
+    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+EXP.lower()
+    if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
+        if not os.path.exists(usrout+"/cs."+sdate.strftime(YMD_date_format)):
+            print("Can not find output dir with experiment id "+EXP.lower())
+            sys.exit()
 msg=datetime.datetime.now()
 msg=msg - date_inc
 grddot2d_date=msg.strftime("%Y%m%d")
@@ -144,52 +174,160 @@ grddot2d_date=msg.strftime("%Y%m%d")
 ## Current operational CMAQ does include runs for AK and HI domain
 ## Current EMC development CMAQ does not include runs for AK and HI domain
 ##
-find_dir=[
-          "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
-          "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir,
-          "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir
-         ]
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
 
-figout=stmp_dir
+csvout=stmp_dir
 
-obs_site_name="Westport, CT"
-obs_site_id="090019003"
-obs_site_lat=41.1189
-obs_site_lon=-73.336900
+obs_site_name=[ "Westport, CT", "Greenwich, CT", "Stratford, CT" ]
+obs_site_id=[ "090019003", "090010017", "090013007"  ]
+obs_site_id=[ "wpt-9003", "grn-0017", "str-3007"  ]
+obs_site_lat= [ 41.118228, 41.004657, 41.15181 ]
+obs_site_lon= [ -73.336753, -73.585128, -73.10334 ]
+nsite=len(obs_site_lat)
+obs_site_mdli=[]
+obs_site_mdlj=[]
+var=[ "o3", "pm25", "no2" ]
+num_var=len(var)
+#
+# /lfs/h2/emc/physics/noscrub/ho-chun.huang/rrfs_sfc_chem_met/v70c55/aqm.20230404
+# aqm.t06z.chem_sfc.f048.nc
+#
+fcst_hr="f024"
+cyc="t12z"
+
 date=sdate
 while date <= edate:
     flag_find_idir="no"
-    for idir in find_dir:
-        comout=idir
-        print("check "+idir)
-        flag_find_cyc="yes"
-        for cyc in cycle:
-            check_file="aqm."+cyc+".aconc_sfc.ncf"
-            aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
-            if os.path.exists(aqmfilein):
-                print(aqmfilein+" exists")
-            else:
-                flag_find_cyc="no"
-                print("Can not find "+aqmfilein)
-                break
-        if flag_find_cyc == "yes":
-            flag_find_idir="yes"
-            break
-    if flag_find_idir == "yes":
-        print("comout set to "+comout)
+    if aqmv6:
+        check_file="aqm."+cyc+".aconc_sfc.ncf"
+    if aqmv7:
+        check_file="aqm."+cyc+".chem_sfc."+fcst_hr+".nc"
+    aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+check_file
+    if os.path.exists(aqmfilein):
+        print(aqmfilein+" exists")
     else:
+        print("Can not find "+aqmfilein)
         date = date + date_inc
         continue
     
+    if aqmv7:
+        if os.path.exists(aqmfilein):
+            print(aqmfilein+" exists")
+            model_data = netcdf.Dataset(aqmfilein)
+            dot_xt = model_data.variables['grid_xt'][:]
+            dot_yt = model_data.variables['grid_yt'][:]
+            cro_lat = model_data.variables['lat'][:,:]
+            cro_lon = model_data.variables['lon'][:,:]
+            ixt=dot_xt.shape[0]
+            jyt=dot_yt.shape[0]
+            print('"Dimension x is %d"' % (ixt))
+            print('"Dimension y is %d"' % (jyt))
+            jmax=cro_lat.shape[0]
+            imax=cro_lat.shape[1]
+            print('"Dimension 0 is %d"' % (jmax))
+            print('"Dimension 1 is %d"' % (imax))
+            model_data.close()
+            print(dot_xt[0:10])
+            print(dot_yt[0:10])
+            print(cro_lat[0,0])
+            print(cro_lat[1,0])
+            print(cro_lat[2,0])
+            print(cro_lon[0,0])
+            print(cro_lon[1,0])
+            print(cro_lon[2,0])
+            print(cro_lat[0,0])
+            print(cro_lat[0,1])
+            print(cro_lat[0,2])
+            print(cro_lon[0,0])
+            print(cro_lon[0,1])
+            print(cro_lon[0,2])
+        else:
+            print("Can not find "+aqmfilein)
+            sys.exit()
 
-    for cyc in cycle:
-        msg=datetime.datetime.now()
-        print("Start processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
-        s1_title="CMAQ "+fig_exp.upper()+" "+date.strftime(YMD_date_format)+" "+cyc
-        fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[1:3]))
+        for sid in range(0,nsite):
+            sidlon=obs_site_lon[sid]+360.
+            sidlat=obs_site_lat[sid]
+            ## First find the i,j in the close vicinty 
+            mdl_i=-999
+            mdl_i=-999
+            for j in range(0,jmax-1):
+                flag_ij=False
+                for i in range(0,imax-1):
+                    if sidlon >= cro_lon[j][i] and sidlon < cro_lon[j][i+1] and sidlon >= cro_lon[j+1][i] and sidlon < cro_lon[j+1][i+1] and sidlat >= cro_lat[j][i] and sidlat >= cro_lat[j][i+1] and sidlat < cro_lat[j+1][i] and sidlat < cro_lat[j+1][i+1]:
+                        mdl_i=i
+                        mdl_j=j
+                        flag_ij=True
+                        break
+                if flag_ij:
+                    break
+            ## Then find closest model grid from obs_site_lat and obs_site_lon
+            findi=-999
+            findj=-999
+            min_latlon=99999999999999.
+            for j in range(mdl_j-2,mdl_j+3):
+                flag_ij="no"
+                for i in range(mdl_i-2,mdl_i+3):
+                     a=sidlon-cro_lon[j,i]
+                     b=sidlat-cro_lat[j,i]
+                     c=a*a+b*b
+                     d=math.sqrt(c)
+                     ## print(str(d))
+                     if d < min_latlon:
+                         ## print("find new shortest distance "+str(min_latlon)+"  to "+str(d) )
+                         ## print("find new shortest mdl_j and mdl_i = ("+str(j)+","+str(i)+")")
+                         min_latlon=d
+                         findi=i
+                         findj=j
 
-        metfilein=metout+"/cs."+grddot2d_date+"/aqm."+cyc+".grdcro2d.ncf"
+            mdl_j=findj
+            mdl_i=findi
+            print( "obs lon = "+str(sidlon))
+            print( "obs lat = "+str(sidlat))
+            print( "model i = "+str(mdl_i)+" and model j = "+str(mdl_j))
+            print( "lat UL = "+str(cro_lat[mdl_j+1][mdl_i])+" and lat UR = "+str(cro_lat[mdl_j+1][mdl_i+1]))
+            print( "lat LL = "+str(cro_lat[mdl_j][mdl_i])+" and lat LR = "+str(cro_lat[mdl_j][mdl_i+1]))
+            print( "lon UL = "+str(cro_lon[mdl_j+1][mdl_i])+" and lon UR = "+str(cro_lon[mdl_j+1][mdl_i+1]))
+            print( "lon LL = "+str(cro_lon[mdl_j][mdl_i])+" and lon LR = "+str(cro_lon[mdl_j][mdl_i+1]))
+            print( "mdl lon = "+str(cro_lon[mdl_j][mdl_i]))
+            print( "mdl lat = "+str(cro_lat[mdl_j][mdl_i]))
+
+        if os.path.exists(aqmfilein):
+            print(aqmfilein+" exists")
+            cs_aqm = netcdf.Dataset(aqmfilein)
+            cs_var = cs_aqm.variables['time'][:]
+            nstep=len(cs_var)
+            for ivar in range(0,num_var):
+                if var[ivar] == "o3":
+                    o3_cs = cs_aqm.variables['o3'][0,:,:]
+                if var[ivar] == "pm25":
+                    pm_cs = cs_aqm.variables['PM25_TOT'][0,:,:]
+                if var[ivar] == "no2":
+                    no2_cs = cs_aqm.variables['no2'][0,:,:]
+            cs_aqm.close()
+            jmax=no2_cs.shape[0]
+            imax=no2_cs.shape[1]
+            print('"Dimension 0 is %d"' % (jmax))
+            print('"Dimension 1 is %d"' % (imax))
+            max_no2=np.amax(no2_cs)
+            min_no2=np.amin(no2_cs)
+            print('"MAX of NO2 is  %f"' % (max_no2))
+            print('"MIN of NO2 is  %f"' % (min_no2))
+            result = np.where(no2_cs == np.amax(no2_cs))
+            jidx=result[0]   # is an array
+            iidx=result[1]   # is an array
+            print(jidx[0])   # only one will be found, can be more than if not unique
+            print(iidx[0])   # only one will be found, can be more than if not unique
+            mld_max_no2=no2_cs[0,0]   # to double check the number from result[*] number
+            mld_max_no2=no2_cs[4,559]   # to double check the number from result[*] number
+            print('"CONC of NO2 is            %f"' % (no2_cs[jidx[0],iidx[0]]))
+            print('"Asssigned CONC of NO2 is  %f"' % (mld_max_no2))
+        else:
+            print("Can not find "+aqmfilein)
+            sys.exit()
+
+    if aqmv6:
+        metfilein=comout+"/cs."+grddot2d_date+"/aqm."+cyc+".grdcro2d.ncf"
         if os.path.exists(metfilein):
             print(metfilein+" exists")
             model_data = netcdf.Dataset(metfilein)
@@ -202,9 +340,9 @@ while date <= edate:
             model_data.close()
         else:
             print("Can not find "+metfilein)
-            sys,exit()
+            sys.exit()
 
-        metfilein=metout+"/cs."+grddot2d_date+"/aqm."+cyc+".grddot2d.ncf"
+        metfilein=comout+"/cs."+grddot2d_date+"/aqm."+cyc+".grddot2d.ncf"
         if os.path.exists(metfilein):
             print(metfilein+" exists")
             model_data = netcdf.Dataset(metfilein)
@@ -217,28 +355,76 @@ while date <= edate:
             model_data.close()
         else:
             print("Can not find "+metfilein)
-            sys,exit()
+            sys.exit()
 
-        for j in range(0,jmax-1):
-            flag_ij="no"
-            for i in range(0,imax-1):
-                if obs_site_lon >= dot_lon[j][i] and obs_site_lon < dot_lon[j][i+1] and obs_site_lon >= dot_lon[j+1][i] and obs_site_lon < dot_lon[j+1][i+1] and obs_site_lat >= dot_lat[j][i] and obs_site_lat >= dot_lat[j][i+1] and obs_site_lat < dot_lat[j+1][i] and obs_site_lat < dot_lat[j+1][i+1]:
-                    mdl_i=i
-                    mdl_j=j
-                    flag_ij="yes"
+        print( "lat LL = "+str(dot_lat[0][0])+" and lat UL = "+str(dot_lat[jmax-1][0]))
+        print( "lat LR = "+str(dot_lat[0][imax-1])+" and lat UR = "+str(dot_lat[jmax-1][imax-1]))
+        print( "lon LL = "+str(dot_lon[0][0])+" and lon UL = "+str(dot_lon[jmax-1][0]))
+        print( "lon LR = "+str(dot_lon[0][imax-1])+" and lon UR = "+str(dot_lon[jmax-1][imax-1]))
+        for sid in range(0,nsite):
+            sidlon=obs_site_lon[sid]
+            sidlat=obs_site_lat[sid]
+            print( "obs lon = "+str(sidlon))
+            print( "obs lat = "+str(sidlat))
+            mdl_i=-999
+            mdl_j=-999
+            flag_ij=False
+            for j in range(0,jmax-1):
+                for i in range(0,imax-1):
+                    if sidlon >= dot_lon[j][i] and sidlon < dot_lon[j][i+1] and sidlon >= dot_lon[j+1][i] and sidlon < dot_lon[j+1][i+1] and sidlat >= dot_lat[j][i] and sidlat >= dot_lat[j][i+1] and sidlat < dot_lat[j+1][i] and sidlat < dot_lat[j+1][i+1]:
+                        mdl_i=i
+                        mdl_j=j
+                        flag_ij=True
+                        break
+                if flag_ij:
                     break
-            if flag_ij == "yes":
-                break
-        print( "obs lon = "+str(obs_site_lon))
-        print( "obs lat = "+str(obs_site_lat))
-        print( "model i = "+str(mdl_i)+" and model j = "+str(mdl_j))
-        print( "lat UL = "+str(dot_lat[mdl_j+1][mdl_i])+" and lat UR = "+str(dot_lat[mdl_j+1][mdl_i+1]))
-        print( "lat LL = "+str(dot_lat[mdl_j][mdl_i])+" and lat LR = "+str(dot_lat[mdl_j][mdl_i+1]))
-        print( "lon UL = "+str(dot_lon[mdl_j+1][mdl_i])+" and lon UR = "+str(dot_lon[mdl_j+1][mdl_i+1]))
-        print( "lon LL = "+str(dot_lon[mdl_j][mdl_i])+" and lon LR = "+str(dot_lon[mdl_j][mdl_i+1]))
-        print( "mdl lon = "+str(cro_lon[mdl_j][mdl_i]))
-        print( "mdl lat = "+str(cro_lat[mdl_j][mdl_i]))
+            if flag_ij:
+                ## print( "obs lon = "+str(sidlon))
+                ## print( "obs lat = "+str(sidlat))
+                print( "model i = "+str(mdl_i)+" and model j = "+str(mdl_j))
+                print( "lat UL = "+str(dot_lat[mdl_j+1][mdl_i])+" and lat UR = "+str(dot_lat[mdl_j+1][mdl_i+1]))
+                print( "lat LL = "+str(dot_lat[mdl_j][mdl_i])+" and lat LR = "+str(dot_lat[mdl_j][mdl_i+1]))
+                print( "lon UL = "+str(dot_lon[mdl_j+1][mdl_i])+" and lon UR = "+str(dot_lon[mdl_j+1][mdl_i+1]))
+                print( "lon LL = "+str(dot_lon[mdl_j][mdl_i])+" and lon LR = "+str(dot_lon[mdl_j][mdl_i+1]))
+                print( "mdl lon = "+str(cro_lon[mdl_j][mdl_i]))
+                print( "mdl lat = "+str(cro_lat[mdl_j][mdl_i]))
+            else:
+                print("Can not fin model i,j for station #"+str(sid))
+                # set guess i,j for shortest distance calculation
+                mdl_i=371
+                mdl_j=174
 
+            ## Then find closest model grid from obs_site_lat and obs_site_lon
+            findi=-999
+            findj=-999
+            min_latlon=99999999999999.
+            for j in range(mdl_j-5,mdl_j+6):
+                flag_ij="no"
+                for i in range(mdl_i-5,mdl_i+6):
+                     a=sidlon-cro_lon[j,i]
+                     b=sidlat-cro_lat[j,i]
+                     c=a*a+b*b
+                     d=math.sqrt(c)
+                     ## print(str(d))
+                     if d < min_latlon:
+                         ## print("find new shortest distance "+str(min_latlon)+"  to "+str(d) )
+                         ## print("find new shortest mdl_j and mdl_i = ("+str(j)+","+str(i)+")")
+                         min_latlon=d
+                         findi=i
+                         findj=j
+
+            mdl_j=findj
+            mdl_i=findi
+            print( "obs lon = "+str(sidlon))
+            print( "obs lat = "+str(sidlat))
+            print( "model i = "+str(mdl_i)+" and model j = "+str(mdl_j))
+            print( "lat UL = "+str(cro_lat[mdl_j+1][mdl_i])+" and lat UR = "+str(cro_lat[mdl_j+1][mdl_i+1]))
+            print( "lat LL = "+str(cro_lat[mdl_j][mdl_i])+" and lat LR = "+str(cro_lat[mdl_j][mdl_i+1]))
+            print( "lon UL = "+str(cro_lon[mdl_j+1][mdl_i])+" and lon UR = "+str(cro_lon[mdl_j+1][mdl_i+1]))
+            print( "lon LL = "+str(cro_lon[mdl_j][mdl_i])+" and lon LR = "+str(cro_lon[mdl_j][mdl_i+1]))
+            print( "mdl lon = "+str(cro_lon[mdl_j][mdl_i]))
+            print( "mdl lat = "+str(cro_lat[mdl_j][mdl_i]))
+        sys.exit()
         aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
         if os.path.exists(aqmfilein):
             print(aqmfilein+" exists")
