@@ -211,9 +211,9 @@ else:
         flag_hi=False
     comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
     comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver
-    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
+    usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
-        if not os.path.exists(usrout+"/cs."+sdate.strftime(YMD_date_format)):
+        if not os.path.exists(usrout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
             print("Can not find output dir with experiment id "+EXP.lower())
             sys.exit()
 
@@ -381,10 +381,11 @@ while date <= edate:
 
                 if var[ivar] == "pm25":
                     if aqmv7:
-                        aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
+                        aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh3+"."+exp_grid+".grib2"
+                        aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh3+"."+exp_grid+".grib2"
                     else:
                         aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
-                    aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
+                        aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
                         outfile=working_dir+"/pm25hp1."+fhh2+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"
@@ -414,9 +415,10 @@ while date <= edate:
                 if var[ivar] == "o3":
                     if aqmv7:
                         aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
+                        aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh3+"."+exp_grid+".grib2"
                     else:
                         aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
-                    aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
+                        aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
                         outfile=working_dir+"/o3hp1."+fhh2+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"

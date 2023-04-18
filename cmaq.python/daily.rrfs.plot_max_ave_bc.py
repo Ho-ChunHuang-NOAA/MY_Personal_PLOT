@@ -155,7 +155,7 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## Current EMC development CMAQ does not include runs for AK and HI domain
 ##
 nrtout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0"
-usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
+usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
 
 figout=stmp_dir
 
@@ -203,7 +203,7 @@ while date <= edate:
                 fileid="max_1hr_pm25"
             check_file="aqm."+cyc+"."+fileid+"_bc."+grid793+".grib2"
             aqmfilein=nrtout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+check_file
-            aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
+            aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+check_file
             if os.path.exists(aqmfilein):
                 comout=nrtout
                 dirid=expid
@@ -212,7 +212,7 @@ while date <= edate:
             else:
                 if os.path.exists(aqmfilein2):
                     comout=usrout
-                    dirid="cs"
+                    dirid=expid
                     print(aqmfilein2+" exists")
                     break
                 else:

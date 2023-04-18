@@ -209,7 +209,7 @@ while date <= edate:
                 elif var[ivar] == "pmmax1":
                     fileid="max_1hr_pm25"
                 check_file="aqm."+cyc+"."+fileid+"_bc."+grid148+".grib2"
-                aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
+                aqmfilein=comout+"/aqm."+date.strftime(YMD_date_format)+"/"+check_file
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
                     break
