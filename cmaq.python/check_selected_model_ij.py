@@ -767,30 +767,30 @@ while date <= edate:
                         marker_j=[]
                         ploti=[]
                         plotj=[]
+
                         # v70c55 greenwich
                         i0=660
                         j0=248
-
                         # v70c55 wesport
                         i0=661
                         j0=249
                         i0=660
                         j0=250
-
                         # v70c55 straford
                         i0=662
                         j0=250
                         i0=661
                         j0=251
-                        # prod wesport
-                        i0=371
-                        j0=174
                         # prod greenwich
                         i0=370
                         j0=173
+                        # prod wesport
+                        i0=371
+                        j0=174
                         # prod straford
                         i0=372
                         j0=175
+
                         for j in range(j0-1,j0+2):
                             for i in range(i0-1,i0+2):
                                 ploti.append(cs_lon[j,i])

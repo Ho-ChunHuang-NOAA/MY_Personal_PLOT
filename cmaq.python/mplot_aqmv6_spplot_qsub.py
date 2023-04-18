@@ -119,7 +119,7 @@ else:
 if envir == "prod" or envir == "firev4":
     script_name = [
                   "sp.aqm.plot_overlay.py",
-                  "sp.aqm_grib2_overlay.py",
+                  "sp.aqm.plot_bc_overlay.py",
                   "sp.aqm.plot_max_ave_overlay.py"
                   ]
     ## using bias_corrected grib2 file before 2022/08/26 (excep 202201-202202)
@@ -129,6 +129,7 @@ if envir == "prod" or envir == "firev4":
     ## "daily.aqm.plot_bc.py",
     no_workk_script = [
                   "sp.aqm.plot_bc_overlay.py"
+                  "sp.aqm_grib2_overlay.py",
                   ]
 else:
     print(" Not for experimental run, use *rrfs*")
