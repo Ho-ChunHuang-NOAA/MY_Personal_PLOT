@@ -183,6 +183,11 @@ obs_site_id=[ "090019003", "090010017", "090013007"  ]
 obs_site_id=[ "wpt-9003", "grn-0017", "str-3007"  ]
 obs_site_lat= [ 41.118228, 41.004657, 41.15181 ]
 obs_site_lon= [ -73.336753, -73.585128, -73.10334 ]
+obs_site_name=[ "HU-Beltsville, MD", "HU-IRB, MD" ]
+obs_site_id=[ "xxxxxxxxx", "xxxxxxxxx" ]
+obs_site_id=[ "xxxxxxxx", "xxxxxxxx" ]
+obs_site_lat= [ 39.05, 38.92 ]
+obs_site_lon= [ -76.88, -77.02 ]
 nsite=len(obs_site_lat)
 obs_site_mdli=[]
 obs_site_mdlj=[]
@@ -227,20 +232,16 @@ while date <= edate:
             print('"Dimension 0 is %d"' % (jmax))
             print('"Dimension 1 is %d"' % (imax))
             model_data.close()
-            print(dot_xt[0:10])
-            print(dot_yt[0:10])
-            print(cro_lat[0,0])
-            print(cro_lat[1,0])
-            print(cro_lat[2,0])
-            print(cro_lon[0,0])
-            print(cro_lon[1,0])
-            print(cro_lon[2,0])
-            print(cro_lat[0,0])
-            print(cro_lat[0,1])
-            print(cro_lat[0,2])
-            print(cro_lon[0,0])
-            print(cro_lon[0,1])
-            print(cro_lon[0,2])
+            jsample_b=200
+            jsample_u=jsample_b+3
+            isample_l=200
+            isample_r=isample_l+3
+            print(dot_xt[isample_l:isample_r])
+            print(dot_yt[jsample_b:jsample_u])
+            for j in range(jsample_b,jsample_u):
+                print(str(j)+","+str(isample_l+1)+" lat = "+str(cro_lat[j][isample_l+1]))
+            for i in range(isample_l,isample_r):
+                print(str(jsample_b+1)+","+str(i)+" lon = "+str(cro_lon[jsample_b+1][i]))
         else:
             print("Can not find "+aqmfilein)
             sys.exit()
@@ -248,13 +249,17 @@ while date <= edate:
         for sid in range(0,nsite):
             sidlon=obs_site_lon[sid]+360.
             sidlat=obs_site_lat[sid]
-            ## First find the i,j in the close vicinty 
+            mdl_j=-999
             mdl_i=-999
-            mdl_i=-999
-            for j in range(0,jmax-1):
+            j0=0
+            j1=jmax-1
+            i0=0
+            i1=imax-1
+            for j in range(j0,j1):
                 flag_ij=False
-                for i in range(0,imax-1):
-                    if sidlon >= cro_lon[j][i] and sidlon < cro_lon[j][i+1] and sidlon >= cro_lon[j+1][i] and sidlon < cro_lon[j+1][i+1] and sidlat >= cro_lat[j][i] and sidlat >= cro_lat[j][i+1] and sidlat < cro_lat[j+1][i] and sidlat < cro_lat[j+1][i+1]:
+                for i in range(i0,i1):
+                    ## if sidlon >= cro_lon[j][i] and sidlon < cro_lon[j][i+1] and sidlon >= cro_lon[j+1][i] and sidlon < cro_lon[j+1][i+1] and sidlat >= cro_lat[j][i] and sidlat >= cro_lat[j][i+1] and sidlat < cro_lat[j+1][i] and sidlat < cro_lat[j+1][i+1]:
+                    if sidlon >= cro_lon[j][i] and sidlon < cro_lon[j+1][i+1] and sidlat >= cro_lat[j][i+1] and sidlat < cro_lat[j+1][i]:
                         mdl_i=i
                         mdl_j=j
                         flag_ij=True
@@ -262,6 +267,12 @@ while date <= edate:
                 if flag_ij:
                     break
             ## Then find closest model grid from obs_site_lat and obs_site_lon
+            if mdl_j == -999:
+                print("Cannot find mdl_j "+str(mdl_j))
+            if mdl_i == -999:
+                print("Cannot find mdl_i "+str(mdl_i))
+            if mdl_j == -999 or mdl_i == -999:
+                sys.exit()
             findi=-999
             findj=-999
             min_latlon=99999999999999.
@@ -282,6 +293,16 @@ while date <= edate:
 
             mdl_j=findj
             mdl_i=findi
+            i0=findi-1
+            i1=findi+2
+            j0=findj-1
+            j1=findj+2
+            for j in range(j0,j1):
+                for i in range(i0,i1):
+                    print(str(j)+","+str(i)+" lat = "+str(cro_lat[j][i]))
+            for i in range(i0,i1):
+                for j in range(j0,j1):
+                    print(str(j)+","+str(i)+" lon = "+str(cro_lon[j][i]))
             print( "obs lon = "+str(sidlon))
             print( "obs lat = "+str(sidlat))
             print( "model i = "+str(mdl_i)+" and model j = "+str(mdl_j))
@@ -371,7 +392,8 @@ while date <= edate:
             flag_ij=False
             for j in range(0,jmax-1):
                 for i in range(0,imax-1):
-                    if sidlon >= dot_lon[j][i] and sidlon < dot_lon[j][i+1] and sidlon >= dot_lon[j+1][i] and sidlon < dot_lon[j+1][i+1] and sidlat >= dot_lat[j][i] and sidlat >= dot_lat[j][i+1] and sidlat < dot_lat[j+1][i] and sidlat < dot_lat[j+1][i+1]:
+                    ## if sidlon >= dot_lon[j][i] and sidlon < dot_lon[j][i+1] and sidlon >= dot_lon[j+1][i] and sidlon < dot_lon[j+1][i+1] and sidlat >= dot_lat[j][i] and sidlat >= dot_lat[j][i+1] and sidlat < dot_lat[j+1][i] and sidlat < dot_lat[j+1][i+1]:
+                    if sidlon >= dot_lon[j][i] and sidlon < dot_lon[j+1][i+1] and sidlat >= dot_lat[j][i+1] and sidlat < dot_lat[j+1][i]:
                         mdl_i=i
                         mdl_j=j
                         flag_ij=True
