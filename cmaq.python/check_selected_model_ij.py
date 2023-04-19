@@ -212,9 +212,9 @@ else:
         ## correct one should be comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
         ## Force to use user archived directory
         comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
-    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
+    usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
-        if not os.path.exists(usrout+"/cs."+sdate.strftime(YMD_date_format)):
+        if not os.path.exists(usrout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
             print("Can not find output dir with experiment id "+EXP.lower())
             sys.exit()
 
@@ -266,6 +266,12 @@ rlon1 = [ -71.  ]
 rlat0 = [  40.4 ]
 rlat1 = [  42.2 ]
 xsize = [  10   ]
+regname = [ "hu" ]
+rlon0 = [ -77.5  ]
+rlon1 = [ -76.5  ]
+rlat0 = [  38.65 ]
+rlat1 = [  39.25 ]
+xsize = [   8   ]
 ysize = [   8   ]
 iplot = [   1   ]
 num_reg=len(iplot)
@@ -320,7 +326,7 @@ while date <= edate:
                 if aqmv7:
                     check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid793+".grib2"
                     aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
-                    aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
+                    aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+check_file
                 if aqmv6:
                     check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid198+".grib2"
                     aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+check_file
@@ -348,7 +354,7 @@ while date <= edate:
                 if aqmv7:
                     check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid793+".grib2"
                     aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
-                    aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
+                    aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+check_file
                 if aqmv6:
                     check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid196+".grib2"
                     aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+check_file
@@ -396,7 +402,7 @@ while date <= edate:
             file_hdr="aqm."+cycle_time+"."+fileid+BC_append+"."+exp_grid
             if aqmv7:
                 aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+file_hdr+".grib2"
-                aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
+                aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
             if aqmv6:
                 aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
                 aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
@@ -767,6 +773,9 @@ while date <= edate:
                         marker_j=[]
                         ploti=[]
                         plotj=[]
+                        obs_text=[]
+                        obs_i=[]
+                        obs_j=[]
 
                         # v70c55 greenwich
                         i0=660
@@ -784,19 +793,46 @@ while date <= edate:
                         # prod greenwich
                         i0=370
                         j0=173
-                        # prod wesport
-                        i0=371
-                        j0=174
-                        # prod straford
-                        i0=372
-                        j0=175
 
+                        # prod HU-Beltsville
+                        i0=351
+                        j0=150
+                        # prod HU-IRB
+                        i0=351
+                        j0=148
+                        # v70c55 HU-Beltsville
+                        i0=650
+                        j0=222
+                        # prod HU-IRB
+                        i0=650
+                        j0=221
+
+                        flag_HU_Beltsville=True
+                        flag_HU_IRB=False
+
+                        flag_HU_Beltsville=False
+                        flag_HU_IRB=True
+
+                        if flag_HU_Beltsville:
+                            # OBS HU-Beltsville
+                            obs_i.append(-76.88)
+                            obs_j.append(39.05)
+                            obs_text.append("Beltsville")
+                            ax.text(-76.87, 39.06, "HU-Beltsville",color="blue", fontsize="medium",fontstyle='normal',transform=ccrs.PlateCarree())
+                        if flag_HU_IRB:
+                            # OBS  HU-IRB
+                            obs_i.append(-77.02)
+                            obs_j.append(38.92)
+                            obs_text.append("HU-IRB")
+                            ax.text(-77.01, 38.93, "HU-IRB",color="blue", fontsize="medium",fontstyle='normal',transform=ccrs.PlateCarree())
                         for j in range(j0-1,j0+2):
                             for i in range(i0-1,i0+2):
                                 ploti.append(cs_lon[j,i])
                                 plotj.append(cs_lat[j,i])
                         marker_i.append(cs_lon[j0,i0])
                         marker_j.append(cs_lat[j0,i0])
+
+                        ax.scatter(obs_i,obs_j,c="blue", cmap=cmap,marker='x',s=mksize[ireg],zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
                         ax.scatter(ploti,plotj,c="red", cmap=cmap,marker='*',s=mksize[ireg],zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
                         ax.scatter(marker_i,marker_j,c="black", cmap=cmap,marker='*',s=mksize[ireg],zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
                         if flag_with_obs:
