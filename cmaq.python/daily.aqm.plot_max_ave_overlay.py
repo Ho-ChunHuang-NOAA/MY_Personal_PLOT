@@ -97,13 +97,6 @@ else:
     start_date = sys.argv[3]
     end_date = sys.argv[4]
 
-if envir.lower() == "para":
-    fig_exp="ncopara"
-elif envir.lower() == "para_bc":
-    fig_exp="ncoparabc"
-else:
-    fig_exp=envir.lower()
-
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]))
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]))
 YMDH_date_format = "%Y%m%d/%H"
