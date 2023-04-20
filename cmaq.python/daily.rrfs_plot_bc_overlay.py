@@ -58,7 +58,9 @@ script_dir=os.getcwd()
 print("Script directory is "+script_dir)
 
 if envir.lower() == "para":
-    fig_exp="ncopara"+BC_fig_append
+    fig_exp="ncopara"
+elif envir.lower() == "para_bc":
+    fig_exp="ncoparabc"
 else:
     fig_exp=EXP.lower()+BC_fig_append
 

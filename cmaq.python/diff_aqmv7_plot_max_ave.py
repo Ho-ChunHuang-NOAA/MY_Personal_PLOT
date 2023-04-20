@@ -250,11 +250,11 @@ else:
     usrout2="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP2.lower()
 
 if EXP1.lower() == "para":
-    fig_exp="ncopara"+BC_fig_append
+    fig_exp="ncopara"+BC_fig_append1
 else:
     fig_exp=EXP1.lower()+BC_fig_append1
 if EXP2.lower() == "para":
-    fig_exp="ncopara-"+fig_exp
+    fig_exp="ncopara"+BC_fig_append2+"-"+fig_exp
 else:
     fig_exp=EXP2.lower()+BC_fig_append2+"-"+fig_exp
 

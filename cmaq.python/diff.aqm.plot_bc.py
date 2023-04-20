@@ -34,8 +34,16 @@ if envir1 != envir2:
 else:
     if envir1.lower() == "para":
         fig_exp1="ncopara"
+    elif envir1.lower() == "para_bc":
+        fig_exp1="ncoparabc"
     else:
         fig_exp1=envir1.lower()
+    if envir2.lower() == "para":
+        fig_exp2="ncopara"
+    elif envir2.lower() == "para_bc":
+        fig_exp2="ncoparabc"
+    else:
+        fig_exp2=envir2.lower()
     fig_id=fig_exp1+"bc-"+fig_exp1
     title_id=fig_exp1.upper()+"BC-"+fig_exp1.upper()
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]))

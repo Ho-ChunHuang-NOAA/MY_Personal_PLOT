@@ -30,10 +30,14 @@ else:
 
 if envir1.lower() == "para":
     fig_exp1="ncopara"
+elif envir1.lower() == "para_bc":
+    fig_exp1="ncoparabc"
 else:
     fig_exp1=envir1.lower()
 if envir2.lower() == "para":
     fig_exp2="ncopara"
+elif envir2.lower() == "para_bc":
+    fig_exp2="ncoparabc"
 else:
     fig_exp2=envir2.lower()
 fig_id=fig_exp2+"-"+fig_exp1

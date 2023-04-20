@@ -27,7 +27,9 @@ else:
     end_date = sys.argv[4]
 
 if envir.lower() == "para":
-    fig_exp="ncopara"+BC_fig_append
+    fig_exp="ncopara"
+elif envir.lower() == "para_bc":
+    fig_exp="ncoparabc"
 else:
     fig_exp=envir.lower()
 
