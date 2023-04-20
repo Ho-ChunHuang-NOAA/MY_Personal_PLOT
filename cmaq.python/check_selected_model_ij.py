@@ -101,7 +101,7 @@ else:
     end_date = sys.argv[4]
 
 if envir.lower() == "para":
-    fig_exp="ncopara"
+    fig_exp="ncopara"+BC_fig_append
 else:
     fig_exp=envir.lower()
 
@@ -219,7 +219,7 @@ else:
             sys.exit()
 
 if EXP.lower() == "para":
-    fig_exp="ncopara"
+    fig_exp="ncopara"+BC_fig_append
 else:
     fig_exp=EXP.lower()+BC_fig_append
 
@@ -800,18 +800,18 @@ while date <= edate:
                         # prod HU-IRB
                         i0=351
                         j0=148
-                        # v70c55 HU-Beltsville
-                        i0=650
-                        j0=222
                         # prod HU-IRB
                         i0=650
                         j0=221
-
-                        flag_HU_Beltsville=True
-                        flag_HU_IRB=False
+                        # v70c55 HU-Beltsville
+                        i0=650
+                        j0=222
 
                         flag_HU_Beltsville=False
                         flag_HU_IRB=True
+
+                        flag_HU_Beltsville=True
+                        flag_HU_IRB=False
 
                         if flag_HU_Beltsville:
                             # OBS HU-Beltsville

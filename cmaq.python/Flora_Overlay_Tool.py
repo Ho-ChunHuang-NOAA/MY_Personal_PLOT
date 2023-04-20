@@ -62,7 +62,7 @@ else:
 
     
 if envir.lower() == "para6d":
-    fig_exp="ncopara"
+    fig_exp="ncopara"+BC_fig_append
 else:
     fig_exp=envir.lower()
 

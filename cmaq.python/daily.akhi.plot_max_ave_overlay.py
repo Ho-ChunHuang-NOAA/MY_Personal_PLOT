@@ -99,7 +99,7 @@ else:
     end_date = sys.argv[4]
 
 if envir.lower() == "para":
-    fig_exp="ncopara"
+    fig_exp="ncopara"+BC_fig_append
 else:
     fig_exp=envir.lower()
 
@@ -207,7 +207,7 @@ else:
             sys.exit()
 
 if EXP.lower() == "para":
-    fig_exp="ncopara"
+    fig_exp="ncopara"+BC_fig_append
 else:
     fig_exp=EXP.lower()+BC_fig_append
 
