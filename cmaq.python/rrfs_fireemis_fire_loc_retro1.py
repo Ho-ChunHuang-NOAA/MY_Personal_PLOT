@@ -130,7 +130,7 @@ ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,
 if 1 == 1:
     ## with all 16 reg, it can not be finished in 4:30:00 wallcolck time
     ## iplot = [    1, 1,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1, 1 ]
-    iplot = [    1, 1,   0,      1,       1,      1,      1,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
+    iplot = [    1, 1,   0,      1,       1,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
 else:
     iplot = [    1,  0, 0,      0,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
 ilen=len(iplot)
@@ -202,7 +202,7 @@ while date <= edate:
         sys.exit()
 
     for cyc in cycle:
-        figout=working_dir+"/"+date.strftime(YMD_date_format)+"_"+cyc
+        figout=working_dir+"/"+date.strftime(YMD_date_format)+"_fireemisr1_"+cyc
         if os.path.exists(figout):
             shutil.rmtree(figout)
         os.mkdir(figout)
