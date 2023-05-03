@@ -5,12 +5,6 @@ import re
 import maps2d_plot_util as maps2d_plot_util
 import warnings
 import logging
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import matplotlib.colors 
-import matplotlib.gridspec as gridspec
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
 import sys
 import datetime
 import shutil
@@ -92,41 +86,35 @@ H_date_format = "%H"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
+nfind=envir.find("_bc")
+if nfind == -1:
+    print("not a bias_correction cases")
+    BC_append=""
+else:
+    print("A bias_correction cases")
+    BC_append="_bc"
+
 var=[ "ozmax8", "ozmax1", "pmave24", "pmmax1" ]
 num_var=len(var)
 print("var length = "+str(num_var))
 
 if sel_cyc == "all":
-   cycle=[ "06", "12" ]
+   cycle=[ "t06z", "t12z" ]
 elif sel_cyc == "06":
-   cycle=[ "06" ]
+   cycle=[ "t06z" ]
 elif sel_cyc == "12":
-   cycle=[ "12" ]
+   cycle=[ "t12z" ]
 else:
     print("seletced cycle "+sel_cyc+" can not be recongized.")
     sys.exit()
-
-warnings.filterwarnings('ignore')
-plt.rcParams['font.weight'] = 'bold'
-plt.rcParams['axes.labelsize'] = 10
-plt.rcParams['axes.labelweight'] = 'bold'
-plt.rcParams['xtick.labelsize'] = 10
-plt.rcParams['ytick.labelsize'] = 10
-plt.rcParams['axes.titlesize'] = 15
-plt.rcParams['axes.titleweight'] = 'bold'
-plt.rcParams['axes.formatter.useoffset'] = False
-cbar_num_format = "%d"
-plt.close('all') # close all figures
 
 figout=stmp_dir
 
 date=sdate
 while date <= edate:
     for cyc in cycle:
-        cycle_time="t"+cyc+"z"
         for ivar in range(0,num_var):
-            print("Start processing "+var[ivar])
-            jobid="aqm"+"_"+envir+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"_"+cyc
+            jobid="aqm"+"_"+envir.lower()+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+BC_append+"_"+cyc
             figdir = figout+"/"+jobid
             ##
             ## scp by cycle and variable
@@ -135,12 +123,11 @@ while date <= edate:
                 os.chdir(figdir)
                 parta=os.path.join("/usr", "bin", "scp")
                 if 1 == 1 :
-                    partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cycle_time)
+                    partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cyc)
                 else:
                     partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
                 subprocess.call(['scp -p * '+partb], shell=True)
-                print("End   processing "+var[ivar])
                 print("FIG DIR = "+figdir)
-    msg=datetime.datetime.now()
-    print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+        msg=datetime.datetime.now()
+        print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     date = date + date_inc

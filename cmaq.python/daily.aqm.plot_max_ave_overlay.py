@@ -509,7 +509,7 @@ while date <= edate:
     
             msg=datetime.datetime.now()
             print("Start processing "+var[ivar])
-            jobid="aqm"+"_"+envir+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"_"+cyc
+            jobid="aqm"+"_"+envir+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+BC_append+"_"+cyc
             figdir = figout+"/"+jobid
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)

@@ -137,10 +137,8 @@ date=sdate
 while date <= edate:
     for cyc in cycle:
         for ivar in range(0,num_var):
-            print("Start processing "+var[ivar])
-            jobid="aqm"+"_"+envir+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"_"+cyc
+            jobid="aqm"+"_"+envir.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"_"+cyc
             figdir = figout+"/"+jobid
-            print("figdir = "+figdir)
             ##
             ## scp by cycle and variable
             ##
@@ -154,8 +152,7 @@ while date <= edate:
                     partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
                     partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer_36")
                 subprocess.call(['scp -p * '+partb], shell=True)
-                print("End   processing "+var[ivar])
                 print("FIG DIR = "+figdir)
-    msg=datetime.datetime.now()
-    print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+        msg=datetime.datetime.now()
+        print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     date = date + date_inc

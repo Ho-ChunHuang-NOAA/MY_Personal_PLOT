@@ -118,14 +118,9 @@ else:
 
 if envir == "prod" or envir == "firev4":
     script_name = [
-                  "dev_aqm_plot.py",
                   "dev_aqm_plot_overlay.py",
-                  "dev_aqm_plot_bc.py",
-                  "dev_diff_aqm_plot_bc.py"
                   "dev_aqm_plot_bc_overlay.py",
-                  "dev_aqm_plot_max_ave.py", "dev_aqm_plot_max_ave_bc.py",
-                  "dev_aqm_plot_max_ave_overlay.py",
-                  "dev_diff_aqm_plot_max_ave_bc.py"
+                  "dev_aqm_plot_max_ave_overlay.py"
                   ]
     ## using bias_corrected grib2 file before 2022/08/26 (excep 202201-202202)
     ## "daily_aqm_grib2_overlay_p1.py", "daily_aqm_grib2_overlay_p2.py",
@@ -133,7 +128,6 @@ if envir == "prod" or envir == "firev4":
     ## "dev_aqm_plot_bc_overlay.py",
     ## "dev_aqm_plot_bc.py",
     no_workk_script = [
-                  "dev_aqm_fire_loc.py",
                   "diff_aqm_plot_bc.py",
                   "diff.aqm.plot_max_ave_bc.py",
                   "daily.akhi.plot_max_ave_overlay.py",
@@ -585,8 +579,8 @@ while date <= edate:
             if i == "daily_aqm_grib2_overlay.py":
                 print("    Start processing "+i)
                 for j in var:
-                    jobid="pgrib_"+envir+"obs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftpgr_"+envir+"obs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="pgrib_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    ftpid="ftpgr_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
@@ -1440,7 +1434,7 @@ while date <= edate:
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
                 msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
                 print(msg)
-            if i == "dev_aqm_fire_loc.py":
+            if i == "fireemis_fire_loc.py":
                 print("    Start processing "+i)
                 jobid="plot_fireloc_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
                 ftpid="ftp_fireloc_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)

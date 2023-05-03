@@ -119,9 +119,6 @@ else:
 if envir == "prod" or envir == "firev4":
     script_name = [
                   "gbbepx_fire_loc.py", "daily.aqm.plot_dustloc.py",
-                  "daily.aqm.plot_max_ave.py", "daily.aqm.plot_max_ave_bc.py",
-                  "daily.aqm.plot_max_ave_overlay.py",
-                  "diff.aqm.plot_max_ave_bc.py",
                   "daily.aqm.plot_aot.py"
                   ]
     ## using bias_corrected grib2 file before 2022/08/26 (excep 202201-202202)

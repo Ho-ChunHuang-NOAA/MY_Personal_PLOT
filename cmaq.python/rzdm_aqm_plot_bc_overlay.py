@@ -5,12 +5,6 @@ import re
 import maps2d_plot_util as maps2d_plot_util
 import warnings
 import logging
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import matplotlib.colors 
-import matplotlib.gridspec as gridspec
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
 import sys
 import datetime
 import shutil
@@ -113,28 +107,14 @@ else:
     print("seletced cycle"+sel_cyc+" can not be recongized.")
     sys.exit()
 
-warnings.filterwarnings('ignore')
-plt.rcParams['font.weight'] = 'bold'
-plt.rcParams['axes.labelsize'] = 10
-plt.rcParams['axes.labelweight'] = 'bold'
-plt.rcParams['xtick.labelsize'] = 10
-plt.rcParams['ytick.labelsize'] = 10
-plt.rcParams['axes.titlesize'] = 15
-plt.rcParams['axes.titleweight'] = 'bold'
-plt.rcParams['axes.formatter.useoffset'] = False
-cbar_num_format = "%d"
-plt.close('all') # close all figures
-##
 figout=stmp_dir
 
 date=sdate
 while date <= edate:
     for cyc in cycle:
         for ivar in range(0,num_var):
-            print("Start processing "+var[ivar])
-            jobid="aqm"+"_"+envir+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"_"+cyc+"_bc"
+            jobid="aqm"+"_"+envir.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"_"+cyc+"_bc"
             figdir = figout+"/"+jobid
-            print("figdir = "+figdir)
             ##
             ## scp by cycle and variable
             ##
@@ -146,7 +126,6 @@ while date <= edate:
                 else:
                     partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
                 subprocess.call(['scp -p * '+partb], shell=True)
-                print("End   processing "+var[ivar])
                 print("FIG DIR = "+figdir)
         msg=datetime.datetime.now()
         print("End   processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))

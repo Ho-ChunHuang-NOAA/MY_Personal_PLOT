@@ -15,19 +15,12 @@ import sys
 import datetime
 import shutil
 import subprocess
-### Read data of all time step in once, then print one at a time
-### PASSED AGRUEMENTS
-if len(sys.argv) < 5:
-    print("you must set 5 arguments as model[prod|para|...] variabels[o3|pm25|all] cycle[06|12|all]  start_date end_date")
-    sys.exit()
-else:
-    envir = sys.argv[1]
-    sel_var = sys.argv[2]
-    sel_cyc = sys.argv[3]
-    start_date = sys.argv[4]
-    end_date = sys.argv[5]
+import pandas as pd
 
 user=os.environ['USER']
+
+script_dir=os.getcwd()
+print("Script directory is "+script_dir)
 
 stmp_dir="/lfs/h2/emc/stmp/"+user
 if not os.path.exists(stmp_dir):
@@ -41,7 +34,7 @@ log_dir=ptmp_dir+"/batch_logs"
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
-working_dir=stmp_dir+"/aqm_plot_working"
+working_dir=stmp_dir+"/aqm_plot_working_hourly"
 if os.path.exists(working_dir):
     os.chdir(working_dir)
 else:
@@ -76,8 +69,24 @@ if os.path.isfile(msg_file):
         print(prod_machine)
         sh.close()
 
+### Read data of all time step in once, then print one at a time
+### PASSED AGRUEMENTS
+if len(sys.argv) < 5:
+    print("you must set 5 arguments as model[prod|para|...] variabels[o3|pm25|all] cycle[06|12|all]  start_date end_date")
+    sys.exit()
+else:
+    envir = sys.argv[1]
+    sel_var = sys.argv[2]
+    sel_cyc = sys.argv[3]
+    start_date = sys.argv[4]
+    end_date = sys.argv[5]
+
+flag_obs=False
+
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]))
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]))
+
+obs_YMDH_date_format = "%Y%m%d%H"
 YMDH_date_format = "%Y%m%d/%H"
 YMD_date_format = "%Y%m%d"
 YM_date_format = "%Y%m"
@@ -87,6 +96,14 @@ D_date_format = "%d"
 H_date_format = "%H"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
+
+nfind=envir.find("_bc")
+if nfind == -1:
+    print("not a bias_correction cases")
+    BC_append=""
+else:
+    print("A bias_correction cases")
+    BC_append="_bc"
 
 if sel_var == "all":
    var=[ "o3", "pm25" ]
@@ -128,11 +145,10 @@ date=sdate
 while date <= edate:
     for cyc in cycle:
         for ivar in range(0,num_var):
-            jobid="aqm"+"_"+envir.lower()+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"_"+cyc
-            figdir = figout+"/"+jobid
-            ##
-            ## scp by cycle and variable
-            ##
+            if flag_obs:
+                figdir = figout+"/aqm"+"_"+envir.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cyc+BC_append.lower()+"_hrlyp1"
+            else:
+                figdir = figout+"/aqm"+"_"+envir.lower()+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cyc+BC_append.lower()+"_p1"
             if os.path.exists(figdir):
                 os.chdir(figdir)
                 parta=os.path.join("/usr", "bin", "scp")
@@ -140,8 +156,9 @@ while date <= edate:
                     partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cyc)
                 else:
                     partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
+                    partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
                 subprocess.call(['scp -p * '+partb], shell=True)
                 print("FIG DIR = "+figdir)
         msg=datetime.datetime.now()
-        print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+        print("End   processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     date = date + date_inc
