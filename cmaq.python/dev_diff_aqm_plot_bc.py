@@ -156,10 +156,11 @@ else:
         flag_hi=False
     comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver+"/aqm."+aqm_ver+"."+expid
     comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
+    comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver
     usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
-        if not os.path.exists(usrout+"/cs."+sdate.strftime(YMD_date_format)):
+        if not os.path.exists(usrout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
             print("Can not find output dir with experiment id "+EXP.lower())
             sys.exit()
 
@@ -221,8 +222,8 @@ flag_biasdir=False
 flag_find_idir=False
 flag_find_cyc=True
 for cyc in cycle:
-    check_file1=comout+"/cs."+sdate.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
-    check_file2=usrout+"/cs."+sdate.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
+    check_file1=comout+"/"+expid+"."+sdate.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
+    check_file2=usrout+"/"+expid+"."+sdate.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
     if os.path.exists(check_file1):
         comout1=comout
     elif os.path.exists(check_file2):
@@ -234,12 +235,12 @@ for cyc in cycle:
         break
     for ivar in range(0,num_var):
         if var[ivar] == "o3":
-            check_file1=comout+"/cs."+sdate.strftime(YMD_date_format)+"/"+bcfilehdr_o3+".corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
-            check_file2=usrout+"/cs."+sdate.strftime(YMD_date_format)+"/"+bcfilehdr_o3+".corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+            check_file1=comout+"/"+expid+"."+sdate.strftime(YMD_date_format)+"/"+bcfilehdr_o3+".corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+            check_file2=usrout+"/"+expid+"."+sdate.strftime(YMD_date_format)+"/"+bcfilehdr_o3+".corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
             check_file_bias=biasdir+"/"+bcfilehdr_o3+".corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
         if  var[ivar] == "pm25":
-            check_file1=comout+"/cs."+sdate.strftime(YMD_date_format)+"/"+bcfilehdr_pm25+".corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
-            check_file2=usrout+"/cs."+sdate.strftime(YMD_date_format)+"/"+bcfilehdr_pm25+".corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+            check_file1=comout+"/"+expid+"."+sdate.strftime(YMD_date_format)+"/"+bcfilehdr_pm25+".corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+            check_file2=usrout+"/"+expid+"."+sdate.strftime(YMD_date_format)+"/"+bcfilehdr_pm25+".corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
             check_file_bias=biasdir+"/"+bcfilehdr_pm25+".corrected."+sdate.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
         if os.path.exists(check_file1):
             comout2=comout
@@ -304,7 +305,7 @@ while date <= edate:
         s1_title=title_id+" "+date.strftime(YMD_date_format)+" "+cyc
         fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[1:3]))
 
-        metfilein=metout1+"/cs."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
+        metfilein=metout1+"/"+expid+"."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
         if os.path.exists(metfilein):
             print(metfilein+" exists")
             model_data = netcdf.Dataset(metfilein)
@@ -314,7 +315,7 @@ while date <= edate:
         else:
             print("Can not find "+metfilein)
 
-        aqmfilein=comout1+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
+        aqmfilein=comout1+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cyc+".aconc_sfc.ncf"
         if os.path.exists(aqmfilein):
             print(aqmfilein+" exists")
             cs_aqm = netcdf.Dataset(aqmfilein)
@@ -333,7 +334,7 @@ while date <= edate:
         if flag_biasdir:
             model_filein=comout2+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
         else:
-            model_filein=comout2+"/cs."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+            model_filein=comout2+"/"+expid+"."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
         if os.path.exists(model_filein):
             print(model_filein+" exists")
             model_data = netcdf.Dataset(model_filein)
@@ -349,7 +350,7 @@ while date <= edate:
         if flag_biasdir:
             model_filein=comout2+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
         else:
-            model_filein=comout2+"/cs."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
+            model_filein=comout2+"/"+expid+"."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc[1:4]+".nc"
         if os.path.exists(model_filein):
             print(model_filein+" exists")
             model_data = netcdf.Dataset(model_filein)

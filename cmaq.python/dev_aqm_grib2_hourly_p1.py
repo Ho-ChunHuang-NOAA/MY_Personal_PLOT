@@ -52,7 +52,7 @@ log_dir=ptmp_dir+"/batch_logs"
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
-working_dir=stmp_dir+"/aqm_plot_working_hourly"
+working_dir=stmp_dir+"/aqm_plot_working_hourly_p1"
 if os.path.exists(working_dir):
     os.chdir(working_dir)
 else:
@@ -211,6 +211,7 @@ else:
         flag_hi=False
     comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
     comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver
+    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
         if not os.path.exists(usrout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
@@ -385,7 +386,7 @@ while date <= edate:
                         aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh3+"."+exp_grid+".grib2"
                     else:
                         aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
-                        aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
+                        aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
                         outfile=working_dir+"/pm25hp1."+fhh2+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"
@@ -414,11 +415,11 @@ while date <= edate:
                 ## in ppm
                 if var[ivar] == "o3":
                     if aqmv7:
-                        aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
+                        aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh3+"."+exp_grid+".grib2"
                         aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh3+"."+exp_grid+".grib2"
                     else:
                         aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
-                        aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
+                        aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
                         outfile=working_dir+"/o3hp1."+fhh2+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"
@@ -634,11 +635,10 @@ while date <= edate:
                             ## ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=100,zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
                             ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=mksize[ireg],zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
 
-                        if flag_obs:
+                        if flag_obs and flag_with_obs:
                             savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
                         else:
-                            ## savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
-                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
+                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
                         plt.savefig(savefig_name, bbox_inches='tight')
                         plt.close()
             ## scp by cycle and variable

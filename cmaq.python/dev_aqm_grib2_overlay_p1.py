@@ -379,7 +379,7 @@ while date <= edate:
                         aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh3+"."+exp_grid+".grib2"
                     else:
                         aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
-                        aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
+                        aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
                         outfile=working_dir+"/pm25p1."+fhh2+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"
@@ -412,7 +412,7 @@ while date <= edate:
                         aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh3+"."+exp_grid+".grib2"
                     else:
                         aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
-                        aqmfilein2=usrout+"/cs."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
+                        aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
                         outfile=working_dir+"/o3p1."+fhh2+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"

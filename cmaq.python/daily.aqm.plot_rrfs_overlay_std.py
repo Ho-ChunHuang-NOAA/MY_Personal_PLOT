@@ -122,7 +122,7 @@ else:
     sys.exit()
 
 aqm_ver="v7.0"
-comout="/lfs/h2/emc/ptmp/jianping.huang/para/com/aqm/v7.0
+comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver
 ## comout="/lfs/h2/emc/physics/noscrub/ho-chun.huan/rrfs_sfc_chem_met/"+envir
 
 dcomdir="/lfs/h1/ops/prod/dcom"

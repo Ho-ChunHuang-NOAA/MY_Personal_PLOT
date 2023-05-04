@@ -34,7 +34,7 @@ log_dir=ptmp_dir+"/batch_logs"
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
-working_dir=stmp_dir+"/aqm_plot_working_hourly"
+working_dir=stmp_dir+"/aqm_plot_working_hourly_p1"
 if os.path.exists(working_dir):
     os.chdir(working_dir)
 else:

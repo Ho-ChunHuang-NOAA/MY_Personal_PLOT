@@ -205,6 +205,7 @@ else:
         ## correct one should be comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
         ## Force to use user archived directory
         comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
+        comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver
     usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
         if not os.path.exists(usrout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
