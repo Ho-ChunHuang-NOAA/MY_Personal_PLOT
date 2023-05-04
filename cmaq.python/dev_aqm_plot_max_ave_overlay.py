@@ -157,6 +157,7 @@ if nfind == -1:
         sys.exit()
     usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+EXP.lower()
     usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
+    usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
         if not os.path.exists(usrout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
             print("Can not find output dir with experiment id "+EXP.lower())
@@ -509,7 +510,7 @@ while date <= edate:
     
             msg=datetime.datetime.now()
             print("Start processing "+var[ivar])
-            jobid="aqm"+"_"+envir+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+BC_append+"_"+cycle_time
+            jobid="aqm"+"_"+envir+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"obs_"+cycle_time
             figdir = figout+"/"+jobid
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)

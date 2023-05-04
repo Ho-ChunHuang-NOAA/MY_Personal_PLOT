@@ -97,13 +97,29 @@ H_date_format = "%H"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
-nfind=envir.find("_bc")
+caseid="v70"
+nfind=envir.find(caseid)
 if nfind == -1:
-    print("not a bias_correction cases")
-    BC_append=""
+    print("AQMv6 simulation")
+    nfind=envir.find("_bc")
+    if nfind == -1:
+        print("not a bias_correction cases")
+        EXP=envir
+        BC_append=""
+    else:
+        print("A bias_correction cases")
+        EXP=envir[0:nfind]
+        BC_append="_bc"
 else:
-    print("A bias_correction cases")
-    BC_append="_bc"
+    print("AQMv7 simulation")
+    nfind=envir.find("_bc")
+    if nfind == -1:
+        print("not a bias_correction cases")
+        EXP=envir
+        BC_append=""
+    else:
+        EXP=envir[0:nfind]
+        BC_append="_bc"
 
 if sel_var == "all":
    var=[ "o3", "pm25" ]
@@ -146,9 +162,9 @@ while date <= edate:
     for cyc in cycle:
         for ivar in range(0,num_var):
             if flag_obs:
-                figdir = figout+"/aqm"+"_"+envir.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cyc+BC_append.lower()+"_hrlyp1"
+                figdir = figout+"/aqm"+"_"+EXP.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cyc+BC_append.lower()+"_hrlyp1"
             else:
-                figdir = figout+"/aqm"+"_"+envir.lower()+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cyc+BC_append.lower()+"_p1"
+                figdir = figout+"/aqm"+"_"+EXP.lower()+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cyc+BC_append.lower()+"_p1"
             if os.path.exists(figdir):
                 os.chdir(figdir)
                 parta=os.path.join("/usr", "bin", "scp")

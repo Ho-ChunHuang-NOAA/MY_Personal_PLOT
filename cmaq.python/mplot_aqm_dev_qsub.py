@@ -121,11 +121,12 @@ if envir == "prod" or envir == "firev4":
                   "dev_aqm_plot.py",
                   "dev_aqm_plot_overlay.py",
                   "dev_aqm_plot_bc.py",
-                  "dev_diff_aqm_plot_bc.py"
+                  "dev_diff_aqm_plot_bc.py",
                   "dev_aqm_plot_bc_overlay.py",
                   "dev_aqm_plot_max_ave.py", "dev_aqm_plot_max_ave_bc.py",
                   "dev_aqm_plot_max_ave_overlay.py",
-                  "dev_diff_aqm_plot_max_ave_bc.py"
+                  "dev_diff_aqm_plot_max_ave_bc.py",
+                  "dev_aqm_plot_aot.py"
                   ]
     ## using bias_corrected grib2 file before 2022/08/26 (excep 202201-202202)
     ## "daily_aqm_grib2_overlay_p1.py", "daily_aqm_grib2_overlay_p2.py",

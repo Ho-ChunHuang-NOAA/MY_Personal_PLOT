@@ -86,13 +86,29 @@ edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6
 
 obs_YMDH_date_format = "%Y%m%d%H"
 
-nfind=envir.find("_bc")
+caseid="v70"
+nfind=envir.find(caseid)
 if nfind == -1:
-    print("not a bias_correction cases")
-    BC_append=""
+    print("AQMv6 simulation")
+    nfind=envir.find("_bc")
+    if nfind == -1:
+        print("not a bias_correction cases")
+        EXP=envir
+        BC_append=""
+    else:
+        print("A bias_correction cases")
+        EXP=envir[0:nfind]
+        BC_append="_bc"
 else:
-    print("A bias_correction cases")
-    BC_append="_bc"
+    print("AQMv7 simulation")
+    nfind=envir.find("_bc")
+    if nfind == -1:
+        print("not a bias_correction cases")
+        EXP=envir
+        BC_append=""
+    else:
+        EXP=envir[0:nfind]
+        BC_append="_bc"
 
 if sel_var == "all":
    var=[ "o3", "pm25" ]
@@ -134,7 +150,7 @@ date=sdate
 while date <= edate:
     for cyc in cycle:
         for ivar in range(0,num_var):
-            figdir = figout+"/aqm"+"_"+envir.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cyc+BC_append.lower()+"_overp1"
+            figdir = figout+"/aqm"+"_"+EXP.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cyc+BC_append.lower()+"_overp1"
             if os.path.exists(figdir):
                 os.chdir(figdir)
                 parta=os.path.join("/usr", "bin", "scp")

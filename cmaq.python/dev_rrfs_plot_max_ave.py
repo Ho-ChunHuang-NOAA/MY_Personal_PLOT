@@ -253,7 +253,7 @@ while date <= edate:
             aqmfilein=comout+"/"+dirid+"."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
-                outfile=working_dir+"/"+file_hdr+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"
+                outfile=working_dir+"/"+file_hdr+"."+date.strftime(YMD_date_format)+"."+cyc+".nc"
                 subprocess.call([wgrib2+' -netcdf '+outfile+' '+aqmfilein], shell=True)
                 aqmfilein=outfile
                 cs_aqm = netcdf.Dataset(aqmfilein)

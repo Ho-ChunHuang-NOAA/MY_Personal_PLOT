@@ -116,7 +116,7 @@ else:
     os.makedirs(working_dir)
     os.chdir(working_dir)
 
-if envir == "prod" or envir == "firev4":
+if envir == "prod" or envir == "para6d":
     script_name = [
                   "dev_aqm_fire_loc.py"
                   ]

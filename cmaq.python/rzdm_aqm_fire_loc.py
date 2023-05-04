@@ -116,6 +116,7 @@ date = sdate
 while date <= edate:
     for cyc in cycle:
         figout=figdir+"/fireemis_"+envir+"_"+date.strftime(YMD_date_format)+"_"+cyc
+        print(figout)
         if os.path.exists(figout):
             os.chdir(figout)
             cyc_out="t"+cyc+"z"

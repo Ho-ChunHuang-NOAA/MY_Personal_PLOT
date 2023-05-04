@@ -26,6 +26,11 @@ else:
     start_date = sys.argv[3]
     end_date = sys.argv[4]
 
+script_dir=os.getcwd()
+print("Script directory is "+script_dir)
+
+user=os.environ['USER']
+
 stmp_dir="/lfs/h2/emc/stmp/"+user
 if not os.path.exists(stmp_dir):
     os.mkdir(stmp_dir)

@@ -114,7 +114,7 @@ date=sdate
 while date <= edate:
     for cyc in cycle:
         for ivar in range(0,num_var):
-            jobid="aqm"+"_"+envir.lower()+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+BC_append+"_"+cyc
+            jobid="aqm"+"_"+envir.lower()+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"obs_"+cyc
             figdir = figout+"/"+jobid
             ##
             ## scp by cycle and variable

@@ -160,6 +160,7 @@ find_dir=[
           "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
           "/lfs/h2/emc/ptmp/"+os.environ['USER']+"/com/aqm/"+envir,
           "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir,
+          "/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir,
           "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
          ]
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
@@ -268,7 +269,7 @@ while date <= edate:
             aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
-                outfile=working_dir+"/"+file_hdr+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"
+                outfile=working_dir+"/"+file_hdr+"."+date.strftime(YMD_date_format)+"."+cyc+".nc"
                 subprocess.call([wgrib2+' -netcdf '+outfile+' '+aqmfilein], shell=True)
                 aqmfilein=outfile
                 cs_aqm = netcdf.Dataset(aqmfilein)
@@ -286,7 +287,7 @@ while date <= edate:
             aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
-                outfile=working_dir+"/"+file_hdr+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"
+                outfile=working_dir+"/"+file_hdr+"."+date.strftime(YMD_date_format)+"."+cyc+".nc"
                 subprocess.call([wgrib2+' -netcdf '+outfile+' '+aqmfilein], shell=True)
                 aqmfilein=outfile
                 cs_aqm = netcdf.Dataset(aqmfilein)

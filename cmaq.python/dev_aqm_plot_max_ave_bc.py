@@ -160,6 +160,7 @@ find_dir=[
           "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
           "/lfs/h2/emc/ptmp/"+os.environ['USER']+"/com/aqm/"+envir,
           "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir,
+          "/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir,
           "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir
          ]
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
@@ -211,7 +212,7 @@ while date <= edate:
                 elif var[ivar] == "pmmax1":
                     fileid="max_1hr_pm25"
                 check_file="aqm."+cyc+"."+fileid+"_bc."+grid148+".grib2"
-                aqmfilein=comout+"/aqm."+date.strftime(YMD_date_format)+"/"+check_file
+                aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+check_file
                 if os.path.exists(aqmfilein):
                     print(aqmfilein+" exists")
                     break
