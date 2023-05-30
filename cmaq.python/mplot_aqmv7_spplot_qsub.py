@@ -1392,7 +1392,6 @@ while date <= edate:
                 print("    Start processing "+i)
                 jobid="rzdm_maxave_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                print("Creating graphic script "+plot_script)
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
                 plot_log=log_dir+"/"+jobid+".log"
@@ -1435,7 +1434,6 @@ while date <= edate:
                 print("    Start processing "+i)
                 jobid="rzdm_maxave_"+envir+"bc_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                print("Creating graphic script "+plot_script)
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
                 plot_log=log_dir+"/"+jobid+".log"
@@ -1479,7 +1477,6 @@ while date <= edate:
                 for j in var:
                     jobid="rzdm_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                    print("Creating graphic script "+plot_script)
                     if os.path.exists(plot_script):
                         os.remove(plot_script)
                     logfile=log_dir+"/"+jobid+".log"
@@ -1522,7 +1519,6 @@ while date <= edate:
                 for j in var:
                     jobid="rzdm_"+envir+"obs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                    print("Creating graphic script "+plot_script)
                     if os.path.exists(plot_script):
                         os.remove(plot_script)
                     logfile=log_dir+"/"+jobid+".log"
@@ -1566,7 +1562,6 @@ while date <= edate:
                 for j in var:
                     jobid="rzdm_"+envir+"bcobs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                    print("Creating graphic script "+plot_script)
                     if os.path.exists(plot_script):
                         os.remove(plot_script)
                     logfile=log_dir+"/"+jobid+".log"
@@ -1611,7 +1606,6 @@ while date <= edate:
                 jobid="rzdm_rave_fire_loc_v1_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
-                print("Creating graphic script "+plot_script)
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
                 if os.path.exists(logfile):
@@ -1654,7 +1648,6 @@ while date <= edate:
                 jobid="rzdm_rave_fire_loc_v2_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
-                print("Creating graphic script "+plot_script)
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
                 if os.path.exists(logfile):

@@ -800,18 +800,18 @@ while date <= edate:
                         # prod HU-IRB
                         i0=351
                         j0=148
-                        # prod HU-IRB
-                        i0=650
-                        j0=221
+
+                        flag_HU_Beltsville=True
+                        flag_HU_IRB=False
                         # v70c55 HU-Beltsville
                         i0=650
                         j0=222
 
                         flag_HU_Beltsville=False
                         flag_HU_IRB=True
-
-                        flag_HU_Beltsville=True
-                        flag_HU_IRB=False
+                        # v70c55 HU-IRB
+                        i0=650
+                        j0=221
 
                         if flag_HU_Beltsville:
                             # OBS HU-Beltsville
