@@ -237,7 +237,7 @@ while date <= edate:
                     check_file="ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
                 elif var[ivar] == "pm25":
                     check_file="pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
-                aqmfilein=comout+"/"+cyc+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+check_file
+                aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
                 aqmfilein2=comout+"/aqm."+date.strftime(YMD_date_format)+"/"+check_file
                 flag_new_dir = False
                 if os.path.exists(aqmfilein):
@@ -282,8 +282,8 @@ while date <= edate:
                 if flag_new_dir:
                     model_filein=comout+"/aqm."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
                 else:
-                    model_filein=comout+"/"+cyc+"/"+expid+"."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
-                    ## model_filein=comout+"/cs."+date.strftime(YMD_date_format)+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
+                    model_filein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
+                    ## model_filein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+cyc+"/ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
                 if os.path.exists(model_filein):
                     print(model_filein+" exists")
                     model_data = netcdf.Dataset(model_filein)
@@ -304,8 +304,8 @@ while date <= edate:
                 if flag_new_dir:
                     model_filein=comout+"/aqm."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
                 else:
-                    model_filein=comout+"/"+cyc+"/"+expid+"."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
-                    ## model_filein=comout+"/cs."+date.strftime(YMD_date_format)+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
+                    model_filein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
+                    ## model_filein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+cyc+"/pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
                 if os.path.exists(model_filein):
                     print(model_filein+" exists")
                     model_data = netcdf.Dataset(model_filein)
