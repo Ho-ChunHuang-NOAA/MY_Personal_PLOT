@@ -237,7 +237,7 @@ while date <= edate:
                     check_file="ozone.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
                 elif var[ivar] == "pm25":
                     check_file="pm2.5.corrected."+date.strftime(YMD_date_format)+"."+cyc+"z.nc"
-                aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc"/"+check_file
+                aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
                 aqmfilein2=comout+"/aqm."+date.strftime(YMD_date_format)+"/"+check_file
                 flag_new_dir = False
                 if os.path.exists(aqmfilein):
