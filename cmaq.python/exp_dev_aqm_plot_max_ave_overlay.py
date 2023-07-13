@@ -175,8 +175,8 @@ else:
         EXP=envir
         n0=len(caseid)
         n1=len(EXP)
-        expid="aqm"   # after 4/1/2023 directory will be changed into aqm.yyyymmdd
         expid=envir[n0:n1]
+        expid="aqm"   # after 4/1/2023 directory will be changed into aqm.yyyymmdd
         BC_append=""
         BC_fig_append=BC_append
         print("exp="+EXP)
@@ -188,8 +188,8 @@ else:
         EXP=envir[0:nfind]
         n0=len(caseid)
         n1=len(EXP)
-        expid="aqm"   # after 4/1/2023 directory will be changed into aqm.yyyymmdd
         expid=EXP[n0:n1]
+        expid="aqm"   # after 4/1/2023 directory will be changed into aqm.yyyymmdd
         BC_append="_bc"
         BC_fig_append="bc"
         print("exp="+EXP)
@@ -197,15 +197,7 @@ else:
         print("BC_append="+BC_append)
         flag_ak=False
         flag_hi=False
-    if sdate.strftime(Y_date_format) == "2023":
-        ## correct one should be comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver
-        ## Force to use user archived directory
-        comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver
-    else:
-        ## correct one should be comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
-        ## Force to use user archived directory
-        comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
-        comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver
+    comout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
         if not os.path.exists(usrout+"/"+expid+"."+sdate.strftime(YMD_date_format)):

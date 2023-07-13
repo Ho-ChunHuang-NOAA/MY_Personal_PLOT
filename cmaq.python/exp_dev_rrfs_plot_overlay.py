@@ -156,9 +156,8 @@ else:
     sys.exit()
 
 aqm_ver="v7.0"
-comout="/lfs/h2/emc/aqmtemp/para/com/aqm/v7.0"
-comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0"
-usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
+comout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
+usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
 if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
     if not os.path.exists(usrout):
         print("Can not find ioutput dir with experiment id "+envir)
