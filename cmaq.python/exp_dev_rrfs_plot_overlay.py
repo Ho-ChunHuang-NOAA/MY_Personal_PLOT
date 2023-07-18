@@ -1,8 +1,8 @@
 import os
 import numpy as np
-import netCDF4 as netcdf
+import netcdf4 as netcdf
 import re
-import maps2d_plot_util as maps2d_plot_util
+## import maps2d_plot_util as maps2d_plot_util
 import warnings
 import logging
 import matplotlib as mpl
@@ -16,8 +16,8 @@ import datetime
 import shutil
 import subprocess
 import pandas as pd
-### Read data of all time step in once, then print one at a time
-### PASSED AGRUEMENTS
+### read data of all time step in once, then print one at a time
+### passed agruements
 if len(sys.argv) < 5:
     print("you must set 5 arguments as model[prod|para|...] variabels[o3|pm25|all] cycle[06|12|all]  start_date end_date")
     sys.exit()
@@ -36,9 +36,9 @@ else:
     fig_exp=envir.lower()
 
 script_dir=os.getcwd()
-print("Script directory is "+script_dir)
+print("script directory is "+script_dir)
 
-user=os.environ['USER']
+user=os.environ['user']
 
 stmp_dir="/lfs/h2/emc/stmp/"+user
 if not os.path.exists(stmp_dir):
@@ -90,14 +90,14 @@ if os.path.isfile(msg_file):
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]))
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]))
 
-obs_YMDH_date_format = "%Y%m%d%H"
-YMDH_date_format = "%Y%m%d/%H"
-YMD_date_format = "%Y%m%d"
-YM_date_format = "%Y%m"
-Y_date_format = "%Y"
-M_date_format = "%m"
-D_date_format = "%d"
-H_date_format = "%H"
+obs_ymdh_date_format = "%y%m%d%H"
+ymdh_date_format = "%y%m%d/%h"
+ymd_date_format = "%y%m%d"
+ym_date_format = "%y%m"
+y_date_format = "%y"
+m_date_format = "%m"
+d_date_format = "%d"
+h_date_format = "%h"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
@@ -127,14 +127,14 @@ else:
     sys.exit()
 
 warnings.filterwarnings('ignore')
-plt.rcParams['font.weight'] = 'bold'
-plt.rcParams['axes.labelsize'] = 10
-plt.rcParams['axes.labelweight'] = 'bold'
-plt.rcParams['xtick.labelsize'] = 10
-plt.rcParams['ytick.labelsize'] = 10
-plt.rcParams['axes.titlesize'] = 15
-plt.rcParams['axes.titleweight'] = 'bold'
-plt.rcParams['axes.formatter.useoffset'] = False
+plt.rcparams['font.weight'] = 'bold'
+plt.rcparams['axes.labelsize'] = 10
+plt.rcparams['axes.labelweight'] = 'bold'
+plt.rcparams['xtick.labelsize'] = 10
+plt.rcparams['ytick.labelsize'] = 10
+plt.rcparams['axes.titlesize'] = 15
+plt.rcparams['axes.titleweight'] = 'bold'
+plt.rcparams['axes.formatter.useoffset'] = False
 cbar_num_format = "%d"
 plt.close('all') # close all figures
 
@@ -142,8 +142,8 @@ msg=datetime.datetime.now()
 msg=msg - date_inc
 grdcro2d_date=msg.strftime("%Y%m%d")
 ##
-## Current operational CMAQ does include runs for AK and HI domain
-## Current EMC development CMAQ does not include runs for AK and HI domain
+## current operational cmaq does include runs for AK and HI domain
+## current emc development cmAQ does not include runs for AK and HI domain
 ##
 ## ilen=len(envir)
 ## print("experiment is "+envir[0:ilen])
@@ -156,11 +156,11 @@ else:
     sys.exit()
 
 aqm_ver="v7.0"
-comout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
-usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
+comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
+usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
 if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
     if not os.path.exists(usrout):
-        print("Can not find ioutput dir with experiment id "+envir)
+        print("can not find ioutput dir with experiment id "+envir)
         sys.exit()
 
 dcomdir="/lfs/h1/ops/prod/dcom"
@@ -172,21 +172,21 @@ figout=stmp_dir
 ## new area need to be added ahead of ak.  The last three areas need to be fixed as "ak",   "hi",  "can"
 ## this is due to the code below remove plotting of ak and hi if no ak and hi input files ash been found
 ##
-flag_proj="LambertConf"
+flag_proj="lambertconf"
 ## from 22.574179720000018 to 51.47512722912568
 ## from 228.37073225113136 to 296.6273160909873
 # old -70.6 to -120.4
 #     22.2 to 50.7
 mksize= [     64, 64, 16,     36,      36,      36,     49,     49,     49,     49,     64,     64,    121,    100,    121,     36 ]
 ## mksize= [  64, 64, 16,      16,      25,     25,     36,     36,     36,     36,     49,     49,    121,    100,    121,     36 ]
-if flag_proj == "LambertConf":
-    regname = [ "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
+if flag_proj == "lambertconf":
+    regname = [ "mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
     rlon0 = [ -125., -120., -165.0, -120.4,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0,  -75.0, -166.0, -161.5, -141.0 ]
     rlon1 = [  -110., -100., -70.0,  -70.6,   -67.0,  -95.0,  -67.0, -103.0,  -74.0, -100.0,  -83.0,  -78.0,  -71.0, -132.0, -153.1, -60.0 ]
     rlat0 = [   40., 30.0, 10.0,   22.2,    21.9,   24.5,   37.0,   38.0,   24.0,   30.0,   35.0,   23.5,   40.2,   53.2,   17.8,   38.0 ]
     rlat1 = [   45., 40., 75.0,   50.7,    50.0,   52.0,   48.0,   52.0,   40.0,   45.0,   50.0,   38.0,   41.8,   71.2,   23.1,   70.0 ]
 else:
-    regname = [   "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
+    regname = [   "mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
     rlon0 = [ -125., -120., -175.0, -124.0,  -100.0, -128.0,  -82.0, -125.0,  -95.0, -125.0, -105.0, -105.0,  -75.0, -170.0, -161.0, -141.0 ]
     rlon1 = [  -110., -100., -55.0,  -70.0,   -65.0,  -90.0,  -67.0, -103.0,  -79.0, -105.0,  -85.0,  -85.0,   -71.0, -130.0, -154.0,  -60.0 ]
     rlat0 = [    40., 30.0, 0.0,   22.0,    22.0,   24.5,   37.0,   38.0,   24.0,   30.0,   38.0,   24.0,   40.2,   52.0,   18.0,   38.0 ]
@@ -201,7 +201,7 @@ num_reg=len(iplot)
 
 date=sdate
 while date <= edate:
-    flag_find_idir = True
+    flag_find_idir = true
 
     if flag_find_idir:
         print("comout set to "+comout)
@@ -212,8 +212,8 @@ while date <= edate:
     for cyc in cycle:
         cycle_time="t"+cyc+"z"
         msg=datetime.datetime.now()
-        print("Start processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
-        s1_title="Online CMAQ "+fig_exp.upper()+" "+date.strftime(YMD_date_format)+" t"+cyc+"z"
+        print("start processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+        s1_title="online cmaq "+fig_exp.upper()+" "+date.strftime(YMD_date_format)+" t"+cyc+"z"
         fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[0:2]))
 
         ## metfilein=metout+"/cs."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
@@ -224,7 +224,7 @@ while date <= edate:
         ##     cs_lon = model_data.variables['LON'][0,0,:,:]
         ##     model_data.close()
         ## else:
-        ##     print("Can not find "+metfilein)
+        ##     print("can not find "+metfilein)
 
         for ivar in range(0,num_var):
             fcst_hour=fcst_ini
@@ -242,14 +242,14 @@ while date <= edate:
                 ## fhh=str_pad(fcst_hr,3,'0',STR_PAD_LEFT)
                 fhh=str_fcst_hr.zfill(3)
                 fhh2=str_fcst_hr.zfill(2)
-                ## READ hourly EPA AirNOW OBS data
+                ## read hourly EPA AirNOW OBS data
                 ## note obs is forward average and model is backward, so they are different by an hour
                 obs_hour=fcst_hour
                 fcst_hour=fcst_hour + hour_inc
 
-                ## Read in one hourly data one at a time
+                ## read in one hourly data one at a time
                 flag_with_obs=True
-                obsfile= "HourlyAQObs_"+obs_hour.strftime(obs_YMDH_date_format)+".dat"
+                obsfile= "hourlyAQObs_"+obs_hour.strftime(obs_YMDH_date_format)+".dat"
                 ifile=os.path.join(dcomdir,obs_hour.strftime(YMD_date_format),"airnow",obsfile)
                 ifile2=os.path.join(obsdir,obs_hour.strftime(Y_date_format),obs_hour.strftime(YMD_date_format),obsfile)
                 ifile2=os.path.join(obsdir,obs_hour.strftime(YMD_date_format),"airnow",obsfile)
@@ -260,7 +260,7 @@ while date <= edate:
                     infile=ifile2
                     print(infile+" exists")
                 else:
-                    print("Can not find both "+ifile+" and "+ifile2)
+                    print("can not find both "+ifile+" and "+ifile2)
                     flag_with_obs=False
 
                 if flag_with_obs:
@@ -269,14 +269,14 @@ while date <= edate:
     
                     df = pd.read_csv(infile,usecols=colnames)
     
-                    df[df['PM25']<0]=np.nan # ignore negative PM2.5 values
+                    df[df['pm25']<0]=np.nan # ignore negative PM2.5 values
     
-                    df['Datetime'] = df['ValidDate'].astype(str)+' '+df['ValidTime'] # merge date and time columns
+                    df['datetime'] = df['ValidDate'].astype(str)+' '+df['ValidTime'] # merge date and time columns
                     ## note 2020 epa time format is MM/DD/YY while 2022 timestamp is MM/DD/YYYY
                     if obs_hour.strftime(Y_date_format) == "2020":
-                        df['Datetime'] = pd.to_datetime(df['Datetime'],format='%m/%d/%y %H:%M') # convert dates/times into datetime format
+                        df['datetime'] = pd.to_datetime(df['Datetime'],format='%m/%d/%y %H:%M') # convert dates/times into datetime format
                     else:
-                        df['Datetime'] = pd.to_datetime(df['Datetime'],format='%m/%d/%Y %H:%M') # convert dates/times into datetime format
+                        df['datetime'] = pd.to_datetime(df['Datetime'],format='%m/%d/%Y %H:%M') # convert dates/times into datetime format
                     colnames_dt = ['Latitude','Longitude','Datetime','PM25','PM25_Unit','OZONE','OZONE_Unit']
     # is there a similar command of pd.close_csv() ??
                     df = df[colnames_dt]
