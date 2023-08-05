@@ -179,6 +179,20 @@ rlat0 = [  40.4 ]
 rlat1 = [  42.2 ]
 xsize = [  10   ]
 ysize = [   8   ]
+regname = [ "mdn" ]
+rlon0 = [ -98.  ]
+rlon1 = [ -78.  ]
+rlat0 = [  36.0 ]
+rlat1 = [  51.0 ]
+xsize = [   8   ]
+ysize = [   8   ]
+regname = [ "idmt" ]
+rlon0 = [ -117. ]
+rlon1 = [ -103. ]
+rlat0 = [  39.0 ]
+rlat1 = [  49.0 ]
+xsize = [   8   ]
+ysize = [   8   ]
 iplot = [   1   ]
 num_reg=len(iplot)
 
@@ -223,6 +237,7 @@ while date <= edate:
             print("working on "+date.strftime(YMD_date_format)+" t"+cyc+"z "+var[ivar])
             flag_read_latlon=False
             hour_end = 72
+            hour_end = 25
             for fcst_hr in range(0,hour_end):
                 nout=fcst_hr+1
                 str_fcst_hr=str(nout)
