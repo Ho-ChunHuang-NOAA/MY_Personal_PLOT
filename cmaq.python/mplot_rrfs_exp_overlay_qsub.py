@@ -1766,7 +1766,7 @@ while date <= edate:
                 if os.path.exists(logfile):
                     os.remove(logfile)
                 filein=i
-                rzdm_file="rzdm"+filein[3:]
+                rzdm_file="rzdm"+filein[7:]
                 ftp_script=os.path.join(os.getcwd(),ftpid+".sh")
                 ftplog=log_dir+"/"+ftpid+".log"
                 if os.path.exists(ftp_script):
