@@ -155,8 +155,8 @@ if nfind == -1:
     else:
         print("Experiement ID "+EXP.lower()+" not found for this code, Program exit")
         sys.exit()
-    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+EXP.lower()
+    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
         if not os.path.exists(usrout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
             print("Can not find output dir with experiment id "+EXP.lower())
