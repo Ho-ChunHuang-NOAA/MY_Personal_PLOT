@@ -170,6 +170,7 @@ find_dir=[
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
 dcomout="/lfs/h1/ops/prod/dcom"
 obsdir="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/epa_airnow_acsii"
+obsdir="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/dcom/prod/airnow"
 
 figout=stmp_dir
 
@@ -447,6 +448,7 @@ while date <= edate:
                 obsfile= "HourlyAQObs_"+obs_hour.strftime(obs_YMDH_date_format)+".dat"
                 ifile=os.path.join(dcomdir,obs_hour.strftime(YMD_date_format),"airnow",obsfile)
                 ifile2=os.path.join(obsdir,obs_hour.strftime(Y_date_format),obs_hour.strftime(YMD_date_format),obsfile)
+                    ifile2=os.path.join(obsdir,obs_hour.strftime(YMD_date_format),"airnow",obsfile)
                 if os.path.exists(ifile):
                     infile=ifile
                     print(infile+" exists")
