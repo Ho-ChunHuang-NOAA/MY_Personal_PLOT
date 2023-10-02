@@ -112,6 +112,7 @@ plt.rcParams['axes.formatter.useoffset'] = False
 cycle=[]
 cycle.append(cyc_in)
 working_dir="/lfs/h2/emc/stmp/"+os.environ['USER']+"/working/fireemis/"+envir
+figdir="/lfs/h2/emc/stmp/"+os.environ['USER']
 date = sdate
 while date <= edate:
     for cyc in cycle:
