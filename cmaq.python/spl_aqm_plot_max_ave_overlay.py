@@ -155,8 +155,8 @@ if nfind == -1:
     else:
         print("Experiement ID "+EXP.lower()+" not found for this code, Program exit")
         sys.exit()
-    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+EXP.lower()
     usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
+    usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+EXP.lower()
     usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
         if not os.path.exists(usrout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
@@ -204,7 +204,6 @@ else:
     else:
         ## correct one should be comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
         ## Force to use user archived directory
-        comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
         comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver
     usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
@@ -218,6 +217,7 @@ else:
     fig_exp=EXP.lower()+BC_fig_append
 
 var=[ "ozmax8", "ozmax1", "pmave24", "pmmax1" ]
+var=[ "pmave24" ]
 num_var=len(var)
 print("var length = "+str(num_var))
 
@@ -259,6 +259,13 @@ rlon0 = [ -75.  ]
 rlon1 = [ -71.  ]
 rlat0 = [  40.4 ]
 rlat1 = [  42.2 ]
+xsize = [  10   ]
+ysize = [   8   ]
+regname = [ "cost" ]
+rlon0 = [ -110.  ]
+rlon1 = [ -100.  ]
+rlat0 = [  36.5 ]
+rlat1 = [  42.5 ]
 xsize = [  10   ]
 ysize = [   8   ]
 iplot = [   1   ]
@@ -770,11 +777,12 @@ while date <= edate:
             ##
             os.chdir(figdir)
             parta=os.path.join("/usr", "bin", "scp")
-            if 1 == 1 :
+            if 1 == 2 :
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cycle_time)
             else:
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
-            ## subprocess.call(['scp -p * '+partb], shell=True)
+                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
+            subprocess.call(['scp -p * '+partb], shell=True)
             msg=datetime.datetime.now()
             print("End   processing "+var[ivar])
             print("FIG DIR = "+figdir)

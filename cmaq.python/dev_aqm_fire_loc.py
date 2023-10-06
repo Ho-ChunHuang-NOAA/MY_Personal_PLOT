@@ -153,14 +153,8 @@ cycle=[]
 cycle.append(cyc_in)
 working_dir="/lfs/h2/emc/stmp/"+os.environ['USER']+"/working/fireemis/"+envir
 metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver+"/cs."+grdcro2d_date
-hourly_fire_data="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/hourly_fire_emission/"+envir
-if not os.path.exists(hourly_fire_data):
-    os.mkdir(hourly_fire_data)
 date = sdate
 while date <= edate:
-    hourly_fire_out=hourly_fire_data+"/"+date.strftime(YMD_date_format)
-    if not os.path.exists(hourly_fire_out):
-        os.mkdir(hourly_fire_out)
     find_dir=[
               "/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format),
               "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format),
