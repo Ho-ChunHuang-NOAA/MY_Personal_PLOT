@@ -233,13 +233,6 @@ while date <= edate:
         date = date + date_inc
         continue
 
-    if not flag_ak and iplot[num_reg-3] == 1:
-        iplot[num_reg-3] = 0
-    if not flag_hi and iplot[num_reg-2] == 1:
-        iplot[num_reg-2] = 0
-    print("iplot length = "+str(num_reg))
-
-
     for cyc in cycle:
         msg=datetime.datetime.now()
         print("Start processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))

@@ -248,13 +248,6 @@ while date <= edate:
         date = date + date_inc
         continue
 
-    if not flag_ak and iplot[num_reg-3] == 1:
-        iplot[num_reg-3] = 0
-    if not flag_hi and iplot[num_reg-2] == 1:
-        iplot[num_reg-2] = 0
-    print("iplot length = "+str(num_reg))
-
-
     for cyc in cycle:
         cycle_time="t"+cyc+"z"
         msg=datetime.datetime.now()

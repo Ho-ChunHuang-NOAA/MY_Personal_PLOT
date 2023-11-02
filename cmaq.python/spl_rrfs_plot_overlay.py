@@ -182,6 +182,13 @@ rlat0 = [  40.4 ]
 rlat1 = [  42.2 ]
 xsize = [  10   ]
 ysize = [   8   ]
+regname = [ "cost" ]
+rlon0 = [ -110.  ]
+rlon1 = [ -100.  ]
+rlat0 = [  36.5 ]
+rlat1 = [  42.5 ]
+xsize = [  10   ]
+ysize = [   8   ]
 iplot = [   1   ]
 num_reg=len(iplot)
 

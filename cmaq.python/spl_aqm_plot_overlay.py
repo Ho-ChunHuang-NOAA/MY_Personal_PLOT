@@ -335,12 +335,6 @@ while date <= edate:
                 flag_hi = False
                 iplot[num_reg-2] = 0
 
-        if not flag_ak and iplot[num_reg-3] == 1:
-            iplot[num_reg-3] = 0
-        if not flag_hi and iplot[num_reg-2] == 1:
-            iplot[num_reg-2] = 0
-        print("iplot length = "+str(num_reg))
-
         for ivar in range(0,num_var):
             msg=datetime.datetime.now()
             print("Start processing "+var[ivar])

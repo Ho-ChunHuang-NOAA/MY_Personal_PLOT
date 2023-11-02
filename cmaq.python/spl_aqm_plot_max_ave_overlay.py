@@ -150,8 +150,8 @@ if nfind == -1:
         aqm_ver=aqm_ver_prod
         exp_grid=grid148
         expid="cs"
-        comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+EXP.lower()
         comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
+        comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+EXP.lower()
     else:
         print("Experiement ID "+EXP.lower()+" not found for this code, Program exit")
         sys.exit()
@@ -254,13 +254,6 @@ figout=stmp_dir
 ##
 flag_proj="LambertConf"
 mksize= [ 121 ]
-regname = [ "ctdeep" ]
-rlon0 = [ -75.  ]
-rlon1 = [ -71.  ]
-rlat0 = [  40.4 ]
-rlat1 = [  42.2 ]
-xsize = [  10   ]
-ysize = [   8   ]
 regname = [ "cost" ]
 rlon0 = [ -110.  ]
 rlon1 = [ -100.  ]
@@ -269,6 +262,13 @@ rlat1 = [  42.5 ]
 xsize = [  10   ]
 ysize = [   8   ]
 iplot = [   1   ]
+regname = [ "ctdeep" ]
+rlon0 = [ -75.  ]
+rlon1 = [ -71.  ]
+rlat0 = [  40.4 ]
+rlat1 = [  42.2 ]
+xsize = [  10   ]
+ysize = [   8   ]
 num_reg=len(iplot)
 
 ##
@@ -360,12 +360,6 @@ while date <= edate:
                     flag_hi=False
                     print("Can not find "+aqmfilein+" and "+aqmfilein2)
                     break
-
-    if not flag_ak and iplot[num_reg-3] == 1:
-        iplot[num_reg-3] = 0
-    if not flag_hi and iplot[num_reg-2] == 1:
-        iplot[num_reg-2] = 0
-    print("iplot length = "+str(num_reg))
 
     for cyc in cycle:
         cycle_time="t"+cyc+"z"
