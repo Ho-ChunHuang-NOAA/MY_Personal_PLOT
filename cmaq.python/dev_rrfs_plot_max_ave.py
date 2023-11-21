@@ -204,7 +204,7 @@ while date <= edate:
                 fileid="max_1hr_pm25"
             check_file="aqm."+cyc+"."+fileid+"."+grid793+".grib2"
             aqmfilein=nrtout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
-            aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+check_file
+            aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
             if os.path.exists(aqmfilein):
                 comout=nrtout
                 dirid=expid

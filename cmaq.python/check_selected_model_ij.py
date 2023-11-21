@@ -326,7 +326,7 @@ while date <= edate:
                 if aqmv7:
                     check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid793+".grib2"
                     aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
-                    aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+check_file
+                    aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
                 if aqmv6:
                     check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid198+".grib2"
                     aqmfilein=comout+"/ak."+date.strftime(YMD_date_format)+"/"+check_file
@@ -354,7 +354,7 @@ while date <= edate:
                 if aqmv7:
                     check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid793+".grib2"
                     aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
-                    aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+check_file
+                    aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
                 if aqmv6:
                     check_file="aqm."+cycle_time+"."+fileid+BC_append+"."+grid196+".grib2"
                     aqmfilein=comout+"/hi."+date.strftime(YMD_date_format)+"/"+check_file
@@ -402,7 +402,7 @@ while date <= edate:
             file_hdr="aqm."+cycle_time+"."+fileid+BC_append+"."+exp_grid
             if aqmv7:
                 aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+file_hdr+".grib2"
-                aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
+                aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+file_hdr+".grib2"
             if aqmv6:
                 aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
                 aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
