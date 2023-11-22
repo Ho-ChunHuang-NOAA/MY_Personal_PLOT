@@ -45,6 +45,7 @@ else:
     else:
         fig_exp2=envir2.lower()
     fig_id=fig_exp1+"bc-"+fig_exp1
+    cpfig_id=fig_exp1+"bcobs-"+fig_exp1+"obs"
     title_id=fig_exp1.upper()+"BC-"+fig_exp1.upper()
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]))
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]))
@@ -613,10 +614,9 @@ while date <= edate:
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,format=cbar_num_format)
                         ## fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
                         savefig_name = figdir+"/aqm."+figarea+"."+fig_id+"."+date.strftime(YMD_date_format)+"."+cyc+"."+str(format(nout,'02d'))+"."+var[ivar]+".k1.png"
-                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"bc-"+fig_exp+"."+date.strftime(YMD_date_format)+"."+cyc+"."+fileid+".day"+str(format(nout,'01d'))+".k1.png"
                         plt.savefig(savefig_name, bbox_inches='tight')
-                        copyfig_name = figdir+"/aqm."+figarea+"."+fig_exp+"bcobs-"+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cyc+"."+fileid+".day"+str(format(nout,'01d'))+".k1.png"
-                        plt.savefig(savefig_name, bbox_inches='tight')
+                        copyfig_name = figdir+"/aqm."+figarea+"."+cpfig_id+"."+date.strftime(YMD_date_format)+"."+cyc+"."+str(format(nout,'02d'))+"."+var[ivar]+".k1.png"
+                        shutil.copy(savefig_name,copyfig_name)
                         plt.close()
             ##
             ## scp by cycle and variable
