@@ -613,6 +613,9 @@ while date <= edate:
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,format=cbar_num_format)
                         ## fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
                         savefig_name = figdir+"/aqm."+figarea+"."+fig_id+"."+date.strftime(YMD_date_format)+"."+cyc+"."+str(format(nout,'02d'))+"."+var[ivar]+".k1.png"
+                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"bc-"+fig_exp+"."+date.strftime(YMD_date_format)+"."+cyc+"."+fileid+".day"+str(format(nout,'01d'))+".k1.png"
+                        plt.savefig(savefig_name, bbox_inches='tight')
+                        copyfig_name = figdir+"/aqm."+figarea+"."+fig_exp+"bcobs-"+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cyc+"."+fileid+".day"+str(format(nout,'01d'))+".k1.png"
                         plt.savefig(savefig_name, bbox_inches='tight')
                         plt.close()
             ##
