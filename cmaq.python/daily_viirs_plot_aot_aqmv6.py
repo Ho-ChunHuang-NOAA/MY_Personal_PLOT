@@ -193,11 +193,9 @@ while date <= edate:
         shutil.rmtree(figdir)
     os.makedirs(figdir)
 
-    for cyc in range(22,23):
+    for cyc in range(0,24):
         str_obs_hr=str(cyc)
         fhh=str_obs_hr.zfill(2)
-        msg=datetime.datetime.now()
-        print("Start processing "+YMD+" "+fhh+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
         file_hdr="VIIRS-L3-AOD_AQM_aqm_"+YMD+"_"+fhh
         aqmfilein=comout+"/aqm."+YMD+"/"+file_hdr+".nc"
         flag_cs_plot=True
@@ -220,6 +218,7 @@ while date <= edate:
                 ak_lon = ak_aqm.variables['lon'][:,:]
             else:
                 flag_ak_plot=False
+
         if flag_hi:
             file_hdr="VIIRS-L3-AOD_AQM_hi_"+YMD+"_"+fhh
             aqmfilein=comout+"/hi."+YMD+"/"+file_hdr+".nc"
@@ -313,7 +312,6 @@ while date <= edate:
                                          levels=clevs, cmap=cmap, norm=norm, extend='both',
                                          transform=ccrs.PlateCarree() )
                         ax.set_title(title)
-                        ax.set_title(title)
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
                         savefig_name = figdir+"/aqm."+figarea+".viirs."+YMD+"."+fhh+".aod."+fig_index[ivar]+".png"
@@ -324,12 +322,11 @@ while date <= edate:
             print("Can not find "+aqmfilein)
     os.chdir(figdir)
     parta=os.path.join("/usr", "bin", "scp")
-    if 1 == 2 :
-        partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), YMD)
+    if 1 == 1 :
+        partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", YY, YMD)
     else:
         partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
         partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
-        partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp2")
     subprocess.call(['scp -p * '+partb], shell=True)
     print("End   processing "+var[ivar])
     print("FIG DIR = "+figdir)
