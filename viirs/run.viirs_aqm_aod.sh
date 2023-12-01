@@ -19,18 +19,36 @@ MSG="USAGE $0 obs_sat (default:viirs) model_grid [default:aqm|hysplit|ngac] YYYY
       FIRSTDAY=$3
       LASTDAY=$4
    fi
-module purge
-export HPC_OPT=/apps/ops/para/libs
-module use /apps/ops/para/libs/modulefiles/compiler/intel/19.1.3.304/
-module load intel
-module load gsl
-module load python/3.8.6
-module load netcdf/4.7.4
-module load met/10.0.1
-module load metplus/4.0.0
+   HOMEevs=/lfs/h2/emc/vpppg/noscrub/ho-chun.huang/EVS
+   source $HOMEevs/versions/run.ver
 
-module load prod_util
-module load prod_envir
+   module reset
+   module load prod_envir/${prod_envir_ver}
+
+   module load PrgEnv-intel/${PrgEnv_intel_ver}
+   module load intel/${intel}
+   module load ve/evs/${ve_evs_ver}
+   module load cray-mpich/${craympich_ver}
+   module load cray-pals/${craypals_ver}
+   module load libjpeg/${libjpeg_ver}
+   module load grib_util/${grib_util_ver}
+   module load wgrib2/${wgrib2_ver}
+   module load gsl/${gsl_ver}
+   module load prod_util/${prod_util_ver}
+   module load met/${met_ver}
+   module load metplus/${metplus_ver}
+## module purge
+## export HPC_OPT=/apps/ops/para/libs
+## module use /apps/ops/para/libs/modulefiles/compiler/intel/19.1.3.304/
+## module load intel
+## module load gsl
+## module load python/3.8.6
+## module load netcdf/4.7.4
+## module load met/10.0.1
+## module load metplus/4.0.0
+
+## module load prod_util
+## module load prod_envir
 module list
 
 TODAY=`date +%Y%m%d`
@@ -55,14 +73,16 @@ flag_hpss_archive=no
    working_dir=/lfs/h2/emc/stmp/${USER}/working/viirsaod2${mdl_name}
    mkdir -p ${working_dir}
    case ${mdl_name} in
+      aqmv7) value=4
+           mod_file=/lfs/h2/emc/vpppg/save/${USER}/plot/parm/aqm.aot.793.grid;;
       aqm) value=4
-           mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot/parm/aqm.aot.148.grid;;
+           mod_file=/lfs/h2/emc/vpppg/save/${USER}/plot/parm/aqm.aot.148.grid;;
       ak) value=4
-           mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot/parm/aqm.aot.140.grid;;
+           mod_file=/lfs/h2/emc/vpppg/save/${USER}/plot/parm/aqm.aot.140.grid;;
       hi) value=4
-           mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot/parm/aqm.aot.139.grid;;
+           mod_file=/lfs/h2/emc/vpppg/save/${USER}/plot/parm/aqm.aot.139.grid;;
       hysplit) value=5
-           mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot/parm/hysplit.smoke.cs.grid;;
+           mod_file=/lfs/h2/emc/vpppg/save/${USER}/plot/parm/hysplit.smoke.cs.grid;;
       *) echo "model name ${mdl_name} is not defined"
          exit;;
    esac
