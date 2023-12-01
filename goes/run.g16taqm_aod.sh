@@ -24,21 +24,24 @@ fi
 pm=`echo ${prodmachine} | cut -c1-1`
 if [ -s prod_info_list ]; then /bin/rm -f prod_info_list; fi
 
-module purge
-export HPC_OPT=/apps/ops/para/libs
-module use /apps/ops/para/libs/modulefiles/compiler/intel/19.1.3.304/
-module load intel
-module load gsl
-module load python/3.8.6
-module load netcdf/4.7.4
-module load met/10.1.1
-module load metplus/4.1.1
-export MET_BASE=/apps/ops/para/libs/intel/19.1.3.304/met/10.1.1/share/met
-export MET_ROOT=/apps/ops/para/libs/intel/19.1.3.304/met/10.1.1
-export PATH=/apps/ops/para/libs/intel/19.1.3.304/met/10.1.1/bin:${PATH}
+   HOMEevs=/lfs/h2/emc/vpppg/noscrub/ho-chun.huang/EVS
+   source $HOMEevs/versions/run.ver
 
-module load prod_util
-module load prod_envir
+   module reset
+   module load prod_envir/${prod_envir_ver}
+
+   module load PrgEnv-intel/${PrgEnv_intel_ver}
+   module load intel/${intel}
+   module load ve/evs/${ve_evs_ver}
+   module load cray-mpich/${craympich_ver}
+   module load cray-pals/${craypals_ver}
+   module load libjpeg/${libjpeg_ver}
+   module load grib_util/${grib_util_ver}
+   module load wgrib2/${wgrib2_ver}
+   module load gsl/${gsl_ver}
+   module load prod_util/${prod_util_ver}
+   module load met/${met_ver}
+   module load metplus/${metplus_ver}
 module list
 set -x
 TODAY=`date +%Y%m%d`
@@ -83,9 +86,10 @@ if [ "${hl}" != "${pm}" ]; then
    working_dir=/lfs/h2/emc/stmp/${USER}/working/g16aod2${mdl_name}
    mkdir -p ${working_dir}
    case ${mdl_name} in
-      aqm) mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot/parm/aqm.aot.148.grid;;
-      hysplit) mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot/parm/hysplit.smoke.cs.grid;;
-      ngac) mod_file=/lfs/h2/emc/physics/noscrub/${USER}/plot/parm/ngac.aot.550nm.grid;;
+      aqmv7) mod_file=/lfs/h2/emc/vpppg/save/${USER}/plot/parm/aqm.aot.793.grid;;
+      aqm) mod_file=/lfs/h2/emc/vpppg/save/${USER}/plot/parm/aqm.aot.148.grid;;
+      hysplit) mod_file=/lfs/h2/emc/vpppg/save/${USER}/plot/parm/hysplit.smoke.cs.grid;;
+      ngac) mod_file=/lfs/h2/emc/vpppg/save/${USER}/plot/parm/ngac.aot.550nm.grid;;
       *) echo "model name ${mdl_name} is not defined"
          exit;;
    esac
