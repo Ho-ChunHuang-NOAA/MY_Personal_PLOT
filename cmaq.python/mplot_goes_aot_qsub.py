@@ -2485,8 +2485,8 @@ while date <= edate:
     for i in script_name:
         if i == "dev_goes_plot_aot_aqmv6.py" or i == "dev_goes_plot_aot_aqmv7.py":
             print("    Start processing "+i)
-            jobid="plot_aot_"+envir+"_"+date.strftime(YMD_date_format)
-            ftpid="ftp_aot_"+envir+"_"+date.strftime(YMD_date_format)
+            jobid="plot_aot_goes_"+date.strftime(YMD_date_format)
+            ftpid="ftp_aot_goes_"+date.strftime(YMD_date_format)
             plot_script=os.path.join(os.getcwd(),jobid+".sh")
             logfile=log_dir+"/"+jobid+".log"
             if os.path.exists(plot_script):

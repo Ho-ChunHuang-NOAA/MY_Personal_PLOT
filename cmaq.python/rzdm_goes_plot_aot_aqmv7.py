@@ -136,7 +136,7 @@ while date <= edate:
 
     os.chdir(figdir)
     parta=os.path.join("/usr", "bin", "scp")
-    if 1 == 2 :
+    if 1 == 1 :
         partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", YY, YMD)
     else:
         partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
