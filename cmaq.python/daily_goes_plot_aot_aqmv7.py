@@ -21,20 +21,18 @@ if len(sys.argv) < 3:
     print("you must set 3 arguments as quality_flag[high|med|all] start_date end_date")
     sys.exit()
 else:
-    qc = sys.argv[1]
+    qc_sel = sys.argv[1]
     start_date = sys.argv[2]
     end_date = sys.argv[3]
 
-if qc.lower() == "high":
-    var=[ "AOD_H_Quality" ]
-    fig_index=[ "high" ]
-elif qc.lower() == "med":
-    var=[ "AOD_HM_Quality" ]
-    fig_index=[ "medium" ]
+if qc_sel.lower() == "high":
+    qc_list=[ "high" ]
+elif qc_sel.lower() == "med" or qc_sel.lower() == "medium":
+    qc_list=[ "medium" ]
+elif qc_sel.lower() == "low":
+    qc_list=[ "low" ]
 else:
-    var=[ "AOD_H_Quality", "AOD_HM_Quality" ]
-    fig_index=[ "high", "medium" ]
-num_var=len(var)
+    qc_list=[ "high", "medium", "low" ]
 
 script_dir=os.getcwd()
 print("Script directory is "+script_dir)
@@ -52,7 +50,7 @@ for line in rfile:
             aqm_ver_prod=ver[1]
 rfile.close()
 
-comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/VIIRS_AOD/REGRID"
+comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/GOES16_AOD/REGRID"
 if not os.path.exists(comout):
     print("Can not find output dir "+comout)
     sys.exit()
@@ -116,35 +114,8 @@ H_date_format = "%H"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
-grid148="148"
-grid227="227"
-grid198="198"
-grid139="139"
-grid196="196"
-grid793="793"
-
-aqmv6 = True
-aqmv7 = True
-
-EXP="v70c84"
-caseid="v70"
-nfind=EXP.find(caseid)
-if nfind == -1:
-    print("AQMv6 simulation")
-    aqmv7 = False
-    if EXP.lower() == "prod":
-        aqm_ver=aqm_ver_prod
-        map_grid=grid148
-        expid="aqm"
-    else:
-        print("Experiement ID "+EXP.lower()+" not found for this code, Program exit")
-        sys.exit()
-else:
-    print("AQMv7 simulation")
-    aqmv7 = True
-    aqm_ver="v7.0"
-    map_grid=grid793
-    expid="aqmv7"
+expid="aqm"
+expid="aqmv7"
 
 if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
     print("Can not find VIIRS regrid output dir with experiment id "+EXP.lower())
@@ -193,10 +164,10 @@ else:
     rlat1 = [   45., 40., 70.0,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   41.8,   72.0,   23.0,   70.0 ]
 xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
 ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
-if 1 == 1:
-    iplot = [    0, 0,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1, 1 ]
+if 1 == 2:
+    iplot = [    0, 0,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      0,      0, 1 ]
 else:
-    iplot = [    0,  0, 0,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      1,      1, 0 ]
+    iplot = [    0,  0, 0,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
 num_reg=len(iplot)
 
 flag_ak=False
@@ -221,7 +192,7 @@ while date <= edate:
         date = date + date_inc
         continue
     
-    figdir = figout+"/viirs_"+expid+"_"+YMD
+    figdir = figout+"/goes16_"+expid+"_"+YMD
     print(figdir)
     if os.path.exists(figdir):
         shutil.rmtree(figdir)
@@ -230,23 +201,19 @@ while date <= edate:
     for cyc in range(0,24):
         str_obs_hr=str(cyc)
         fhh=str_obs_hr.zfill(2)
-        file_hdr="VIIRS-L3-AOD_AQM_"+expid+"_"+YMD+"_"+fhh
-        aqmfilein=comout+"/"+expid+"."+YMD+"/"+file_hdr+".nc"
-        flag_plot=True
-        if os.path.exists(aqmfilein):
-            print(aqmfilein+" exists")
-            cs_aqm = netcdf.Dataset(aqmfilein)
-            cs_lat = cs_aqm.variables['lat'][:,:]
-            cs_lon = cs_aqm.variables['lon'][:,:]
-        else:
-            flag_plot=False
+        for qc in qc_list:
+            file_hdr="OBS_AOD_"+expid+"_g16_"+YMD+"_"+fhh+"_"+qc.lower()
+            aqmfilein=comout+"/"+expid+"."+YMD+"/"+file_hdr+".nc"
+            if os.path.exists(aqmfilein):
+                print(aqmfilein+" exists")
+                cs_aqm = netcdf.Dataset(aqmfilein)
+                pvar_cs = cs_aqm.variables["AOD"][:,:]
+                cs_lat = cs_aqm.variables['lat'][:,:]
+                cs_lon = cs_aqm.variables['lon'][:,:]
+                cs_aqm.close()
 
-        if flag_plot:
-            for ivar in range(0,num_var):
-                s1_title="VIIRS Total AOD at 550 nm QC"+fig_index[ivar]+" "+YMD+" "+fhh+"Z"
+                s1_title="GOES East Total AOD at 550nm QC"+qc.lower()+" "+YMD+" "+fhh+"Z"
                 clevs = [ 0., 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 ]
-                if flag_plot:
-                    pvar_cs = cs_aqm.variables[var[ivar]][:,:]
                 cmap = mpl.colors.ListedColormap([
                        (0.8627,0.8627,1.0000), (0.6471,0.6471,1.0000),
                        (0.0000,0.7843,0.7843), (0.0000,0.7843,0.0000),
@@ -298,21 +265,19 @@ while date <= edate:
                         ax.set_title(title)
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
-                        savefig_name = figdir+"/aqm."+figarea+".viirs."+YMD+"."+fhh+".aod."+fig_index[ivar]+".png"
+                        savefig_name = figdir+"/aqm."+figarea+".g16."+YMD+"."+fhh+".aod."+qc.lower()+".png"
                         plt.savefig(savefig_name, bbox_inches='tight')
                         plt.close()
-            cs_aqm.close()
-        else:
-            print("Can not find "+aqmfilein)
+            else:
+                print("Can not find "+aqmfilein)
     os.chdir(figdir)
     parta=os.path.join("/usr", "bin", "scp")
     if 1 == 2 :
         partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", YY, YMD)
     else:
-        partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
         partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
-    ## subprocess.call(['scp -p * '+partb], shell=True)
-    print("End   processing "+var[ivar])
+        partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
+    subprocess.call(['scp -p * '+partb], shell=True)
     print("FIG DIR = "+figdir)
     msg=datetime.datetime.now()
     print("End   processing "+YMD+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))

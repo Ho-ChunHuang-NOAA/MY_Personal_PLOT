@@ -24,6 +24,9 @@ else:
     start_date = sys.argv[1]
     end_date = sys.argv[2]
 
+script_dir=os.getcwd()
+print("Script directory is "+script_dir)
+
 user=os.environ['USER']
 ifile="/u/ho-chun.huang/versions/run.ver"
 rfile=open(ifile, 'r')
@@ -34,8 +37,13 @@ for line in rfile:
         ver=line.split("=")
         ver_name=ver[0].split(" ")
         if ver_name[1] == "aqm_ver":
-            aqm_ver=ver[1]
+            aqm_ver_prod=ver[1]
 rfile.close()
+
+comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/GOES16_AOD/REGRID"
+if not os.path.exists(comout):
+    print("Can not find output dir "+comout)
+    sys.exit()
 
 stmp_dir="/lfs/h2/emc/stmp/"+user
 if not os.path.exists(stmp_dir):
@@ -96,15 +104,24 @@ H_date_format = "%H"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
-EXP="v70c84"
-caseid="v70"
-nfind=EXP.find(caseid)
-if nfind == -1:
-    print("AQMv6 simulation")
-    expid="aqm"
-else:
-    print("AQMv7 simulation")
-    expid="aqmv7"
+expid="aqm"
+expid="aqmv7"
+
+warnings.filterwarnings('ignore')
+plt.rcParams['font.weight'] = 'bold'
+plt.rcParams['axes.labelsize'] = 10
+plt.rcParams['axes.labelweight'] = 'bold'
+plt.rcParams['xtick.labelsize'] = 10
+plt.rcParams['ytick.labelsize'] = 10
+plt.rcParams['axes.titlesize'] = 15
+plt.rcParams['axes.titleweight'] = 'bold'
+plt.rcParams['axes.formatter.useoffset'] = False
+## cbar_num_format = "%d"
+cbar_num_format = "%.1f"
+plt.close('all') # close all figures
+
+msg=datetime.datetime.now()
+msg=msg - date_inc
 
 figout=stmp_dir
 
@@ -113,17 +130,19 @@ while date <= edate:
     YY=date.strftime(Y_date_format)
     YM=date.strftime(YM_date_format)
     YMD=date.strftime(YMD_date_format)
+    
+    figdir = figout+"/goes16_"+expid+"_"+YMD
+    print(figdir)
 
-    figdir = figout+"/viirs_"+expid+"_"+YMD
-    if os.path.exists(figdir):
-        os.chdir(figdir)
-
-        parta=os.path.join("/usr", "bin", "scp")
-        if 1 == 1 :
-            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", YY, YMD)
-        else:
-            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
-            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
-        subprocess.call(['scp -p * '+partb], shell=True)
-        print("FIG DIR = "+figdir)
+    os.chdir(figdir)
+    parta=os.path.join("/usr", "bin", "scp")
+    if 1 == 2 :
+        partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", YY, YMD)
+    else:
+        partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
+        partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
+    subprocess.call(['scp -p * '+partb], shell=True)
+    print("FIG DIR = "+figdir)
+    msg=datetime.datetime.now()
+    print("End   processing "+YMD+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     date = date + date_inc

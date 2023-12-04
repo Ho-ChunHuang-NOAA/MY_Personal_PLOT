@@ -118,11 +118,11 @@ else:
 
 if envir == "prod":
     script_name = [
-                  "dev_viirs_plot_aot_aqmv6.py"
+                  "dev_goes_plot_aot_aqmv6.py"
                   ]
 else:
     script_name = [
-                  "dev_viirs_plot_aot_aqmv7.py"
+                  "dev_goes_plot_aot_aqmv7.py"
                   ]
 ## subprocess.call(['cp -p * '+partb], shell=True)
 
@@ -2483,7 +2483,7 @@ while date <= edate:
                 print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
     for i in script_name:
-        if i == "dev_viirs_plot_aot_aqmv6.py" or i == "dev_viirs_plot_aot_aqmv7.py":
+        if i == "dev_goes_plot_aot_aqmv6.py" or i == "dev_goes_plot_aot_aqmv7.py":
             print("    Start processing "+i)
             jobid="plot_aot_"+envir+"_"+date.strftime(YMD_date_format)
             ftpid="ftp_aot_"+envir+"_"+date.strftime(YMD_date_format)
