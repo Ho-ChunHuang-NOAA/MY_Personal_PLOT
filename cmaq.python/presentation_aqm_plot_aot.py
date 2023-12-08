@@ -218,7 +218,8 @@ while date <= edate:
         cycle="t"+cyc+"z"
         msg=datetime.datetime.now()
         print("Start processing "+YMD+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
-        s1_title="CMAQ "+fig_exp.upper()+" "+YMD+" "+cycle
+        ## s1_title="CMAQ "+fig_exp.upper()+" "+YMD+" "+cycle
+        s1_title="CMAQ Dev "+YMD+" "+cycle
         fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[0:2]))
 
         ## metfilein=metout+"/cs."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
@@ -253,6 +254,7 @@ while date <= edate:
                 str_fcst_hr=str(fcst_hr)
                 fhh=str_fcst_hr.zfill(2)
                 fhh3=str_fcst_hr.zfill(3)
+                flag_plot_aod=False
                 if var[ivar] == "aod":
                     file_hdr="aqm."+cycle+"."+var[ivar]+".f"+fhh3
                     aqmfilein=comout+"/aqm."+YMD+"/"+cyc+"/"+file_hdr+".nc"
@@ -263,8 +265,10 @@ while date <= edate:
                         cs_lon = cs_aqm.variables['lon'][:,:]
                         aot_cs = cs_aqm.variables['aod'][0,:,:]
                         cs_aqm.close()
+                        flag_plot_aod=True
                     else:
                         print("Can not find "+aqmfilein)
+                flag_plot_aot=False
                 if var[ivar] == "aot":
                     file_hdr="aqm."+cycle+"."+var[ivar]+".f"+fhh+".148"
                     aqmfilein=comout+"/cs."+YMD+"/"+file_hdr+".grib2"
@@ -284,14 +288,11 @@ while date <= edate:
                         ## print("from "+str(lonmin)+" to "+str(lonmax))
                         aot_cs = cs_aqm.variables['AOTK_1sigmalevel'][0,:,:]
                         cs_aqm.close()
+                        flag_plot_aot=True
                     else:
                         print("Can not find "+aqmfilein)
 
-            ## if flag_ak == "no" and iplot[num_reg-3] == 1:
-            ##     iplot[num_reg-3] = 0
-            ## if flag_hi == "no" and iplot[num_reg-2] == 1:
-            ##     iplot[num_reg-2] = 0
-            ## print("iplot length = "+str(num_reg))
+                if flag_plot_aot or flag_plot_aod:
                     fcst_hour=fcst_hour+hour_inc
                     s2_title = fcst_hour.strftime(YMDH_date_format)+"00V"+fhh
                     msg=datetime.datetime.now()
@@ -313,7 +314,7 @@ while date <= edate:
                     cmap.set_over((0.6275,0.6275,0.6275))
                     norm = mpl.colors.BoundaryNorm(boundaries=clevs, ncolors=cmap.N)
                     gs = gridspec.GridSpec(1,1)
-
+    
                     title=s1_title+"\n"+s2_title+" "+s3_title
                     pvar_cs = var_cs[:,:]
                     if flag_ak == "yes":
@@ -382,17 +383,18 @@ while date <= edate:
                             savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+YMD+"."+cycle+"."+fhh+".aod.k1.png"
                             plt.savefig(savefig_name, bbox_inches='tight')
                             plt.close()
+
             ##
             ## scp by cycle and variable
             ##
-        os.chdir(figdir)
-        parta=os.path.join("/usr", "bin", "scp")
-        if 1 == 2 :
-            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), YMD, cycle)
-        else:
-            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
-            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
-        subprocess.call(['scp -p * '+partb], shell=True)
+            os.chdir(figdir)
+            parta=os.path.join("/usr", "bin", "scp")
+            if 1 == 2 :
+                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), YMD, cycle)
+            else:
+                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
+                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
+            subprocess.call(['scp -p * '+partb], shell=True)
         msg=datetime.datetime.now()
         print("End   processing "+var[ivar])
         print("FIG DIR = "+figdir)

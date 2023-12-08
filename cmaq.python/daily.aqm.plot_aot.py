@@ -115,19 +115,25 @@ H_date_format = "%H"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
-var=[ "aot" ]
+## aqmv7 (aod) and aqmv6 (aot)
+if envir == "prod":
+    var=[ "aot" ]
+    comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
+    comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
+else:
+    var=[ "aod" ]
+    comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/aqmv7_aod/"+envir
+    comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
+    comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0"
 num_var=len(var)
 print("var length = "+str(num_var))
 
 if sel_cyc == "all":
-   cycle=[ "t06z", "t12z" ]
-   cycle=[ "06", "12" ]
+   cyc_opt=[ "06", "12" ]
 elif sel_cyc == "06":
-   cycle=[ "t06z" ]
-   cycle=[ "06" ]
+   cyc_opt=[ "06" ]
 elif sel_cyc == "12":
-   cycle=[ "t12z" ]
-   cycle=[ "12" ]
+   cyc_opt=[ "12" ]
 else:
     print("seletced cycle"+sel_cyc+" can not be recongized.")
     sys.exit()
@@ -156,15 +162,9 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## print("experiment is "+envir[0:ilen])
 ## sys.exit()
 
-comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
-usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
-usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
-usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir
-
 if not os.path.exists(comout):
-    if not os.path.exists(usrout):
-        print("Can not find ioutput dir with experiment id "+envir)
-        sys.exit()
+    print("Can not find output dir "+comout)
+    sys.exit()
 figout=stmp_dir
 
 ##
@@ -200,6 +200,9 @@ num_reg=len(iplot)
 
 date=sdate
 while date <= edate:
+    YY=date.strftime(Y_date_format)
+    YM=date.strftime(YM_date_format)
+    YMD=date.strftime(YMD_date_format)
     flag_find_idir = "yes"
 
     if flag_find_idir == "yes":
@@ -211,11 +214,11 @@ while date <= edate:
     flag_ak = "no"
     flag_hi = "no"
 
-    for cyc in cycle:
-        cycle_time="t"+cyc+"z"
+    for cyc in cyc_opt:
+        cycle="t"+cyc+"z"
         msg=datetime.datetime.now()
-        print("Start processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
-        s1_title="CMAQ "+fig_exp.upper()+" "+date.strftime(YMD_date_format)+" "+cycle_time
+        print("Start processing "+YMD+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+        s1_title="CMAQ "+fig_exp.upper()+" "+YMD+" "+cycle
         fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[0:2]))
 
         ## metfilein=metout+"/cs."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
@@ -230,21 +233,43 @@ while date <= edate:
 
         for ivar in range(0,num_var):
             fcst_hour=fcst_ini
-            figdir = figout+"/aqm"+"_"+envir+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cycle_time
+            figdir = figout+"/aqm"+"_"+envir+"_"+YMD+"_"+var[ivar]+"_"+cycle
             print(figdir)
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)
             os.makedirs(figdir)
-            print("working on "+date.strftime(YMD_date_format)+" "+cycle_time+" "+var[ivar])
+            print("working on "+YMD+" "+cycle+" "+var[ivar])
             flag_read_latlon="no"
-            hour_end = 73
-            for fcst_hr in range(1,hour_end):
+            hour_beg = 1
+            hour_end = 72
+            if hour_beg != 1:
+                set_hour=1
+                while set_hour < hour_beg:
+                    fcst_hour=fcst_hour+hour_inc
+                    set_hour+=1
+            for fcst_hr in range(hour_beg,hour_end+1):
                 str_fcst_hr=str(fcst_hr)
                 fhh=str_fcst_hr.zfill(2)
+                fhh3=str_fcst_hr.zfill(3)
+                flag_plot_aod=False
+                if var[ivar] == "aod":
+                    file_hdr="aqm."+cycle+"."+var[ivar]+".f"+fhh3
+                    aqmfilein=comout+"/aqm."+YMD+"/"+cyc+"/"+file_hdr+".nc"
+                    if os.path.exists(aqmfilein):
+                        print(aqmfilein+" exists")
+                        cs_aqm = netcdf.Dataset(aqmfilein)
+                        cs_lat = cs_aqm.variables['lat'][:,:]
+                        cs_lon = cs_aqm.variables['lon'][:,:]
+                        aot_cs = cs_aqm.variables['aod'][0,:,:]
+                        cs_aqm.close()
+                        flag_plot_aod=True
+                    else:
+                        print("Can not find "+aqmfilein)
+                flag_plot_aot=False
                 if var[ivar] == "aot":
-                    file_hdr="aqm."+cycle_time+"."+var[ivar]+".f"+fhh+".148"
-                    aqmfilein=comout+"/cs."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
-                    outfile=working_dir+"/"+file_hdr+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"
+                    file_hdr="aqm."+cycle+"."+var[ivar]+".f"+fhh+".148"
+                    aqmfilein=comout+"/cs."+YMD+"/"+file_hdr+".grib2"
+                    outfile=working_dir+"/"+file_hdr+"."+YMD+"."+cycle+".nc"
                     subprocess.call([wgrib2+' -netcdf '+outfile+' '+aqmfilein], shell=True)
                     aqmfilein=outfile
                     if os.path.exists(aqmfilein):
@@ -260,14 +285,11 @@ while date <= edate:
                         ## print("from "+str(lonmin)+" to "+str(lonmax))
                         aot_cs = cs_aqm.variables['AOTK_1sigmalevel'][0,:,:]
                         cs_aqm.close()
+                        flag_plot_aot=True
                     else:
                         print("Can not find "+aqmfilein)
 
-            ## if flag_ak == "no" and iplot[num_reg-3] == 1:
-            ##     iplot[num_reg-3] = 0
-            ## if flag_hi == "no" and iplot[num_reg-2] == 1:
-            ##     iplot[num_reg-2] = 0
-            ## print("iplot length = "+str(num_reg))
+                if flag_plot_aot or flag_plot_aod:
                     fcst_hour=fcst_hour+hour_inc
                     s2_title = fcst_hour.strftime(YMDH_date_format)+"00V"+fhh
                     msg=datetime.datetime.now()
@@ -289,7 +311,7 @@ while date <= edate:
                     cmap.set_over((0.6275,0.6275,0.6275))
                     norm = mpl.colors.BoundaryNorm(boundaries=clevs, ncolors=cmap.N)
                     gs = gridspec.GridSpec(1,1)
-
+    
                     title=s1_title+"\n"+s2_title+" "+s3_title
                     pvar_cs = var_cs[:,:]
                     if flag_ak == "yes":
@@ -355,24 +377,26 @@ while date <= edate:
                             ax.set_title(title)
                             ## cb2.set_label('Discrete intervals, some other units')
                             fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
-                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh+".aod.k1.png"
+                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+YMD+"."+cycle+"."+fhh+".aod.k1.png"
                             plt.savefig(savefig_name, bbox_inches='tight')
                             plt.close()
+
             ##
             ## scp by cycle and variable
             ##
-        os.chdir(figdir)
-        parta=os.path.join("/usr", "bin", "scp")
-        if 1 == 1 :
-            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cycle_time)
-        else:
-            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
-        subprocess.call(['scp -p * '+partb], shell=True)
+            os.chdir(figdir)
+            parta=os.path.join("/usr", "bin", "scp")
+            if 1 == 1 :
+                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), YMD, cycle)
+            else:
+                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
+                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
+            subprocess.call(['scp -p * '+partb], shell=True)
         msg=datetime.datetime.now()
         print("End   processing "+var[ivar])
         print("FIG DIR = "+figdir)
         msg=datetime.datetime.now()
-        print("End   processing "+date.strftime(YMD_date_format)+" "+cycle_time+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+        print("End   processing "+YMD+" "+cycle+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     msg=datetime.datetime.now()
-    print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+    print("End   processing "+YMD+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     date = date + date_inc
