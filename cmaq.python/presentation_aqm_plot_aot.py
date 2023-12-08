@@ -240,8 +240,16 @@ while date <= edate:
             os.makedirs(figdir)
             print("working on "+YMD+" "+cycle+" "+var[ivar])
             flag_read_latlon="no"
+            hour_beg = 1
             hour_end = 72
-            for fcst_hr in range(1,hour_end+1):
+            hour_beg = 7
+            hour_end = 7
+            if hour_beg != 1:
+                set_hour=1
+                while set_hour < hour_beg:
+                    fcst_hour=fcst_hour+hour_inc
+                    set_hour+=1
+            for fcst_hr in range(hour_beg,hour_end+1):
                 str_fcst_hr=str(fcst_hr)
                 fhh=str_fcst_hr.zfill(2)
                 fhh3=str_fcst_hr.zfill(3)
@@ -382,8 +390,8 @@ while date <= edate:
         if 1 == 2 :
             partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), YMD, cycle)
         else:
-            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
             partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
+            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
         subprocess.call(['scp -p * '+partb], shell=True)
         msg=datetime.datetime.now()
         print("End   processing "+var[ivar])
