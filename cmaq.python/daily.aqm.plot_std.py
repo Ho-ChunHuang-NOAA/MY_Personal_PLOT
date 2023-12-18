@@ -15,22 +15,12 @@ import sys
 import datetime
 import shutil
 import subprocess
-### Read data of all time step in once, then print one at a time
-### PASSED AGRUEMENTS
-if len(sys.argv) < 5:
-    print("you must set 5 arguments as model[prod|para|...] variabels[o3|pm25|all] cycle[06|12|all]  start_date end_date")
-    sys.exit()
-else:
-    envir = sys.argv[1]
-    sel_var = sys.argv[2]
-    sel_cyc = sys.argv[3]
-    start_date = sys.argv[4]
-    end_date = sys.argv[5]
+
+user=os.environ['USER']
 
 script_dir=os.getcwd()
 print("Script directory is "+script_dir)
 
-user=os.environ['USER']
 ifile="/u/ho-chun.huang/versions/run.ver"
 rfile=open(ifile, 'r')
 for line in rfile:
@@ -46,6 +36,17 @@ if aqm_ver=="":
     aqm_ver="v6.1"
 print("aqm_ver="+aqm_ver)
 
+### PASSED AGRUEMENTS
+if len(sys.argv) < 5:
+    print("you must set 5 arguments as model[prod|para|...] variabels[o3|pm25|all] cycle[06|12|all]  start_date end_date")
+    sys.exit()
+else:
+    envir = sys.argv[1]
+    sel_var = sys.argv[2]
+    sel_cyc = sys.argv[3]
+    start_date = sys.argv[4]
+    end_date = sys.argv[5]
+
 stmp_dir="/lfs/h2/emc/stmp/"+user
 if not os.path.exists(stmp_dir):
     os.mkdir(stmp_dir)
@@ -58,15 +59,62 @@ log_dir=ptmp_dir+"/batch_logs"
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
+working_dir=ptmp_dir+"/aqm_plot_working"
+if not os.path.exists(working_dir):
+    os.mkdir(working_dir)
+
 working_dir=stmp_dir+"/aqm_plot_working"
-if os.path.exists(working_dir):
-    os.chdir(working_dir)
+if not os.path.exists(working_dir):
+    os.mkdir(working_dir)
+
+os.chdir(working_dir)
+
+msg_file=working_dir+"/msg_read"
+cmd="cat /etc/cluster_name"
+subprocess.call([cmd+" > "+msg_file], shell=True)
+cmd="cat /etc/wcoss.conf | grep cluster_name | awk -F\":\" '{print $2}'"
+subprocess.call([cmd+" > "+msg_file], shell=True)
+if os.path.isfile(msg_file):
+    with open(msg_file, 'r') as sh:
+        line=sh.readline()
+        machine=line.rstrip()
+    sh.close()
+if machine.lower() == "dogwood":
+    remote="cactus"
+elif machine.lower() == "cactus":
+    remote="dogwood"
 else:
-    os.makedirs(working_dir)
-    os.chdir(working_dir)
+    print("System name not defined for this script")
+    sys.exit()
+
+cmd="cat /etc/wcoss.conf | grep sec_profile | awk -F\":\" '{print $2}'"
+subprocess.call([cmd+" > "+msg_file], shell=True)
+if os.path.isfile(msg_file):
+    with open(msg_file, 'r') as sh:
+        line=sh.readline()
+        machine_type=line.rstrip()
+        flag_primary=False
+        if machine_type.upper() == "PRIMARYSYS":
+            flag_primary=True
+    sh.close()
+
+msg="Current machine is "+machine
+if flag_primary:
+    msg=msg+" as PRIMARYSYS"
+else:
+    msg=msg+" as BACKUPSYS"
+print(msg)
+
+msg="Remote  machine is "+remote
+if not flag_primary:
+    msg=msg+" as PRIMARYSYS"
+else:
+    msg=msg+" as BACKUPSYS"
+print(msg)
 
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]))
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]))
+
 YMDH_date_format = "%Y%m%d/%H"
 YMD_date_format = "%Y%m%d"
 YM_date_format = "%Y%m"

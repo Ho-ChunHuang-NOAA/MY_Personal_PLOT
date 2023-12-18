@@ -7,26 +7,11 @@ import netCDF4 as netcdf
 import logging
 import datetime
 
-### PASSED AGRUEMENTS
-if len(sys.argv) < 5:
-    print("you must set 5 arguments as model[prod|para|...] variabels[o3|pm25|all] cycle[06|12|all]  start_date end_date")
-    sys.exit()
-else:
-    envir = sys.argv[1]
-    sel_var = sys.argv[2]
-    sel_cyc = sys.argv[3]
-    start_date = sys.argv[4]
-    end_date = sys.argv[5]
-
-task_cpu="04:30:00"
-task_cpu1="01:00:00"
-task_cpu2="02:00:00"
-task_cpu3="03:00:00"
+user=os.environ['USER']
 
 script_dir=os.getcwd()
 print("Script directory is "+script_dir)
 
-user=os.environ['USER']
 ifile="/u/ho-chun.huang/versions/run.ver"
 rfile=open(ifile, 'r')
 for line in rfile:
@@ -58,6 +43,24 @@ for line in rfile:
 ## print("python_ver="+python_ver)
 ## print("netcdf_ver="+netcdf_ver)
 
+### PASSED AGRUEMENTS
+if len(sys.argv) < 5:
+    print("you must set 5 arguments as model[prod|para|...] variabels[o3|pm25|all] cycle[06|12|all]  start_date end_date")
+    sys.exit()
+else:
+    envir = sys.argv[1]
+    sel_var = sys.argv[2]
+    sel_cyc = sys.argv[3]
+    start_date = sys.argv[4]
+    end_date = sys.argv[5]
+
+task_cpu="04:30:00"
+task_cpu1="01:00:00"
+task_cpu2="02:00:00"
+task_cpu3="03:00:00"
+
+working_dir=os.path.join(run_root,envir,start_date)
+
 stmp_dir="/lfs/h2/emc/stmp/"+user
 if not os.path.exists(stmp_dir):
     os.mkdir(stmp_dir)
@@ -70,51 +73,70 @@ log_dir=ptmp_dir+"/batch_logs"
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
-working_dir=stmp_dir+"/aqm_plot_working"
-if os.path.exists(working_dir):
-    os.chdir(working_dir)
-else:
-    os.makedirs(working_dir)
-    os.chdir(working_dir)
-
-msg_file=working_dir+"/devmachine"
-subprocess.call(["cat /etc/cluster_name > "+msg_file], shell=True)
-if os.path.isfile(msg_file):
-    with open(msg_file, 'r') as sh:
-        line=sh.readline()
-        dev_machine=line.rstrip()
-        print("currently on "+dev_machine)
-        sh.close()
-
-msg_file=working_dir+"/prodmachine"
-subprocess.call(["cat /lfs/h1/ops/prod/config/prodmachinefile > "+msg_file], shell=True)
-if os.path.isfile(msg_file):
-    with open(msg_file, 'r') as sh:
-        prod_machine="99"
-        line=sh.readline()
-        line1=line.rstrip()
-        abc=line1.split(':')
-        if abc[0] == 'primary':
-            prod_machine=abc[1]
-        else:
-            line=sh.readline()
-            line1=line.rstrip()
-            abc=line1.split(':')
-            if abc[0] == 'primary':
-                prod_machine=abc[1]
-        print(prod_machine)
-        sh.close()
-
 run_root=stmp_dir+"/run_python_script"
 if not os.path.exists(run_root):
     os.mkdir(run_root)
-## working_dir=os.path.join(run_root,envir,sel_var,sel_cyc,start_date)
-working_dir=os.path.join(run_root,envir,start_date)
-if os.path.exists(working_dir):
-    os.chdir(working_dir)
+
+run_root=run_root+"/"+envir
+if not os.path.exists(run_root):
+    os.mkdir(run_root)
+
+run_root=run_root+"/"+start_date
+if not os.path.exists(run_root):
+    os.mkdir(run_root)
+
+working_dir=ptmp_dir+"/run_python_script/"+envir+"/"+start_date
+if not os.path.exists(working_dir):
+    os.mkdir(working_dir)
+
+working_dir=stmp_dir+"/run_python_script/"+envir+"/"+start_date
+if not os.path.exists(working_dir):
+    os.mkdir(working_dir)
+
+os.chdir(working_dir)
+
+msg_file=working_dir+"/msg_read"
+cmd="cat /etc/cluster_name"
+subprocess.call([cmd+" > "+msg_file], shell=True)
+cmd="cat /etc/wcoss.conf | grep cluster_name | awk -F\":\" '{print $2}'"
+subprocess.call([cmd+" > "+msg_file], shell=True)
+if os.path.isfile(msg_file):
+    with open(msg_file, 'r') as sh:
+        line=sh.readline()
+        machine=line.rstrip()
+    sh.close()
+if machine.lower() == "dogwood":
+    remote="cactus"
+elif machine.lower() == "cactus":
+    remote="dogwood"
 else:
-    os.makedirs(working_dir)
-    os.chdir(working_dir)
+    print("System name not defined for this script")
+    sys.exit()
+
+cmd="cat /etc/wcoss.conf | grep sec_profile | awk -F\":\" '{print $2}'"
+subprocess.call([cmd+" > "+msg_file], shell=True)
+if os.path.isfile(msg_file):
+    with open(msg_file, 'r') as sh:
+        line=sh.readline()
+        machine_type=line.rstrip()
+        flag_primary=False
+        if machine_type.upper() == "PRIMARYSYS":
+            flag_primary=True
+    sh.close()
+
+msg="Current machine is "+machine
+if flag_primary:
+    msg=msg+" as PRIMARYSYS"
+else:
+    msg=msg+" as BACKUPSYS"
+print(msg)
+
+msg="Remote  machine is "+remote
+if not flag_primary:
+    msg=msg+" as PRIMARYSYS"
+else:
+    msg=msg+" as BACKUPSYS"
+print(msg)
 
 if envir == "prod" or envir == "firev4":
     script_name = [

@@ -15,7 +15,32 @@ import sys
 import datetime
 import shutil
 import subprocess
-### Read data of all time step in once, then print one at a time
+
+user=os.environ['USER']
+
+script_dir=os.getcwd()
+print("Script directory is "+script_dir)
+
+ifile="/u/ho-chun.huang/versions/run.ver"
+rfile=open(ifile, 'r')
+for line in rfile:
+    nfind=line.find("export")
+    if nfind != -1:
+        line=line.rstrip("\n")
+        ver=line.split("=")
+        ver_name=ver[0].split(" ")
+        if ver_name[1] == "aqm_ver":
+            aqm_ver=ver[1]
+rfile.close()
+if aqm_ver=="":
+    aqm_ver="v6.1"
+print("aqm_ver="+aqm_ver)
+
+wgrib2=os.environ['WGRIB2']
+if wgrib2 == "":
+    print("No definition of WGRIB2 can be found, please load module wgrib2/2.0.8")
+    sys.exit()
+
 ### PASSED AGRUEMENTS
 if len(sys.argv) < 4:
     print("you must set 4 arguments as model[prod|para|...] cycle[06|12|all]  start_date end_date")
@@ -32,29 +57,6 @@ elif envir.lower() == "para_bc":
     fig_exp="ncoparabc"
 else:
     fig_exp=envir.lower()
-
-script_dir=os.getcwd()
-print("Script directory is "+script_dir)
-
-user=os.environ['USER']
-ifile="/u/ho-chun.huang/versions/run.ver"
-rfile=open(ifile, 'r')
-for line in rfile:
-    nfind=line.find("export")
-    if nfind != -1:
-        line=line.rstrip("\n")
-        ver=line.split("=")
-        ver_name=ver[0].split(" ")
-        if ver_name[1] == "aqm_ver":
-            aqm_ver=ver[1]
-rfile.close()
-if aqm_ver=="":
-    aqm_ver="v6.1"
-print("aqm_ver="+aqm_ver)
-wgrib2=os.environ['WGRIB2']
-if wgrib2 == "":
-    print("No definition of WGRIB2 can be found, please load module wgrib2/2.0.8")
-    sys.exit()
 
 stmp_dir="/lfs/h2/emc/stmp/"+user
 if not os.path.exists(stmp_dir):
