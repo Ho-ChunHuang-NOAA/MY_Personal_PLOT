@@ -15,7 +15,12 @@ import sys
 import datetime
 import shutil
 import subprocess
-### Read data of all time step in once, then print one at a time
+
+user=os.environ['USER']
+
+script_dir=os.getcwd()
+print("Script directory is "+script_dir)
+
 ### PASSED AGRUEMENTS
 if len(sys.argv) < 4:
     print("you must set 4 arguments as model[prod|para|...] cycle[06|12|all]  start_date end_date")
@@ -26,10 +31,6 @@ else:
     start_date = sys.argv[3]
     end_date = sys.argv[4]
 
-script_dir=os.getcwd()
-print("Script directory is "+script_dir)
-
-user=os.environ['USER']
 stmp_dir="/lfs/h2/emc/stmp/"+user
 if not os.path.exists(stmp_dir):
     os.mkdir(stmp_dir)
@@ -43,42 +44,59 @@ if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
 working_root=stmp_dir+"/aqm_plot_working_max_ave_"+envir+"_bc"
-if os.path.exists(working_root):
-    os.chdir(working_root)
+if not os.path.exists(working_root):
+    os.mkdir(working_root)
+
+os.chdir(working_root)
+
+msg_file=working_root+"/msg_read"
+cmd="cat /etc/cluster_name"
+subprocess.call([cmd+" > "+msg_file], shell=True)
+cmd="cat /etc/wcoss.conf | grep cluster_name | awk -F\":\" '{print $2}'"
+subprocess.call([cmd+" > "+msg_file], shell=True)
+if os.path.isfile(msg_file):
+    with open(msg_file, 'r') as sh:
+        line=sh.readline()
+        machine=line.rstrip()
+    sh.close()
+if machine.lower() == "dogwood":
+    remote="cactus"
+    remote_host="clogin01.wcoss2.ncep.noaa.gov"
+elif machine.lower() == "cactus":
+    remote="dogwood"
+    remote_host="dlogin01.wcoss2.ncep.noaa.gov"
 else:
-    os.makedirs(working_root)
-    os.chdir(working_root)
+    print("System name not defined for this script")
+    sys.exit()
 
-msg_file=working_root+"/devmachine"
-subprocess.call(["cat /etc/cluster_name > "+msg_file], shell=True)
+cmd="cat /etc/wcoss.conf | grep sec_profile | awk -F\":\" '{print $2}'"
+subprocess.call([cmd+" > "+msg_file], shell=True)
 if os.path.isfile(msg_file):
     with open(msg_file, 'r') as sh:
         line=sh.readline()
-        dev_machine=line.rstrip()
-        print("currently on "+dev_machine)
-        sh.close()
+        machine_type=line.rstrip()
+        flag_primary=False
+        if machine_type.upper() == "PRIMARYSYS":
+            flag_primary=True
+    sh.close()
 
-msg_file=working_root+"/prodmachine"
-subprocess.call(["cat /lfs/h1/ops/prod/config/prodmachinefile > "+msg_file], shell=True)
-if os.path.isfile(msg_file):
-    with open(msg_file, 'r') as sh:
-        prod_machine="99"
-        line=sh.readline()
-        line1=line.rstrip()
-        abc=line1.split(':')
-        if abc[0] == 'primary':
-            prod_machine=abc[1]
-        else:
-            line=sh.readline()
-            line1=line.rstrip()
-            abc=line1.split(':')
-            if abc[0] == 'primary':
-                prod_machine=abc[1]
-        print(prod_machine)
-        sh.close()
+msg="Current machine is "+machine
+if flag_primary:
+    msg=msg+" as PRIMARYSYS"
+else:
+    msg=msg+" as BACKUPSYS"
+print(msg)
+
+msg="Remote  machine is "+remote
+if not flag_primary:
+    msg=msg+" as PRIMARYSYS"
+else:
+    msg=msg+" as BACKUPSYS"
+print(msg)
 
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]))
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]))
+
 YMDH_date_format = "%Y%m%d/%H"
 YMD_date_format = "%Y%m%d"
 YM_date_format = "%Y%m"
