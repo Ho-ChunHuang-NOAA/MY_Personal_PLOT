@@ -356,31 +356,46 @@ while date <= edate:
                             ax.add_feature(cfeature.BORDERS, facecolor='none', linestyle=':')
                             ax.add_feature(cfeature.LAKES, facecolor='None', edgecolor='black', alpha=0.5)
                             if figarea == "ak":
-                                cf1 = ax.contourf(
+                                try:
+                                    cf1 = ax.contourf(
                                          ak_lon, ak_lat, pvar_ak,
                                          levels=clevs, cmap=cmap, norm=norm, extend='both',
                                          transform=ccrs.PlateCarree() )
+                                except ValueError:
+                                    continue
                             elif figarea == "hi":
-                                cf1 = ax.contourf(
+                                try:
+                                    cf1 = ax.contourf(
                                          hi_lon, hi_lat, pvar_hi,
                                          levels=clevs, cmap=cmap, norm=norm, extend='both',
                                          transform=ccrs.PlateCarree() )
+                                except ValueError:
+                                    continue
                             else:
-                                cf1 = ax.contourf(
+                                try:
+                                    cf1 = ax.contourf(
                                          cs_lon, cs_lat, pvar_cs,
                                          levels=clevs, cmap=cmap, norm=norm, extend='both',
                                          transform=ccrs.PlateCarree() )
+                                except ValueError:
+                                    continue
                                 if figarea == "dset":
                                     if flag_ak == "yes":
-                                        ax.contourf(
+                                        try:
+                                            ax.contourf(
                                              ak_lon, ak_lat, pvar_ak,
                                              levels=clevs, cmap=cmap, norm=norm, extend='both',
                                              transform=ccrs.PlateCarree() )
+                                        except ValueError:
+                                            continue
                                     if flag_hi == "yes":
-                                        ax.contourf(
+                                        try:
+                                            ax.contourf(
                                              hi_lon, hi_lat, pvar_hi,
                                              levels=clevs, cmap=cmap, norm=norm, extend='both',
                                              transform=ccrs.PlateCarree() )
+                                        except ValueError:
+                                            continue
                             ax.set_title(title)
                             fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
                             savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cycle_time+"."+str(format(fcst_hr,'02d'))+"."+var[ivar]+".k1.png"

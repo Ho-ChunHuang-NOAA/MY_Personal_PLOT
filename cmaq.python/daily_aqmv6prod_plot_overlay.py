@@ -458,10 +458,13 @@ while date <= edate:
                         ax.add_feature(cfeature.BORDERS, facecolor='none', linestyle=':')
                         ax.add_feature(cfeature.LAKES, facecolor='None', edgecolor='black', alpha=0.5)
                         ## ax.add_feature(cfeature.RIVERS)
-                        cf1 = ax.contourf(
+                        try:
+                            cf1 = ax.contourf(
                                  pvar_lon, pvar_lat, pvar_plot,
                                  levels=clevs, cmap=cmap, norm=norm, extend='both',
                                  transform=ccrs.PlateCarree() )
+                        except ValueError:
+                            continue
                         ax.set_title(title)
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)

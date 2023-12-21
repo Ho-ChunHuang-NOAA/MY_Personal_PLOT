@@ -393,7 +393,10 @@ while date <= edate:
                             else:
                                 msize=np.log(cs_pvar[x]*emis_scale)
                             ## ax.plot(lon[x], lat[x], 'ro', markersize=3, transform=ccrs.Geodetic())
-                            ax.plot(cs_lon[x], cs_lat[x], 'ro', markersize=msize, transform=ccrs.PlateCarree())
+                            try:
+                                ax.plot(cs_lon[x], cs_lat[x], 'ro', markersize=msize, transform=ccrs.PlateCarree())
+                            except ValueError:
+                                continue
                         ##ax.text(-117, 33, 'San Diego', transform=ccrs.Geodetic())
                         fileout=figout+"/fireemisfire."+figarea+"."+envir+"."+date.strftime(YMD_date_format)+"."+cyc+".location."+str(format(fcst_hr,'02d'))+".k1.png"
                         plt.savefig(fileout, bbox_inches='tight') 

@@ -263,7 +263,10 @@ while date <= edate:
                 ## plt.show()
                 for x in range(0,num_pts):
                   ## ax.plot(lon[x], lat[x], 'ro', markersize=3, transform=ccrs.Geodetic())
-                  ax.plot(cs_lon[x], cs_lat[x], 'ro', markersize=3, transform=ccrs.PlateCarree())
+                    try:
+                      ax.plot(cs_lon[x], cs_lat[x], 'ro', markersize=3, transform=ccrs.PlateCarree())
+                    except ValueError:
+                        continue
                 ##ax.text(-117, 33, 'San Diego', transform=ccrs.Geodetic())
                 fileout=figout+"/gbbepxfire."+figarea+"."+envir+"."+date.strftime(YMD_date_format)+".t06z.location.day0.k1.png"
                 plt.savefig(fileout, bbox_inches='tight') 

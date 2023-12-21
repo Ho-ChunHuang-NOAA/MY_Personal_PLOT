@@ -515,9 +515,12 @@ while date <= edate:
                         acon=pvar_cs[ib0:ie0,jb0:je0]
                         ## ax.scatter(alon,alat,marker='o',s=1,zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
                         ## cf1 = ax.contourf( cs_lon, cs_lat, pvar_cs,
-                        cf1 = ax.contourf( alon, alat, acon,
+                        try:
+                            cf1 = ax.contourf( alon, alat, acon,
                                              levels=clevs, cmap=cmap, norm=norm, extend='both',
                                              transform=ccrs.PlateCarree() )
+                        except ValueError:
+                            continue
                         ax.set_title(title)
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)

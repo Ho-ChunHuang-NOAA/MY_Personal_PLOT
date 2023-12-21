@@ -679,15 +679,21 @@ while date <= edate:
                         ax.add_feature(cfeature.LAKES, facecolor='None', edgecolor='black', alpha=0.5)
                         ## ax.add_feature(cfeature.RIVERS)
                         if figarea == "ak":
-                            cf1 = ax.contourf(
+                            try:
+                                cf1 = ax.contourf(
                                      ak_lon, ak_lat, pvar_ak,
                                      levels=clevs, cmap=cmap, norm=norm, extend='both',
                                      transform=ccrs.PlateCarree() )
+                            except ValueError:
+                                continue
                         elif figarea == "hi":
-                            cf1 = ax.contourf(
+                            try:
+                                cf1 = ax.contourf(
                                      hi_lon, hi_lat, pvar_hi,
                                      levels=clevs, cmap=cmap, norm=norm, extend='both',
                                      transform=ccrs.PlateCarree() )
+                            except ValueError:
+                                continue
                         ax.set_title(title)
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)

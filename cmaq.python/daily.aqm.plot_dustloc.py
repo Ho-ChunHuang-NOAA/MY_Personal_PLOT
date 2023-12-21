@@ -567,7 +567,10 @@ while date <= edate:
                         ## ax.add_feature(cfeature.RIVERS)
                         ax.set_title(title)
                         for x in range(0,num_pts):
-                          ax.plot(cs_lon[x], cs_lat[x], 'ro', markersize=2, transform=ccrs.PlateCarree())
+                            try:
+                                ax.plot(cs_lon[x], cs_lat[x], 'ro', markersize=2, transform=ccrs.PlateCarree())
+                            except ValueError:
+                                continue
                         ##ax.text(-117, 33, 'San Diego', transform=ccrs.Geodetic())
                         savefig_name=figdir+"/dustemis."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cyc+".location.day"+str(nd+1)+".k1.png"
                         plt.savefig(savefig_name, bbox_inches='tight') 
