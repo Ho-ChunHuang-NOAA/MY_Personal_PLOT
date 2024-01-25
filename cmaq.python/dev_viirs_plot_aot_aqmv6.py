@@ -213,7 +213,7 @@ while date <= edate:
         shutil.rmtree(figdir)
     os.makedirs(figdir)
 
-    for cyc in range(22,23):
+    for cyc in range(0,24):
         str_obs_hr=str(cyc)
         fhh=str_obs_hr.zfill(2)
         msg=datetime.datetime.now()
@@ -229,6 +229,7 @@ while date <= edate:
         else:
             flag_cs_plot=False
 
+        flag_ak_plot=False
         if flag_ak:
             file_hdr="VIIRS-L3-AOD_AQM_ak_"+YMD+"_"+fhh
             aqmfilein=comout+"/ak."+YMD+"/"+file_hdr+".nc"
@@ -241,6 +242,7 @@ while date <= edate:
             else:
                 flag_ak_plot=False
 
+        flag_hi_plot=False
         if flag_hi:
             file_hdr="VIIRS-L3-AOD_AQM_hi_"+YMD+"_"+fhh
             aqmfilein=comout+"/hi."+YMD+"/"+file_hdr+".nc"

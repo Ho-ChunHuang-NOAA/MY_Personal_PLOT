@@ -415,6 +415,7 @@ while date <= edate:
                 flag_with_obs=True
                 obsfile= "HourlyAQObs_"+obs_hour.strftime(obs_YMDH_date_format)+".dat"
                 ifile=os.path.join(dcomdir,obs_hour.strftime(YMD_date_format),"airnow",obsfile)
+                ## ifile=os.path.join(obsdir,obs_hour.strftime(YMD_date_format),"airnow",obsfile)
                 ifile2=os.path.join(obsdir,obs_hour.strftime(Y_date_format),obs_hour.strftime(YMD_date_format),obsfile)
                 ifile2=os.path.join(obsdir,obs_hour.strftime(YMD_date_format),"airnow",obsfile)
                 if os.path.exists(ifile):

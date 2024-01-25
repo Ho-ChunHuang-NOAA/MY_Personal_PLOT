@@ -31,12 +31,12 @@ for line in rfile:
 rfile.close()
 
 ### PASSED AGRUEMENTS
-if len(sys.argv) < 3:
-    print("you must set 3 arguments as quality_flag[high|med|all] start_date end_date")
+if len(sys.argv) < 2:
+    print("you must set 2 arguments as quality_flag[high|med|all] start_date end_date")
     sys.exit()
 else:
-    start_date = sys.argv[2]
-    end_date = sys.argv[3]
+    start_date = sys.argv[1]
+    end_date = sys.argv[2]
 
 stmp_dir="/lfs/h2/emc/stmp/"+user
 if not os.path.exists(stmp_dir):
