@@ -70,26 +70,28 @@ log_dir=ptmp_dir+"/batch_logs"
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
-working_dir=ptmp_dir+"/aqm_plot_working_aot"
+working_dir=ptmp_dir+"/aqm_plot_viirs_aot_v6"
 if not os.path.exists(working_dir):
     os.mkdir(working_dir)
 
-working_dir=stmp_dir+"/aqm_plot_working_aot"
+working_dir=stmp_dir+"/aqm_plot_viirs_aot_v6"
 if not os.path.exists(working_dir):
     os.mkdir(working_dir)
 
 os.chdir(working_dir)
 
-msg_file=working_dir+"/msg_read"
+msg_file=working_dir+"/msg_read_"+start_date
 cmd="cat /etc/cluster_name"
 subprocess.call([cmd+" > "+msg_file], shell=True)
 cmd="cat /etc/wcoss.conf | grep cluster_name | awk -F\":\" '{print $2}'"
 subprocess.call([cmd+" > "+msg_file], shell=True)
+print(msg_file)
 if os.path.isfile(msg_file):
     with open(msg_file, 'r') as sh:
         line=sh.readline()
         machine=line.rstrip()
     sh.close()
+print(machine)
 if machine.lower() == "dogwood":
     remote="cactus"
 elif machine.lower() == "cactus":
