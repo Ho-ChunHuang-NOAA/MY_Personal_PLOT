@@ -67,11 +67,7 @@ log_dir=ptmp_dir+"/batch_logs"
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
-working_dir=ptmp_dir+"/aqm_plot_bc_overlay"
-if not os.path.exists(working_dir):
-    os.mkdir(working_dir)
-
-working_dir=stmp_dir+"/aqm_plot_bc_overlay"
+working_dir=stmp_dir+"/dev_plot_bc_overlay"
 if not os.path.exists(working_dir):
     os.mkdir(working_dir)
 

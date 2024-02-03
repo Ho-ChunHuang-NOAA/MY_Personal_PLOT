@@ -63,11 +63,7 @@ log_dir=ptmp_dir+"/batch_logs"
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
-working_root=ptmp_dir+"/aqm_plot_working_max_ave"
-if not os.path.exists(working_root):
-    os.mkdir(working_root)
-
-working_root=stmp_dir+"/aqm_plot_working_max_ave"
+working_root=stmp_dir+"/dev_plot_working_max_ave"
 if not os.path.exists(working_root):
     os.mkdir(working_root)
 
