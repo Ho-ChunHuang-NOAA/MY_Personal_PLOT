@@ -117,6 +117,35 @@ H_date_format = "%H"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
+caseid="v70"
+nfind=envir.find(caseid)
+if nfind == -1:
+    print("This code is designed for AQMv7 simulation, program stop")
+    sys.exit()
+else:
+    print("AQMv7 simulation")
+    s1_lead="Online CMAQ"
+    aqmv7 = True
+    aqm_ver="v7.0"
+
+    nfind=envir.find("_bc")
+    if nfind == -1:
+        print("not a bias_correction cases")
+        EXP=envir
+        n0=len(caseid)
+        n1=len(EXP)
+        expid="aqm"   # after 4/1/2023 directory will be changed into aqm.yyyymmdd
+        expid=EXP[n0:n1]
+        BC_append=""
+        BC_fig_append=BC_append
+        print("exp="+EXP)
+        print("expid="+expid)
+        print("BC_append="+BC_append)
+    else:
+        print("This code is designed for AQMv7 raw model cases, program stop")
+        sys.exit()
+
+
 if sel_var == "all":
    var=[ "o3", "pm25" ]
 elif sel_var == "o3":
@@ -175,8 +204,8 @@ aqm_ver="v7.0"
 comout="/lfs/h2/emc/aqmtemp/para/com/aqm/v7.0"
 comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0"
 usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
-if not os.path.exists(comout+"/aqm."+sdate.strftime(YMD_date_format)):
-    if not os.path.exists(usrout):
+if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
+    if not os.path.exists(usrout+"/aqm."+sdate.strftime(YMD_date_format)):
         print("Can not find ioutput dir with experiment id "+envir)
         sys.exit()
 
@@ -302,7 +331,7 @@ while date <= edate:
                     o3unit = airnow['OZONE_Unit']
 
                 if var[ivar] == "pm25":
-                    aqmfilein=comout+"/aqm."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     aqmfilein2=usrout+"/aqm."+date.strftime(YMD_date_format)+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
@@ -328,7 +357,7 @@ while date <= edate:
                         sys.exit()
                 ## in ppm
                 if var[ivar] == "o3":
-                    aqmfilein=comout+"/aqm."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     aqmfilein2=usrout+"/aqm."+date.strftime(YMD_date_format)+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")

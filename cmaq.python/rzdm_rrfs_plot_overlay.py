@@ -110,6 +110,35 @@ H_date_format = "%H"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
+caseid="v70"
+nfind=envir.find(caseid)
+if nfind == -1:
+    print("This code is designed for AQMv7 simulation, program stop")
+    sys.exit()
+else:
+    print("AQMv7 simulation")
+    s1_lead="Online CMAQ"
+    aqmv7 = True
+    aqm_ver="v7.0"
+
+    nfind=envir.find("_bc")
+    if nfind == -1:
+        print("not a bias_correction cases")
+        EXP=envir
+        n0=len(caseid)
+        n1=len(EXP)
+        expid="aqm"   # after 4/1/2023 directory will be changed into aqm.yyyymmdd
+        expid=EXP[n0:n1]
+        BC_append=""
+        BC_fig_append=BC_append
+        print("exp="+EXP)
+        print("expid="+expid)
+        print("BC_append="+BC_append)
+    else:
+        print("This code is designed for AQMv7 raw model cases, program stop")
+        sys.exit()
+
+
 if sel_var == "all":
    var=[ "o3", "pm25" ]
 elif sel_var == "o3":
