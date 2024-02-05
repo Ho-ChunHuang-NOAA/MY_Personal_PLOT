@@ -73,7 +73,7 @@ if not os.path.exists(working_dir):
 
 os.chdir(working_dir)
 
-msg_file=working_dir+"/msg_"+sel_var+"_"+start_date+sel_cyc
+msg_file=working_dir+"/msg_"+sel_var+"_"+start_date+"_"+sel_cyc
 cmd="cat /etc/cluster_name"
 subprocess.call([cmd+" > "+msg_file], shell=True)
 cmd="cat /etc/wcoss.conf | grep cluster_name | awk -F\":\" '{print $2}'"
