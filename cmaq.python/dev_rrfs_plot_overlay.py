@@ -52,17 +52,13 @@ log_dir=ptmp_dir+"/batch_logs"
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
-working_dir=ptmp_dir+"/dev_rrfs_overlay"
-if not os.path.exists(working_dir):
-    os.mkdir(working_dir)
-
-working_dir=stmp_dir+"/dev_rrfs_overlay"
+working_dir=stmp_dir+"/dev_"+envir+"_rrfs_overlay"
 if not os.path.exists(working_dir):
     os.mkdir(working_dir)
 
 os.chdir(working_dir)
 
-msg_file=working_dir+"/msg_read_"+start_date
+msg_file=working_dir+"/msg_"+sel_var+"_"+start_date
 cmd="cat /etc/cluster_name"
 subprocess.call([cmd+" > "+msg_file], shell=True)
 cmd="cat /etc/wcoss.conf | grep cluster_name | awk -F\":\" '{print $2}'"

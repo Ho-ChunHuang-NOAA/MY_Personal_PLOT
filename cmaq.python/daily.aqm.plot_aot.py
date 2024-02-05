@@ -70,14 +70,14 @@ log_dir=ptmp_dir+"/batch_logs"
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
-working_dir=stmp_dir+"/aqm_plot_working_aot"
+working_dir=stmp_dir+"/"+envir+"_plot_working_aot"
 if os.path.exists(working_dir):
     os.chdir(working_dir)
 else:
     os.makedirs(working_dir)
     os.chdir(working_dir)
 
-msg_file=working_dir+"/devmachine_"+start_date
+msg_file=working_dir+"/devmachine_"+start_date+sel_cyc
 subprocess.call(["cat /etc/cluster_name > "+msg_file], shell=True)
 if os.path.isfile(msg_file):
     with open(msg_file, 'r') as sh:

@@ -66,14 +66,14 @@ log_dir=ptmp_dir+"/batch_logs"
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
-working_dir=stmp_dir+"/aqm_plot_working_ak_hi"
+working_dir=stmp_dir+"/"+envir+"_plot_working_ak_hi"
 if os.path.exists(working_dir):
     os.chdir(working_dir)
 else:
     os.makedirs(working_dir)
     os.chdir(working_dir)
 
-msg_file=working_dir+"/devmachine_"+start_date
+msg_file=working_dir+"/devmachine_"+start_date+sel_cyc+sel_var
 subprocess.call(["cat /etc/cluster_name > "+msg_file], shell=True)
 if os.path.isfile(msg_file):
     with open(msg_file, 'r') as sh:
@@ -82,7 +82,7 @@ if os.path.isfile(msg_file):
         print("currently on "+dev_machine)
         sh.close()
 
-msg_file=working_dir+"/prodmachine_"+start_date
+msg_file=working_dir+"/prodmachine_"+start_date+sel_cyc+sel_var
 subprocess.call(["cat /lfs/h1/ops/prod/config/prodmachinefile > "+msg_file], shell=True)
 if os.path.isfile(msg_file):
     with open(msg_file, 'r') as sh:
