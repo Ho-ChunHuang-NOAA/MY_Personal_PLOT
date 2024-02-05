@@ -114,10 +114,6 @@ log_dir=ptmp_dir+"/batch_logs"
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
-working_dir=ptmp_dir+"/working/rrfs_fireemisloc/"+envir
-if not os.path.exists(working_dir):
-    os.mkdir(working_dir)
-
 working_dir=stmp_dir+"/working/rrfs_fireemisloc/"+envir
 if not os.path.exists(working_dir):
     os.mkdir(working_dir)
