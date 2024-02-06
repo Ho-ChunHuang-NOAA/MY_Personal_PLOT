@@ -88,7 +88,7 @@ if os.path.isfile(msg_file):
         print("currently on "+dev_machine)
         sh.close()
 
-msg_file=working_dir+"/prodmachine_"+start_date+sel_cyc+sel_var
+msg_file=working_dir+"/msg_"+sel_var+"_"+start_date+"_"+sel_cyc
 subprocess.call(["cat /lfs/h1/ops/prod/config/prodmachinefile > "+msg_file], shell=True)
 if os.path.isfile(msg_file):
     with open(msg_file, 'r') as sh:
