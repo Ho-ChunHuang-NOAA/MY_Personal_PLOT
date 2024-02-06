@@ -267,7 +267,7 @@ while date <= edate:
         flag_new_dir=True
 
 
-    if not flag_ak" and iplot[num_reg-3] == 1:
+    if not flag_ak and iplot[num_reg-3] == 1:
         iplot[num_reg-3] = 0
     if not flag_hi and iplot[num_reg-2] == 1:
         iplot[num_reg-2] = 0

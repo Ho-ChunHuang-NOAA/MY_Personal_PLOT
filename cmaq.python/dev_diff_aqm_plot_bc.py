@@ -565,12 +565,12 @@ while date <= edate:
                                 continue
                             if figarea == "dset":
                                 if flag_ak:
-                                    except ValueError:
+                                    try:
                                         ax.contourf(
                                          ak_lon, ak_lat, pvar_ak,
                                          levels=clevs, cmap=cmap, norm=norm, extend='both',
                                          transform=ccrs.PlateCarree() )
-                                    try:
+                                    except ValueError:
                                         continue
                                 if flag_hi:
                                     try:
@@ -578,7 +578,7 @@ while date <= edate:
                                          hi_lon, hi_lat, pvar_hi,
                                          levels=clevs, cmap=cmap, norm=norm, extend='both',
                                          transform=ccrs.PlateCarree() )
-                                    try:
+                                    except ValueError:
                                         continue
                         ax.set_title(title)
                         ## cb2.set_label('Discrete intervals, some other units')
