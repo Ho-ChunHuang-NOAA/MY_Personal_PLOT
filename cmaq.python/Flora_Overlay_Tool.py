@@ -83,12 +83,17 @@ log_dir=ptmp_dir+"/batch_logs"
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
-working_dir=stmp_dir+"/aqm_plot_working"
-if os.path.exists(working_dir):
-    os.chdir(working_dir)
+py_code=sys.argv[0]
+nfind=py_code.find("py")
+if nfind == -1:
+    workid=py_code
 else:
+    workid=py_code[0:nfind-1]
+working_dir=stmp_dir+"/"+envir+"_"+workid
+if not os.path.exists(working_dir):
     os.makedirs(working_dir)
-    os.chdir(working_dir)
+
+os.chdir(working_dir)
 
 sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]))
 edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]))

@@ -59,8 +59,6 @@ task_cpu1="01:00:00"
 task_cpu2="02:00:00"
 task_cpu3="03:00:00"
 
-working_dir=os.path.join(run_root,envir,start_date)
-
 stmp_dir="/lfs/h2/emc/stmp/"+user
 if not os.path.exists(stmp_dir):
     os.mkdir(stmp_dir)
@@ -85,17 +83,19 @@ run_root=run_root+"/"+start_date
 if not os.path.exists(run_root):
     os.mkdir(run_root)
 
-working_dir=ptmp_dir+"/run_python_script/"+envir+"/"+start_date
-if not os.path.exists(working_dir):
-    os.mkdir(working_dir)
-
+py_code=sys.argv[0]
+nfind=py_code.find("py")
+if nfind == -1:
+    workid=py_code
+else:
+    workid=py_code[0:nfind-1]
 working_dir=stmp_dir+"/run_python_script/"+envir+"/"+start_date
 if not os.path.exists(working_dir):
     os.mkdir(working_dir)
 
 os.chdir(working_dir)
 
-msg_file=working_dir+"/msg_read"
+msg_file=working_dir+"/msg_"+sel_var+"_"+start_date+"_"+sel_cyc
 cmd="cat /etc/cluster_name"
 subprocess.call([cmd+" > "+msg_file], shell=True)
 cmd="cat /etc/wcoss.conf | grep cluster_name | awk -F\":\" '{print $2}'"

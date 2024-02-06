@@ -23,8 +23,6 @@ else:
     start_date = sys.argv[4]
     end_date = sys.argv[5]
 
-os.chdir(working_dir)
-
 stmp_dir="/lfs/h2/emc/stmp/"+user
 if not os.path.exists(stmp_dir):
     os.mkdir(stmp_dir)
@@ -37,14 +35,13 @@ log_dir=ptmp_dir+"/batch_logs"
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
-run_root=ptmp_dir+"/working/run_python"
-working_dir=os.path.join(run_root,envir,sel_var,sel_cyc,start_date)
-if os.path.exists(working_dir):
-    shutil.rmtree(working_dir)
-os.makedirs(working_dir)
-## os.mkdir(working_dir)
-
-run_root=stmp_dir+"/working/run_python"
+py_code=sys.argv[0]
+nfind=py_code.find("py")
+if nfind == -1:
+    workid=py_code
+else:
+    workid=py_code[0:nfind-1]
+run_root=stmp_dir+"/"+envir+"_"+workid
 working_dir=os.path.join(run_root,envir,sel_var,sel_cyc,start_date)
 if os.path.exists(working_dir):
     shutil.rmtree(working_dir)
@@ -53,7 +50,7 @@ os.makedirs(working_dir)
 
 os.chdir(working_dir)
 
-msg_file=working_dir+"/msg_read"
+msg_file=working_dir+"/msg_"+sel_var+"_"+start_date+"_"+sel_cyc
 cmd="cat /etc/cluster_name"
 subprocess.call([cmd+" > "+msg_file], shell=True)
 cmd="cat /etc/wcoss.conf | grep cluster_name | awk -F\":\" '{print $2}'"

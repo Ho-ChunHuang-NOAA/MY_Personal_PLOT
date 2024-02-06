@@ -77,13 +77,19 @@ log_dir=ptmp_dir+"/batch_logs"
 if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
-working_root=stmp_dir+"/dev_plot_diff_max_ave_"+envir
+py_code=sys.argv[0]
+nfind=py_code.find("py")
+if nfind == -1:
+    workid=py_code
+else:
+    workid=py_code[0:nfind-1]
+working_root=stmp_dir+"/"+envir+"_"+workid
 if not os.path.exists(working_root):
     os.mkdir(working_root)
 
 os.chdir(working_root)
 
-msg_file=working_root+"/msg_read_"+start_date+sel_cyc
+msg_file=working_root+"/msg_"+start_date+"_"+sel_cyc
 cmd="cat /etc/cluster_name"
 subprocess.call([cmd+" > "+msg_file], shell=True)
 cmd="cat /etc/wcoss.conf | grep cluster_name | awk -F\":\" '{print $2}'"
