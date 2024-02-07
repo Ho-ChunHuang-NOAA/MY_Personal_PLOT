@@ -403,7 +403,7 @@ while date <= edate:
                     else:
                         msize=np.log(cs_pvar[x]*emis_scale)
                     ## ax.plot(lon[x], lat[x], 'ro', markersize=3, transform=ccrs.Geodetic())
-                        ax.set_title(title)
+                    ##  ax.set_title(title)
                         try:
                             ax.plot(cs_lon[x], cs_lat[x], 'ro', markersize=msize, transform=ccrs.PlateCarree())
                         except ValueError:
