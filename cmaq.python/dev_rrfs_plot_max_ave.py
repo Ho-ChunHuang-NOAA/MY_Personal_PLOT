@@ -257,7 +257,7 @@ while date <= edate:
             os.makedirs(working_dir)
 
         s1_title="Online CMAQ "+fig_exp.upper()+" "+date.strftime(YMD_date_format)+" "+cycle
-        fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc)
+        fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc) )
         for ivar in range(0,num_var):
             if var[ivar] == "ozmax8":
                 fileid="max_8hr_o3"
