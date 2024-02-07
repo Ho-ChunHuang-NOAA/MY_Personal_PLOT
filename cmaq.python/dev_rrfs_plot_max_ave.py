@@ -151,11 +151,11 @@ num_var=len(var)
 print("var length = "+str(num_var))
 
 if sel_cyc == "all":
-   cycle=[ "t06z", "t12z" ]
+   cyc_opt=[ "06", "12" ]
 elif sel_cyc == "06":
-   cycle=[ "t06z" ]
+   cyc_opt=[ "06" ]
 elif sel_cyc == "12":
-   cycle=[ "t12z" ]
+   cyc_opt=[ "12" ]
 else:
     print("seletced cycle"+sel_cyc+" can not be recongized.")
     sys.exit()
@@ -215,7 +215,8 @@ expid="aqm"   # after 4/1/2023 directory will be changed into aqm.yyyymmdd
 date=sdate
 while date <= edate:
     flag_find_cyc=True
-    for cyc in cycle:
+    for cyc in cyc_opt:
+        cycle="t"+cyc+"z"
         for ivar in range(0,num_var):
             if var[ivar] == "ozmax8":
                 fileid="max_8hr_o3"
@@ -225,7 +226,7 @@ while date <= edate:
                 fileid="ave_24hr_pm25"
             elif var[ivar] == "pmmax1":
                 fileid="max_1hr_pm25"
-            check_file="aqm."+cyc+"."+fileid+"."+grid793+".grib2"
+            check_file="aqm."+cycle+"."+fileid+"."+grid793+".grib2"
             aqmfilein=nrtout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
             aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+check_file
             if os.path.exists(aqmfilein):
@@ -249,13 +250,14 @@ while date <= edate:
         date = date + date_inc
         continue
 
-    for cyc in cycle:
-        working_dir=working_root+"/"+date.strftime(YMD_date_format)+cyc
+    for cyc in cyc_opt:
+        cycle="t"+cyc+"z"
+        working_dir=working_root+"/"+date.strftime(YMD_date_format)+cycle
         if not os.path.exists(working_dir):
             os.makedirs(working_dir)
 
-        s1_title="Online CMAQ "+fig_exp.upper()+" "+date.strftime(YMD_date_format)+" "+cyc
-        fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[1:3]))
+        s1_title="Online CMAQ "+fig_exp.upper()+" "+date.strftime(YMD_date_format)+" "+cycle
+        fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc)
         for ivar in range(0,num_var):
             if var[ivar] == "ozmax8":
                 fileid="max_8hr_o3"
@@ -270,13 +272,13 @@ while date <= edate:
                 fileid="max_1hr_pm25"
                 varid="PDMAX1_1sigmalevel"
             msg=datetime.datetime.now()
-            print("Start processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+            print("Start processing "+date.strftime(YMD_date_format)+" "+cycle+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
 
-            file_hdr="aqm."+cyc+"."+fileid+"."+grid793
+            file_hdr="aqm."+cycle+"."+fileid+"."+grid793
             aqmfilein=comout+"/"+dirid+"."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
-                outfile=working_dir+"/"+file_hdr+"."+date.strftime(YMD_date_format)+"."+cyc+".nc"
+                outfile=working_dir+"/"+file_hdr+"."+date.strftime(YMD_date_format)+"."+cycle+".nc"
                 subprocess.call([wgrib2+' -netcdf '+outfile+' '+aqmfilein], shell=True)
                 aqmfilein=outfile
                 cs_aqm = netcdf.Dataset(aqmfilein)
@@ -292,13 +294,13 @@ while date <= edate:
     
             msg=datetime.datetime.now()
             print("Start processing "+var[ivar])
-            jobid="aqm"+"_"+envir+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"_"+cyc
+            jobid="aqm"+"_"+envir+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+"_"+cycle
             figdir = figout+"/"+jobid
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)
             os.makedirs(figdir)
             print("figdir = "+figdir)
-            print("working on "+date.strftime(YMD_date_format)+" "+cyc+" "+var[ivar])
+            print("working on "+date.strftime(YMD_date_format)+" "+cycle+" "+var[ivar])
             if var[ivar] == "ozmax8" or var[ivar] == "ozmax1":
                 ## s3_title="Max 8HR-AVG SFC Ozone CONC (ppbV)"
                 s3_title=fileid+" (ppbV)"
@@ -398,7 +400,7 @@ while date <= edate:
                         ax.set_title(title)
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
-                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cyc+"."+fileid+".day"+str(format(nout,'01d'))+".k1.png"
+                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cycle+"."+fileid+".day"+str(format(nout,'01d'))+".k1.png"
                         plt.savefig(savefig_name, bbox_inches='tight')
                         plt.close()
             ##
@@ -407,7 +409,7 @@ while date <= edate:
             os.chdir(figdir)
             parta=os.path.join("/usr", "bin", "scp")
             if 1 == 1 :
-                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cyc)
+                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cycle)
             else:
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
             ## subprocess.call(['scp -p * '+partb], shell=True)
@@ -415,7 +417,7 @@ while date <= edate:
             print("End   processing "+var[ivar])
             print("FIG DIR = "+figdir)
         msg=datetime.datetime.now()
-        print("End   processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+        print("End   processing "+date.strftime(YMD_date_format)+" "+cycle+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     msg=datetime.datetime.now()
     print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     date = date + date_inc
