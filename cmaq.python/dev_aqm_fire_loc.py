@@ -417,6 +417,7 @@ while date <= edate:
             ## else:
                 ## print("skip "+title[i])
         os.chdir(figout)
+        print("FIG DIR = "+figout)
         cyc_out="t"+cyc+"z"
         parta=os.path.join("/usr", "bin", "scp")
         if 1 == 1 :
