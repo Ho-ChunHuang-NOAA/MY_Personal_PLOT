@@ -275,7 +275,7 @@ while date <= edate:
             print("Start processing "+date.strftime(YMD_date_format)+" "+cycle+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
 
             file_hdr="aqm."+cycle+"."+fileid+"."+grid793
-            aqmfilein=comout+"/"+dirid+"."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
+            aqmfilein=comout+"/"+dirid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/"+file_hdr+".grib2"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
                 outfile=working_dir+"/"+file_hdr+"."+date.strftime(YMD_date_format)+"."+cycle+".nc"
