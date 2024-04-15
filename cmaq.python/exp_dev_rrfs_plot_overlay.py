@@ -205,6 +205,7 @@ else:
 
 aqm_ver="v7.0"
 comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
+comout="/lfs/h1/ops/prod/com/aqm/v7.0"
 usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
 if not os.path.exists(comout+"/aqm."+sdate.strftime(YMD_date_format)):
     if not os.path.exists(usrout+"/aqm."+sdate.strftime(YMD_date_format)):

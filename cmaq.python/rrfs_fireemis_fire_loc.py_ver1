@@ -204,6 +204,7 @@ metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver/"+model+"."+grdcro2d_date
 date = sdate
 while date <= edate:
     find_dir=[
+              "/lfs/h1/ops/prod/com/aqm/v7.0/aqm."+date.strftime(YMD_date_format),
               "/gpfs/dell2/emc/retros/noscrub/jianping.huang/emissions/GSCE/GBBEPx.in.C775/Reprocessed/"+date.strftime(YMD_date_format),
               "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format),
               "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format),
@@ -218,7 +219,7 @@ while date <= edate:
         for cyc in cycle:
             check_file=model+".t"+cyc+"z.fireemis.d1.ncf"
             check_file="GBBEPx_C775GRID.emissions_v003_"+date.strftime(YMD_date_format)+".nc"
-            aqmfilein=datadir+"/"+check_file
+            aqmfilein=datadir+"/"+cyc[1:3]+"/FIRE_EMISSION/"+check_file
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
                 cycfind=cyc

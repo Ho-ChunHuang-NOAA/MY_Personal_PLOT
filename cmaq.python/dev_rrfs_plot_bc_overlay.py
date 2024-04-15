@@ -191,6 +191,7 @@ msg=msg - date_inc
 grdcro2d_date=msg.strftime("%Y%m%d")
 
 find_dir=[
+          "/lfs/h1/ops/prod/com/aqm/v7.0",
           "/lfs/h2/emc/physics/noscrub/"+user+"/rrfs_sfc_chem_met/"+envir,
           "/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0",
           "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,

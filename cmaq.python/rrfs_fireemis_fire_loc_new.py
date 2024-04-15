@@ -210,13 +210,13 @@ print("iplot length = "+str(ilen))
 model="aqm"
 
 if sel_cyc == "all":
-   cycle=[ "06", "12" ]
+   cyc_opt=[ "06", "12" ]
    cycle=[ "t06z", "t12z" ]
 elif sel_cyc == "06":
-   cycle=[ "06" ]
+   cyc_opt=[ "06" ]
    cycle=[ "t06z" ]
 elif sel_cyc == "12":
-   cycle=[ "12" ]
+   cyc_opt=[ "12" ]
    cycle=[ "t12z" ]
 else:
     print("seletced cycle"+sel_cyc+" can not be recongized.")
@@ -243,6 +243,7 @@ if not os.path.exists(working_dir):
 date = sdate
 while date <= edate:
     find_dir=[
+              "/lfs/h1/ops/prod/com/aqm/v7.0/aqm."+date.strftime(YMD_date_format),
               "/lfs/h2/emc/physics/noscrub/jianping.huang/data/RRFS_CMAQ/emissions/GSCE/RAVE.in.C793/RAVE_new/"+date.strftime(YMD_date_format),
               "/lfs/h2/emc/physics/noscrub/"+user+"/rave_fire_emission/C793/"+date.strftime(YMD_date_format),
               "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format)
@@ -252,10 +253,9 @@ while date <= edate:
         datadir=idir
         print("check "+idir)
         flag_find_cyc="no"
-        for cyc in cycle:
-            ## check_file="Hourly_Emissions_regrid_rrfs_13km_"+date.strftime(YMD_date_format)+"_"+cyc+"_h72.nc"
-            check_file="Hourly_Emissions_regrid_NA_13km_"+date.strftime(YMD_date_format)+"_"+cyc+"_h72.nc"
-            aqmfilein=datadir+"/"+check_file
+        for cyc in cyc_opt:
+            check_file="Hourly_Emissions_regrid_NA_13km_"+date.strftime(YMD_date_format)+"_t"+cyc+"z_h72.nc"
+            aqmfilein=datadir+"/"+cyc+"/FIRE_EMISSION/"+check_file
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
                 cycfind=cyc
@@ -278,7 +278,7 @@ while date <= edate:
 
         ini_time = date.replace(int(date.year), int(date.month), int(date.day), int(cyc[1:3]), 00, 00 )
         print("initial time is "+ini_time.strftime(YMDH_date_format))
-        aqmfilein=datadir+"/Hourly_Emissions_regrid_NA_13km_"+date.strftime(YMD_date_format)+"_"+cyc+"_h72.nc"
+        aqmfilein=datadir+"/"+cyc[1:3]+"/FIRE_EMISSION/Hourly_Emissions_regrid_NA_13km_"+date.strftime(YMD_date_format)+"_"+cyc+"_h72.nc"
         if os.path.exists(aqmfilein):
             print(aqmfilein+" exists")
             cs_aqm = netcdf.Dataset(aqmfilein)

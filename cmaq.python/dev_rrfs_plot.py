@@ -176,6 +176,7 @@ else:
 aqm_ver="v7.0"
 comout="/lfs/h2/emc/aqmtemp/para/com/aqm/v7.0"
 comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0"
+comout="/lfs/h1/ops/prod/com/aqm/v7.0"
 usrout="/lfs/h2/emc//noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
 
 if not os.path.exists(comout+"/aqm."+sdate.strftime(YMD_date_format)):

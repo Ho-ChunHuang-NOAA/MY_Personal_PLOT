@@ -245,6 +245,7 @@ if not os.path.exists(working_dir):
 date = sdate
 while date <= edate:
     find_dir=[
+              "/lfs/h1/ops/prod/com/aqm/v7.0/aqm."+date.strftime(YMD_date_format),
               "/lfs/h2/emc/physics/noscrub/"+user+"/rave_fire_emission/NRT/"+date.strftime(YMD_date_format),
               "/lfs/h2/emc/physics/noscrub/jianping.huang/data/RRFS_CMAQ/emissions/GSCE/RAVE.in.C793/RAVE_RT/"+date.strftime(YMD_date_format),
               "/lfs/h2/emc/physics/noscrub/"+user+"/rave_fire_emission/C793/"+date.strftime(YMD_date_format),
@@ -259,7 +260,7 @@ while date <= edate:
         for cyc in cycle:
             ## check_file="Hourly_Emissions_regrid_rrfs_13km_"+date.strftime(YMD_date_format)+"_"+cyc+"_h72.nc"
             check_file="Hourly_Emissions_regrid_NA_13km_"+date.strftime(YMD_date_format)+"_"+cyc+"_h72.nc"
-            aqmfilein=datadir+"/"+check_file
+            aqmfilein=datadir+"/"+cyc[1:3]+"/FIRE_EMISSION/"+check_file
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
                 cycfind=cyc

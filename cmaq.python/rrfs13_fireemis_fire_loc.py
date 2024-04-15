@@ -222,6 +222,7 @@ metout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver/"+model+"."+grdcro2d_date
 date = sdate
 while date <= edate:
     find_dir=[
+              "/lfs/h1/ops/prod/com/aqm/v7.0/aqm."+date.strftime(YMD_date_format),
               "/gpfs/dell2/emc/retros/noscrub/jianping.huang/emissions/GSCE/GBBEPx.in."+emission_version.upper()+"/Reprocessed/"+date.strftime(YMD_date_format),
               "/lfs/h2/emc/physics/noscrub/"+user+"/rave_fire_emission/C793/"+date.strftime(YMD_date_format),
               "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format)

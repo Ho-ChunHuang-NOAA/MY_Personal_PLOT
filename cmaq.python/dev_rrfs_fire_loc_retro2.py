@@ -241,6 +241,7 @@ figdir="/lfs/h2/emc/stmp/"+user
 date = sdate
 while date <= edate:
     find_dir=[
+              "/lfs/h1/ops/prod/com/aqm/v7.0/aqm."+date.strftime(YMD_date_format),
               "/lfs/h2/emc/physics/noscrub/"+user+"/rave_fire_emission/NRT/"+date.strftime(YMD_date_format),
               "/lfs/h2/emc/physics/noscrub/jianping.huang/data/RRFS_CMAQ/emissions/GSCE/RAVE.in.C793/RAVE_RT/"+date.strftime(YMD_date_format),
               "/lfs/h2/emc/physics/noscrub/"+user+"/rave_fire_emission/C793/"+date.strftime(YMD_date_format),
