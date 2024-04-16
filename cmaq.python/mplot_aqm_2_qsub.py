@@ -12,6 +12,9 @@ user=os.environ['USER']
 script_dir=os.getcwd()
 print("Script directory is "+script_dir)
 
+flag_ftp=True
+flag_ftp=False
+
 ifile="/u/ho-chun.huang/versions/run.ver"
 rfile=open(ifile, 'r')
 for line in rfile:

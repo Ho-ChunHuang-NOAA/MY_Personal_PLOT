@@ -12,6 +12,9 @@ user=os.environ['USER']
 script_dir=os.getcwd()
 print("Script directory is "+script_dir)
 
+flag_ftp=True
+flag_ftp=False
+
 ifile="/u/ho-chun.huang/versions/run.ver"
 rfile=open(ifile, 'r')
 for line in rfile:
@@ -318,7 +321,8 @@ while date <= edate:
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
                         sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                        sh.write("    cat "+ftp_script+" | qsub\n")
+                        if flag_ftp:
+                            sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
@@ -386,7 +390,8 @@ while date <= edate:
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
                         sh.write("   python "+i+" "+envir+"_bc "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                        sh.write("    cat "+ftp_script+" | qsub\n")
+                        if flag_ftp:
+                            sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
@@ -454,7 +459,8 @@ while date <= edate:
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
                         sh.write("   python "+i+" "+envir+"_bc "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                        sh.write("    cat "+ftp_script+" | qsub\n")
+                        if flag_ftp:
+                            sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
@@ -521,7 +527,8 @@ while date <= edate:
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
                         sh.write("   python "+i+" "+envir+"_bc "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                        sh.write("    cat "+ftp_script+" | qsub\n")
+                        if flag_ftp:
+                            sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
@@ -589,7 +596,8 @@ while date <= edate:
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
                         sh.write("   python "+i+" "+envir+"_bc "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                        sh.write("    cat "+ftp_script+" | qsub\n")
+                        if flag_ftp:
+                            sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
@@ -657,7 +665,8 @@ while date <= edate:
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
                         sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                        sh.write("    cat "+ftp_script+" | qsub\n")
+                        if flag_ftp:
+                            sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
@@ -734,7 +743,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
@@ -801,7 +811,8 @@ while date <= edate:
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
                         sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                        sh.write("    cat "+ftp_script+" | qsub\n")
+                        if flag_ftp:
+                            sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
@@ -867,7 +878,8 @@ while date <= edate:
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
                         sh.write("   python "+i+" "+envir+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                        sh.write("    cat "+ftp_script+" | qsub\n")
+                        if flag_ftp:
+                            sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
@@ -944,7 +956,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" prod "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
@@ -1020,7 +1033,8 @@ while date <= edate:
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
                         sh.write("   python "+i+" "+envir+" para6d "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                        sh.write("    cat "+ftp_script+" | qsub\n")
+                        if flag_ftp:
+                            sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
@@ -1088,7 +1102,8 @@ while date <= edate:
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
                         sh.write("   python "+i+" "+envir+" para6d "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                        sh.write("    cat "+ftp_script+" | qsub\n")
+                        if flag_ftp:
+                            sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
@@ -1165,7 +1180,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
@@ -1242,7 +1258,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" prod "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
@@ -1310,7 +1327,8 @@ while date <= edate:
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
                         sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                        sh.write("    cat "+ftp_script+" | qsub\n")
+                        if flag_ftp:
+                            sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
@@ -1377,7 +1395,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
@@ -1444,7 +1463,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
@@ -1511,7 +1531,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
@@ -1578,7 +1599,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" "+envir+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
@@ -1645,7 +1667,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
@@ -1712,7 +1735,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
@@ -1779,7 +1803,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
@@ -1845,7 +1870,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" "+envir+"_bc "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
@@ -1912,7 +1938,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
@@ -1979,7 +2006,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
@@ -2046,7 +2074,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
@@ -2113,7 +2142,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
@@ -2180,7 +2210,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("submit "+plot_script)
@@ -2247,7 +2278,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("submit "+plot_script)
@@ -2315,7 +2347,8 @@ while date <= edate:
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
                         sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                        sh.write("    cat "+ftp_script+" | qsub\n")
+                        if flag_ftp:
+                            sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
@@ -2383,7 +2416,8 @@ while date <= edate:
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
                         sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                        sh.write("    cat "+ftp_script+" | qsub\n")
+                        if flag_ftp:
+                            sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
@@ -2452,7 +2486,8 @@ while date <= edate:
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
                         sh.write("   python "+i+" "+envir+"_bc "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                        sh.write("    cat "+ftp_script+" | qsub\n")
+                        if flag_ftp:
+                            sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     print("run_script = "+plot_script)
@@ -2520,7 +2555,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
@@ -2587,7 +2623,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
@@ -2654,7 +2691,8 @@ while date <= edate:
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
                     sh.write("   python "+i+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
-                    sh.write("    cat "+ftp_script+" | qsub\n")
+                    if flag_ftp:
+                        sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 print("run_script = "+plot_script)
