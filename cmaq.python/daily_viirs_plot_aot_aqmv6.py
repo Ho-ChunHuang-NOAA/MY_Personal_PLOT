@@ -364,7 +364,7 @@ while date <= edate:
     else:
         partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
         partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
-    subprocess.call(['scp -p * '+partb], shell=True)
+    ## subprocess.call(['scp -p * '+partb], shell=True)
     print("End   processing "+var[ivar])
     print("FIG DIR = "+figdir)
     msg=datetime.datetime.now()
