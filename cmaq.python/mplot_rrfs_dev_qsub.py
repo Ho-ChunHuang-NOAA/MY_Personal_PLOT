@@ -9,8 +9,8 @@ import datetime
 
 user=os.environ['USER']
 
-flag_ftp=True
 flag_ftp=False
+flag_ftp=True
 
 script_dir=os.getcwd()
 print("Script directory is "+script_dir)

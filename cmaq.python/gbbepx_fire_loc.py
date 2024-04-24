@@ -313,7 +313,7 @@ while date <= edate:
         parta=os.path.join("/usr", "bin", "scp")
         partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), "t06z" )
         ##partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
-        ## subprocess.call(["scp -p * "+partb], shell=True)
+        subprocess.call(["scp -p * "+partb], shell=True)
     else:
         print("Can not find "+filein)
     date = date + date_inc
