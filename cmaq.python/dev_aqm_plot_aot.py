@@ -146,6 +146,7 @@ else:
     comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/aqmv7_aod/"+envir
     comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
     comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0"
+    comout="/lfs/h1/ops/prod/com/aqm/v7.0"
 num_var=len(var)
 print("var length = "+str(num_var))
 
