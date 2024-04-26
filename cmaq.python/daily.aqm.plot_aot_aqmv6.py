@@ -168,8 +168,8 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## sys.exit()
 
 comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
-usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
 usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
+usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
 usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+envir
 
 if not os.path.exists(comout):
@@ -393,6 +393,7 @@ while date <= edate:
             partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cycle_time)
         else:
             partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
+            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
         subprocess.call(['scp -p * '+partb], shell=True)
         msg=datetime.datetime.now()
         print("End   processing "+var[ivar])
