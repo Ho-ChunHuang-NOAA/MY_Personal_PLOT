@@ -24,32 +24,7 @@ MSG="USAGE $0 obs_sat (default:viirs) model_grid [default:aqm|hysplit|ngac] YYYY
 
    module reset
    module load prod_envir/${prod_envir_ver}
-
-   module load PrgEnv-intel/${PrgEnv_intel_ver}
-   module load intel/${intel}
-   module load ve/evs/${ve_evs_ver}
-   module load cray-mpich/${craympich_ver}
-   module load cray-pals/${craypals_ver}
-   module load libjpeg/${libjpeg_ver}
-   module load grib_util/${grib_util_ver}
-   module load wgrib2/${wgrib2_ver}
-   module load gsl/${gsl_ver}
-   module load prod_util/${prod_util_ver}
-   module load met/${met_ver}
-   module load metplus/${metplus_ver}
-## module purge
-## export HPC_OPT=/apps/ops/para/libs
-## module use /apps/ops/para/libs/modulefiles/compiler/intel/19.1.3.304/
-## module load intel
-## module load gsl
-## module load python/3.8.6
-## module load netcdf/4.7.4
-## module load met/10.0.1
-## module load metplus/4.0.0
-
-## module load prod_util
-## module load prod_envir
-module list
+   source $HOMEevs/dev/modulefiles/aqm/aqm_prep.sh
 
 TODAY=`date +%Y%m%d`
 

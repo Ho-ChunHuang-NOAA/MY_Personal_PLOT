@@ -149,7 +149,7 @@ caseid="v70"
 nfind=envir.find(caseid)
 if nfind == -1:
     print("AQMv6 simulation")
-    s1_lead="CMAQ"
+    s1_lead="AQMv6"
     aqmv6 = True
     nfind=envir.find("_bc")
     if nfind == -1:
@@ -174,13 +174,12 @@ if nfind == -1:
         aqm_ver=aqm_ver_prod
         exp_grid=grid148
         expid="cs"
-        comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+EXP.lower()
         comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
+        comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+EXP.lower()
     else:
         print("Experiement ID "+EXP.lower()+" not found for this code, Program exit")
         sys.exit()
     usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/com/aqm/"+EXP.lower()
-    usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
         if not os.path.exists(usrout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
@@ -188,7 +187,7 @@ if nfind == -1:
             sys.exit()
 else:
     print("AQMv7 simulation")
-    s1_lead="Online CMAQ"
+    s1_lead="AQMv7"
     aqmv7 = True
     aqm_ver="v7.0"
     exp_grid=grid793
@@ -230,6 +229,7 @@ else:
         ## Force to use user archived directory
         comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
         comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver
+        comout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
         if not os.path.exists(usrout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
@@ -409,9 +409,11 @@ while date <= edate:
             os.makedirs(working_dir)
 
         if EXP.lower() == "prod":
-            s1_title=s1_lead+" "+EXP.upper()+BC_append.upper()+" "+date.strftime(YMD_date_format)+" "+cycle_time
+            ## s1_title=s1_lead+" "+EXP.upper()+BC_append.upper()+" "+date.strftime(YMD_date_format)+" "+cycle_time
+            s1_title=s1_lead+" "+date.strftime(YMD_date_format)+" "+cycle_time
         else:
-            s1_title=s1_lead+" DEV"+BC_append.upper()+" "+date.strftime(YMD_date_format)+" "+cycle_time
+            ## s1_title=s1_lead+" DEV"+BC_append.upper()+" "+date.strftime(YMD_date_format)+" "+cycle_time
+            s1_title=s1_lead+" "+date.strftime(YMD_date_format)+" "+cycle_time
         fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[0:2]))
         for ivar in range(0,num_var):
             if var[ivar] == "ozmax8":

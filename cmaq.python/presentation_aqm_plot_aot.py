@@ -82,7 +82,7 @@ if not os.path.exists(working_dir):
 
 os.chdir(working_dir)
 
-msg_file=working_dir+"/msg_"+sel_var+"_"+start_date+"_"+sel_cyc
+msg_file=working_dir+"/msg_aod_"+start_date+"_"+sel_cyc
 cmd="cat /etc/cluster_name"
 subprocess.call([cmd+" > "+msg_file], shell=True)
 cmd="cat /etc/wcoss.conf | grep cluster_name | awk -F\":\" '{print $2}'"
@@ -143,13 +143,13 @@ hour_inc = datetime.timedelta(hours=1)
 ## aqmv7 (aod) and aqmv6 (aot)
 if envir == "prod":
     var=[ "aot" ]
-    comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
     comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
+    comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
 else:
     var=[ "aod" ]
-    comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/aqmv7_aod/"+envir
     comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
     comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0"
+    comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/aqmv7_aod_paper/"+envir
 num_var=len(var)
 print("var length = "+str(num_var))
 
@@ -243,8 +243,10 @@ while date <= edate:
         cycle="t"+cyc+"z"
         msg=datetime.datetime.now()
         print("Start processing "+YMD+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
-        ## s1_title="CMAQ "+fig_exp.upper()+" "+YMD+" "+cycle
-        s1_title="CMAQ Dev "+YMD+" "+cycle
+        if envir == "prod":
+            s1_title="AQMv6 "+YMD+" "+cycle
+        else:
+            s1_title="AQMv7 "+YMD+" "+cycle
         fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[0:2]))
 
         ## metfilein=metout+"/cs."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
