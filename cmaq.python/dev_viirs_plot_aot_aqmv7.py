@@ -148,7 +148,7 @@ grid793="793"
 aqmv6 = True
 aqmv7 = True
 
-EXP="v70c84"
+EXP="aqmv70"
 caseid="v70"
 nfind=EXP.find(caseid)
 if nfind == -1:

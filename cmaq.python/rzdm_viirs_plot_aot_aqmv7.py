@@ -120,7 +120,7 @@ H_date_format = "%H"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
-EXP="v70c84"
+EXP="aqmv70"
 caseid="v70"
 nfind=EXP.find(caseid)
 if nfind == -1:
