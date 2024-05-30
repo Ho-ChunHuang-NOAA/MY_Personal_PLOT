@@ -143,7 +143,7 @@ flag_ak=True
 flag_hi=True
 aqmv6=False
 aqmv7=False
-caseid="v70"
+caseid="aqmv7"
 nfind=envir.find(caseid)
 if nfind == -1:
     print("AQMv6 simulation")
@@ -195,9 +195,10 @@ else:
     if nfind == -1:
         print("not a bias_correction cases")
         EXP=envir
-        n0=len(caseid)
-        n1=len(EXP)
-        expid=envir[n0:n1]
+        if caseid == "keep":
+            n0=len(caseid)
+            n1=len(EXP)
+            expid=envir[n0:n1]
         expid="aqm"   # after 4/1/2023 directory will be changed into aqm.yyyymmdd
         BC_append=""
         BC_fig_append=BC_append
@@ -210,7 +211,8 @@ else:
         EXP=envir[0:nfind]
         n0=len(caseid)
         n1=len(EXP)
-        expid=EXP[n0:n1]
+        if caseid == "keep":
+            expid=EXP[n0:n1]
         expid="aqm"   # after 4/1/2023 directory will be changed into aqm.yyyymmdd
         BC_append="_bc"
         BC_fig_append="bc"
@@ -219,16 +221,10 @@ else:
         print("BC_append="+BC_append)
         flag_ak=False
         flag_hi=False
-    if sdate.strftime(Y_date_format) == "2023":
-        ## correct one should be comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver
-        ## Force to use user archived directory
-        comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver
-    else:
-        ## correct one should be comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
-        ## Force to use user archived directory
-        comout="/lfs/h2/emc/aqmtemp/para/com/aqm/"+aqm_ver
-        comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/"+aqm_ver
+    if EXP.lower() == "aqmv70":
         comout="/lfs/h1/ops/prod/com/aqm/v7.0"
+    else:
+        comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
     if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
         if not os.path.exists(usrout+"/"+expid+"."+sdate.strftime(YMD_date_format)):

@@ -121,7 +121,7 @@ H_date_format = "%H"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
-caseid="v70"
+caseid="aqmv7"
 nfind=envir.find(caseid)
 if nfind == -1:
     print("This code is designed for AQMv7 simulation, program stop")
@@ -136,10 +136,11 @@ else:
     if nfind == -1:
         print("not a bias_correction cases")
         EXP=envir
-        n0=len(caseid)
-        n1=len(EXP)
+        if caseid == "keep":
+            n0=len(caseid)
+            n1=len(EXP)
+            expid=EXP[n0:n1]
         expid="aqm"   # after 4/1/2023 directory will be changed into aqm.yyyymmdd
-        expid=EXP[n0:n1]
         BC_append=""
         BC_fig_append=BC_append
         print("exp="+EXP)
@@ -148,6 +149,16 @@ else:
     else:
         print("This code is designed for AQMv7 raw model cases, program stop")
         sys.exit()
+    if EXP.lower() == "aqmv70":
+        comout="/lfs/h1/ops/prod/com/aqm/v7.0"
+    else:
+        comout="/lfs/h2/emc/physics/noscrub/"+user+"/rrfs_sfc_chem_met/"+EXP.lower()
+    usrout="/lfs/h2/emc/physics/noscrub/"+user+"/rrfs_sfc_chem_met/"+EXP.lower()
+if not os.path.exists(comout+"/aqm."+sdate.strftime(YMD_date_format)):
+    if not os.path.exists(usrout+"/aqm."+sdate.strftime(YMD_date_format)):
+        print("Can not find ioutput dir with experiment id "+envir)
+        sys.exit()
+
 
 
 if sel_var == "all":
@@ -197,22 +208,8 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## ilen=len(envir)
 ## print("experiment is "+envir[0:ilen])
 ## sys.exit()
-if envir[0:3] =="v70":
-    runid=envir[3:6]
-    print(runid)
-else:
-    print(envir+" is not v7.0 experiment")
-    sys.exit()
 
 aqm_ver="v7.0"
-comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0"
-comout="/lfs/h1/ops/prod/com/aqm/v7.0"
-usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
-if not os.path.exists(comout+"/aqm."+sdate.strftime(YMD_date_format)):
-    if not os.path.exists(usrout+"/aqm."+sdate.strftime(YMD_date_format)):
-        print("Can not find ioutput dir with experiment id "+envir)
-        sys.exit()
-
 dcomdir="/lfs/h1/ops/prod/dcom"
 obsdir="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/epa_airnow_acsii"
 obsdir="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/dcom/prod/airnow"

@@ -30,7 +30,7 @@ else:
     start_date = sys.argv[4]
     end_date = sys.argv[5]
 
-caseid="v70"
+caseid="aqmv7"
 nfind=envir.find(caseid)
 if nfind == -1:
     print("This code is designed for AQMv7 simulation, program stop")
@@ -47,15 +47,21 @@ else:
         sys.exit()
     else:
         EXP=envir[0:nfind]
-        n0=len(caseid)
-        n1=len(EXP)
-        expid=EXP[n0:n1]
+        if caseid == "keep":
+            n0=len(caseid)
+            n1=len(EXP)
+            expid=EXP[n0:n1]
         expid="aqm"   # after 4/1/2023 directory will be changed into aqm.yyyymmdd
         BC_append="_bc"
         BC_fig_append="bc"
         print("exp="+EXP)
         print("expid="+expid)
         print("BC_append="+BC_append)
+    if EXP.lower() == "aqmv70":
+        comout="/lfs/h1/ops/prod/com/aqm/v7.0"
+    else:
+        comout="/lfs/h2/emc/physics/noscrub/"+user+"/rrfs_sfc_chem_met/"+enviir
+    usrout="/lfs/h2/emc/physics/noscrub/"+user+"/rrfs_sfc_chem_met/"+envir
 script_dir=os.getcwd()
 print("Script directory is "+script_dir)
 
@@ -190,15 +196,10 @@ msg=datetime.datetime.now()
 msg=msg - date_inc
 grdcro2d_date=msg.strftime("%Y%m%d")
 
+
 find_dir=[
-          "/lfs/h1/ops/prod/com/aqm/v7.0",
-          "/lfs/h2/emc/physics/noscrub/"+user+"/rrfs_sfc_chem_met/"+envir,
-          "/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0",
-          "/lfs/h1/ops/"+envir+"/com/aqm/"+aqm_ver,
-          "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir,
-          "/lfs/h2/emc/physics/noscrub/"+user+"/com/aqm/"+envir,
-          "/lfs/h2/emc/vpppg/noscrub/"+user+"/verification/aqm/"+envir,
-          "/lfs/h2/emc/physics/noscrub/"+user+"/verification/aqm/"+envir
+          ${comout}.
+          ${usrout}
          ]
 dcomdir="/lfs/h1/ops/prod/dcom"
 obsdir="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/epa_airnow_acsii"

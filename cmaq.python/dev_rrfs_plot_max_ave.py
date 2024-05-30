@@ -179,8 +179,10 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## Current operational CMAQ does include runs for AK and HI domain
 ## Current EMC development CMAQ does not include runs for AK and HI domain
 ##
-nrtout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0"
-nrtout="/lfs/h1/ops/prod/com/aqm/v7.0"
+if envir == "aqmv70":
+    nrtout="/lfs/h1/ops/prod/com/aqm/v7.0"
+else:
+    nrtout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
 usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
 
 figout=stmp_dir
