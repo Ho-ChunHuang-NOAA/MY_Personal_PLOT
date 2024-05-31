@@ -155,7 +155,7 @@ if 1 == 2 :
     flag_hi=False
     aqmv6=False
     aqmv7=False
-    caseid="v70"
+    caseid="aqmv7"
     nfind=envir.find(caseid)
     if nfind == -1:
         print("AQMv6 simulation")
@@ -246,7 +246,7 @@ else:
     exp_grid=grid793
     aqmv6=False
     aqmv7=True
-    caseid="v70"
+    caseid="aqmv7"
     EXP1=envir1
     EXP2=envir2
     n0=len(caseid)

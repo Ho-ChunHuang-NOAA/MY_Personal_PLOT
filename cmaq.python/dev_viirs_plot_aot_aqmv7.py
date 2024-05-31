@@ -149,7 +149,7 @@ aqmv6 = True
 aqmv7 = True
 
 EXP="aqmv70"
-caseid="v70"
+caseid="aqmv7"
 nfind=EXP.find(caseid)
 if nfind == -1:
     print("AQMv6 simulation")

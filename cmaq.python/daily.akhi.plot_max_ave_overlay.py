@@ -143,7 +143,7 @@ grid139="139"
 grid196="196"
 grid793="793"
 
-caseid="v70"
+caseid="aqmv7"
 nfind=envir.find(caseid)
 if nfind == -1:
     print("AQMv6 simulation")

@@ -104,7 +104,7 @@ else:
     msg=msg+" as BACKUPSYS"
 print(msg)
 
-caseid="v70"
+caseid="aqmv7"
 nfind=envir.find(caseid)
 if nfind == -1:
     print("This code is designed for AQMv7 simulation, program stop")

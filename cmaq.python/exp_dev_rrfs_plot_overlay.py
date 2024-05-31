@@ -120,7 +120,7 @@ H_date_format = "%H"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
-caseid="v70"
+caseid="aqmv7"
 nfind=envir.find(caseid)
 if nfind == -1:
     print("This code is designed for AQMv7 simulation, program stop")
@@ -196,11 +196,10 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## ilen=len(envir)
 ## print("experiment is "+envir[0:ilen])
 ## sys.exit()
-if envir[0:3] =="v70":
-    runid=envir[3:6]
-    print(runid)
-else:
-    print(envir+" is not v7.0 experiment")
+caseid="aqmv7"
+nfind=envir.find(caseid)
+if nfind == -1:
+    print(envir+" is not AQMv7 simulation, program stop")
     sys.exit()
 
 aqm_ver="v7.0"

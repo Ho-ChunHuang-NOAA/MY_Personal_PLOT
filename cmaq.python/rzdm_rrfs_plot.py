@@ -136,11 +136,10 @@ else:
     print("seletced cycle"+sel_cyc+" can not be recongized.")
     sys.exit()
 
-if envir[0:3] =="v70":
-    runid=envir[3:6]
-    print(runid)
-else:
-    print(envir+" is not v7.0 experiment")
+caseid="aqmv7"
+nfind=envir.find(caseid)
+if nfind == -1:
+    print(envir+" is not AQMv7 simulation, program stop")
     sys.exit()
 
 figout=stmp_dir

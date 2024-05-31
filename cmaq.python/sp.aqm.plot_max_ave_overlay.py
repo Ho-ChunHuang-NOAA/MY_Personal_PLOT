@@ -153,7 +153,7 @@ flag_ak=True
 flag_hi=True
 aqmv6=False
 aqmv7=False
-caseid="v70"
+caseid="aqmv7"
 nfind=envir.find(caseid)
 if nfind == -1:
     print("AQMv6 simulation")

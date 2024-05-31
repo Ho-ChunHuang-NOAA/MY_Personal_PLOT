@@ -33,7 +33,7 @@ else:
     start_date = sys.argv[4]
     end_date = sys.argv[5]
 
-caseid="v70"
+caseid="aqmv7"
 nfind=envir.find(caseid)
 if nfind == -1:
     print("This code is designed for AQMv7 simulation, program stop")

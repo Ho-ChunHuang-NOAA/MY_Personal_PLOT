@@ -116,7 +116,7 @@ H_date_format = "%H"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
-caseid="v70"
+caseid="aqmv7"
 nfind=envir.find(caseid)
 if nfind == -1:
     print("This code is designed for AQMv7 simulation, program stop")
@@ -179,11 +179,10 @@ plt.rcParams['axes.formatter.useoffset'] = False
 cbar_num_format = "%d"
 plt.close('all') # close all figures
 
-if envir[0:3] =="v70":
-    runid=envir[3:6]
-    print(runid)
-else:
-    print(envir+" is not v7.0 experiment")
+caseid="aqmv7"
+nfind=envir.find(caseid)
+if nfind == -1:
+    print(envir+" is not AQMv7 simulation, program stop")
     sys.exit()
 
 figout=stmp_dir

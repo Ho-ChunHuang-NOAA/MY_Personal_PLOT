@@ -121,7 +121,7 @@ date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
 EXP="aqmv70"
-caseid="v70"
+caseid="aqmv7"
 nfind=EXP.find(caseid)
 if nfind == -1:
     print("AQMv6 simulation")

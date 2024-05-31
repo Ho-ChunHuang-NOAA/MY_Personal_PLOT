@@ -107,7 +107,7 @@ edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6
 
 obs_YMDH_date_format = "%Y%m%d%H"
 
-caseid="v70"
+caseid="aqmv7"
 nfind=envir.find(caseid)
 if nfind == -1:
     print("AQMv6 simulation")
