@@ -240,47 +240,10 @@ figdir="/lfs/h2/emc/stmp/"+user
 ###              "/lfs/h2/emc/physics/noscrub/jianping.huang/data/RRFS_CMAQ/emissions/GSCE/GBBEPx.in.C775/RAVE_RT/"+date.strftime(YMD_date_format),
 date = sdate
 while date <= edate:
-    find_dir=[
-              "/lfs/h1/ops/prod/com/aqm/v7.0/aqm."+date.strftime(YMD_date_format),
-              "/lfs/h2/emc/physics/noscrub/"+user+"/rave_fire_emission/NRT/"+date.strftime(YMD_date_format),
-              "/lfs/h2/emc/physics/noscrub/jianping.huang/data/RRFS_CMAQ/emissions/GSCE/RAVE.in.C793/RAVE_RT/"+date.strftime(YMD_date_format),
-              "/lfs/h2/emc/physics/noscrub/"+user+"/rave_fire_emission/C793/"+date.strftime(YMD_date_format),
-              "/lfs/h2/emc/ptmp/"+user+"/com/aqm/"+envir+"/cs."+date.strftime(YMD_date_format)
-             ]
-    flag_find_idir="no"
-    flag_find_nrt=False
-    for idir in find_dir:
-        datadir=idir
-        print("check "+idir)
-        flag_find_cyc="no"
-        for cyc in cycle:
-            ## check_file="Hourly_Emissions_regrid_rrfs_13km_"+date.strftime(YMD_date_format)+"_"+cyc+"_h72.nc"
-            check_file="Hourly_Emissions_regrid_NA_13km_"+date.strftime(YMD_date_format)+"_"+cyc+"_h72.nc"
-            aqmfilein=datadir+"/"+check_file
-            if os.path.exists(aqmfilein):
-                print(aqmfilein+" exists")
-                cycfind=cyc
-                flag_find_cyc="yes"
-            else:
-                print("Can not find "+aqmfilein)
-        if flag_find_cyc == "yes":
-            flag_find_idir="yes"
-            break
-    if flag_find_idir == "yes":
-        print("datadir set to "+datadir)
-    else:
-        for cyc in cycle:
-            datadir="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0/aqm."+date.strftime(YMD_date_format)
-            check_file="Hourly_Emissions_regrid_NA_13km_"+date.strftime(YMD_date_format)+"_"+cyc+"_h72.nc"
-            aqmfilein=datadir+"/"+cyc[1:3]+"/FIRE_EMISSION/"+check_file
-            if os.path.exists(aqmfilein):
-                print(aqmfilein+" exists")
-                print("datadir set to "+datadir)
-                flag_find_nrt=True
-            else:
-                print("Can not find "+aqmfilein)
-        if not flag_find_nrt:
-            sys.exit()
+
+    YMD=date.strftime(YMD_date_format)
+    comout="/lfs/h1/ops/prod/com/aqm/v7.0/aqm."+YMD
+    usrout="/lfs/h2/emc/physics/noscrub/"+user+"/rave_fire_emission/NRT/"+YMD
 
     for cyc in cycle:
         figout=working_dir+"/"+date.strftime(YMD_date_format)+"_fireemisr2_"+cyc
@@ -291,10 +254,15 @@ while date <= edate:
         ini_time = date.replace(int(date.year), int(date.month), int(date.day), int(cyc[1:3]), 00, 00 )
         print("initial time is "+ini_time.strftime(YMDH_date_format))
         check_file="Hourly_Emissions_regrid_NA_13km_"+date.strftime(YMD_date_format)+"_"+cyc+"_h72.nc"
-        if flag_find_nrt:
-            aqmfilein=datadir+"/"+cyc[1:3]+"/FIRE_EMISSION/"+check_file
+        findfile1=os.path.join(comout,cyc[1:3],"FIRE_EMISSION",check_file)
+        findfile2=os.path.join(usrout,check_file)
+        if os.path.exists(findfile1):
+            aqmfilein=findfile1
+        elif os.path.exists(findfile2):
+            aqmfilein=findfile2
         else:
-            aqmfilein=datadir+"/"+check_file
+            print("Can not find "+findfile1+" and "+findfile2)
+            continue
         if os.path.exists(aqmfilein):
             print(aqmfilein+" exists")
             cs_aqm = netcdf.Dataset(aqmfilein)

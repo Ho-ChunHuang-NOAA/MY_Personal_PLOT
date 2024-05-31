@@ -2632,8 +2632,8 @@ while date <= edate:
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
             if i == "dev_rrfs_fire_loc_retro3.py":
                 print("    Start processing "+i)
-                jobid="plot_rave_fire_loc_v1_"+cyc+"_"+date.strftime(YMD_date_format)
-                ftpid="ftp_rave_fire_loc_v1_"+cyc+"_"+date.strftime(YMD_date_format)
+                jobid="plot_rave_fire_loc_v3_"+cyc+"_"+date.strftime(YMD_date_format)
+                ftpid="ftp_rave_fire_loc_v3_"+cyc+"_"+date.strftime(YMD_date_format)
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
