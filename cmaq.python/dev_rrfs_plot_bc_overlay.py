@@ -196,11 +196,10 @@ msg=datetime.datetime.now()
 msg=msg - date_inc
 grdcro2d_date=msg.strftime("%Y%m%d")
 
+find_dir=[]
+find_dir.append(comout)
+find_dir.append(usrout)
 
-find_dir=[
-          ${comout}.
-          ${usrout}
-         ]
 dcomdir="/lfs/h1/ops/prod/dcom"
 obsdir="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/epa_airnow_acsii"
 obsdir="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/dcom/prod/airnow"
