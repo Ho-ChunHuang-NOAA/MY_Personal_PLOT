@@ -107,8 +107,8 @@ nfind=py_code.find("py")
 if nfind == -1:
     workid=py_code
 else:
-    workid=py_code[0:nfind-1]
-working_dir=stmp_dir+"/"+envir+"_"+workid
+    workid=py_code[4:nfind-1]
+working_dir=stmp_dir+"/"+envir+"_dev"+workid
 if not os.path.exists(working_dir):
     os.mkdir(working_dir)
 
@@ -198,9 +198,6 @@ else:
 
 user=os.environ['USER']
 figdir="/lfs/h2/emc/stmp/"+user
-working_dir="/lfs/h2/emc/stmp/"+user+"/working_rrfs_fireemis_"+envir
-if not os.path.exists(working_dir):
-    os.mkdir(working_dir)
 date = sdate
 while date <= edate:
     for cyc in cycle:

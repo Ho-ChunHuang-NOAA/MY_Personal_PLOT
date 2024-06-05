@@ -38,8 +38,8 @@ if envir.lower() == "para":
 elif envir.lower() == "para_bc":
     fig_exp="ncoparabc"
 else:
-    fig_exp=envir.lower()
     fig_exp="dev"
+    fig_exp=envir.lower()
 
 stmp_dir="/lfs/h2/emc/stmp/"+user
 if not os.path.exists(stmp_dir):
@@ -131,7 +131,7 @@ if nfind == -1:
     sys.exit()
 else:
     print("AQMv7 simulation")
-    s1_lead="AQMv7"
+    s1_lead="AQMv71"
     aqmv7 = True
     aqm_ver="v7.0"
 
@@ -212,6 +212,8 @@ aqm_ver="v7.0"
 comout="/lfs/h2/emc/aqmtemp/para/com/aqm/v7.0"
 comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0"
 comout="/lfs/h1/ops/prod/com/aqm/v7.0"
+comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.1"
+expid="c710a"
 usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
 if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
     if not os.path.exists(usrout+"/aqm."+sdate.strftime(YMD_date_format)):
@@ -294,7 +296,7 @@ while date <= edate:
             flag_read_latlon=False
             hour_beg = 0
             hour_end = 72
-            hour_beg = 47
+            hour_beg = 8
             hour_end = hour_beg + 1
             if hour_beg != 0:
                 set_hour=0

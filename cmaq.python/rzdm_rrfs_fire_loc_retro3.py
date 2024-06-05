@@ -107,8 +107,8 @@ nfind=py_code.find("py")
 if nfind == -1:
     workid=py_code
 else:
-    workid=py_code[0:nfind-1]
-working_dir=stmp_dir+"/"+envir+"_"+workid
+    workid=py_code[4:nfind-1]
+working_dir=stmp_dir+"/"+envir+"_dev"+workid
 if not os.path.exists(working_dir):
     os.mkdir(working_dir)
 

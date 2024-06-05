@@ -87,8 +87,8 @@ else:
     start_date = sys.argv[2]
     end_date = sys.argv[3]
 
-envir="v70"
-envir_out="v70fire"
+envir="v71"
+envir_out="v71fire"
 
 stmp_dir="/lfs/h2/emc/stmp/"+user
 if not os.path.exists(stmp_dir):
@@ -198,21 +198,18 @@ else:
 
 user=os.environ['USER']
 figdir="/lfs/h2/emc/stmp/"+user
-working_dir="/lfs/h2/emc/stmp/"+user+"/working_rrfs_fireemis_"+envir
-if not os.path.exists(working_dir):
-    os.mkdir(working_dir)
 date = sdate
 while date <= edate:
     for cyc in cycle:
-        figout=working_dir+"/"+date.strftime(YMD_date_format)+"_fireemisr2_"+cyc
+        figout=working_dir+"/"+date.strftime(YMD_date_format)+"_fireemisr1_"+cyc
         if os.path.exists(figout):
             os.chdir(figout)
             subprocess.call("chmod 644 *", shell=True)
             parta=os.path.join("/usr", "bin", "scp")
-            if 1 == 1 :
+            if 1 == 2 :
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cyc )
             else:
-                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
+                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
             subprocess.call(["scp -p * "+partb], shell=True)
     date = date + date_inc
