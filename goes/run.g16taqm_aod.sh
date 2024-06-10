@@ -148,7 +148,7 @@ if [ "${hl}" != "${pm}" ]; then
          cd ${output_root}
          YY=`echo ${NOW} | cut -c1-4`
          YM=`echo ${NOW} | cut -c1-6`
-         hpssdir=${hpss_root}/${YY}_GOES_16_AOD_REGRID/${YM}
+         hpssdir=${hpss_root}/GOES_16_AOD_REGRID/${YY}/${YM}
          hsi mkdir  ${hpssdir}
          if [ -d ${mdl_name}.${NOW} ]; then
             htar -cf ${hpssdir}/${mdl_name}.${NOW}.tar ${mdl_name}.${NOW} > ${log_dir}/${mdl_name}.${NOW}.aod.regrid.tar.log 2>&1 &
