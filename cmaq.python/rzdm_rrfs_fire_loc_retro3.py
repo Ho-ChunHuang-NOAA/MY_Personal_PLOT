@@ -197,10 +197,10 @@ else:
     sys.exit()
 
 user=os.environ['USER']
-figdir="/lfs/h2/emc/stmp/"+user
-working_dir="/lfs/h2/emc/stmp/"+user+"/working_rrfs_fireemis_"+envir
-if not os.path.exists(working_dir):
-    os.mkdir(working_dir)
+## figdir="/lfs/h2/emc/stmp/"+user
+## working_dir="/lfs/h2/emc/stmp/"+user+"/working_rrfs_fireemis_"+envir
+## if not os.path.exists(working_dir):
+##     os.mkdir(working_dir)
 date = sdate
 while date <= edate:
     for cyc in cycle:

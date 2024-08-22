@@ -197,14 +197,15 @@ else:
     sys.exit()
 
 user=os.environ['USER']
-figdir="/lfs/h2/emc/stmp/"+user
-working_dir="/lfs/h2/emc/stmp/"+user+"/working_rrfs_fireemis_"+envir
-if not os.path.exists(working_dir):
-    os.mkdir(working_dir)
+## figdir="/lfs/h2/emc/stmp/"+user
+## working_dir="/lfs/h2/emc/stmp/"+user+"/working_rrfs_fireemis_"+envir
+## if not os.path.exists(working_dir):
+##     os.mkdir(working_dir)
 date = sdate
 while date <= edate:
     for cyc in cycle:
         figout=working_dir+"/"+date.strftime(YMD_date_format)+"_fireemisr2_"+cyc
+        print("figdir="+figout)
         if os.path.exists(figout):
             os.chdir(figout)
             subprocess.call("chmod 644 *", shell=True)
