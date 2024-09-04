@@ -131,7 +131,7 @@ if nfind == -1:
     sys.exit()
 else:
     print("AQMv7 simulation")
-    s1_lead="AQMv71"
+    s1_lead="AQMv70"
     aqmv7 = True
     aqm_ver="v7.0"
 
@@ -210,10 +210,10 @@ expid="aqm"
 
 aqm_ver="v7.0"
 comout="/lfs/h2/emc/aqmtemp/para/com/aqm/v7.0"
-comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0"
 comout="/lfs/h1/ops/prod/com/aqm/v7.0"
 comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.1"
-expid="c710a"
+comout="/lfs/h2/emc/physics/noscrub/ho-chun.huang/rrfs_sfc_chem_met/"+envir
+expid="aqm"
 usrout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/rrfs_sfc_chem_met/"+envir
 if not os.path.exists(comout+"/"+expid+"."+sdate.strftime(YMD_date_format)):
     if not os.path.exists(usrout+"/aqm."+sdate.strftime(YMD_date_format)):
@@ -234,27 +234,27 @@ flag_proj="LambertConf"
 ## from 228.37073225113136 to 296.6273160909873
 # old -70.6 to -120.4
 #     22.2 to 50.7
-mksize= [     64, 64, 16,     36,      36,      36,     49,     49,     49,     49,     64,     64,    121,    100,    121,     36 ]
+mksize= [     24, 64, 64, 16,     36,      36,      36,     49,     49,     49,     49,     64,     64,    121,    100,    121,     36 ]
 ## mksize= [  64, 64, 16,      16,      25,     25,     36,     36,     36,     36,     49,     49,    121,    100,    121,     36 ]
 if flag_proj == "LambertConf":
-    regname = [ "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
-    rlon0 = [ -125., -120., -165.0, -120.4,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0,  -75.0, -166.0, -161.5, -141.0 ]
-    rlon1 = [  -110., -100., -70.0,  -70.6,   -67.0,  -95.0,  -67.0, -103.0,  -74.0, -100.0,  -83.0,  -78.0,  -71.0, -132.0, -153.1, -60.0 ]
-    rlat0 = [   40., 30.0, 10.0,   22.2,    21.9,   24.5,   37.0,   38.0,   24.0,   30.0,   35.0,   23.5,   40.2,   53.2,   17.8,   38.0 ]
-    rlat1 = [   45., 40., 75.0,   50.7,    50.0,   52.0,   48.0,   52.0,   40.0,   45.0,   50.0,   38.0,   41.8,   71.2,   23.1,   70.0 ]
+    regname = [ "sp", "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
+    rlon0 = [ -125., -125., -120., -165.0, -120.4,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0,  -75.0, -166.0, -161.5, -141.0 ]
+    rlon1 = [  -90., -110., -100., -70.0,  -70.6,   -67.0,  -95.0,  -67.0, -103.0,  -74.0, -100.0,  -83.0,  -78.0,  -71.0, -132.0, -153.1, -60.0 ]
+    rlat0 = [   37., 40., 30.0, 10.0,   22.2,    21.9,   24.5,   37.0,   38.0,   24.0,   30.0,   35.0,   23.5,   40.2,   53.2,   17.8,   38.0 ]
+    rlat1 = [   58., 45., 40., 75.0,   50.7,    50.0,   52.0,   48.0,   52.0,   40.0,   45.0,   50.0,   38.0,   41.8,   71.2,   23.1,   70.0 ]
 else:
-    regname = [   "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
-    rlon0 = [ -125., -120., -175.0, -124.0,  -100.0, -128.0,  -82.0, -125.0,  -95.0, -125.0, -105.0, -105.0,  -75.0, -170.0, -161.0, -141.0 ]
-    rlon1 = [  -110., -100., -55.0,  -70.0,   -65.0,  -90.0,  -67.0, -103.0,  -79.0, -105.0,  -85.0,  -85.0,   -71.0, -130.0, -154.0,  -60.0 ]
-    rlat0 = [    40., 30.0, 0.0,   22.0,    22.0,   24.5,   37.0,   38.0,   24.0,   30.0,   38.0,   24.0,   40.2,   52.0,   18.0,   38.0 ]
-    rlat1 = [   45., 40., 70.0,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   41.8,   72.0,   23.0,   70.0 ]
-xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
-ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
+    regname = [ "sp",   "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
+    rlon0 = [ -125, -125., -120., -175.0, -124.0,  -100.0, -128.0,  -82.0, -125.0,  -95.0, -125.0, -105.0, -105.0,  -75.0, -170.0, -161.0, -141.0 ]
+    rlon1 = [ -90.,  -110., -100., -55.0,  -70.0,   -65.0,  -90.0,  -67.0, -103.0,  -79.0, -105.0,  -85.0,  -85.0,   -71.0, -130.0, -154.0,  -60.0 ]
+    rlat0 = [  38.,   40., 30.0, 0.0,   22.0,    22.0,   24.5,   37.0,   38.0,   24.0,   30.0,   38.0,   24.0,   40.2,   52.0,   18.0,   38.0 ]
+    rlat1 = [  70., 45., 40., 70.0,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   41.8,   72.0,   23.0,   70.0 ]
+xsize = [     8, 10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
+ysize = [     8,  5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
 if 1 == 1:
     ## iplot = [    0, 0,   1,      1,       1,      1,      1,      1,      1,      1,      0,      0,      1,      1,      1, 0 ]
-    iplot = [    0, 0,   0,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
+    iplot = [    1, 0, 0,   0,      0,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
 else:
-    iplot = [    1, 1,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1, 1 ]
+    iplot = [    1, 1, 1,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1, 1 ]
 num_reg=len(iplot)
 
 date=sdate
@@ -296,8 +296,9 @@ while date <= edate:
             flag_read_latlon=False
             hour_beg = 0
             hour_end = 72
-            hour_beg = 8
             hour_end = hour_beg + 1
+            hour_beg = 32
+            hour_end = 40
             if hour_beg != 0:
                 set_hour=0
                 while set_hour < hour_beg:
@@ -617,8 +618,8 @@ while date <= edate:
         if 1 == 2 :
             partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cycle_time)
         else:
-            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
             partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
+            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
         subprocess.call(['scp -p * '+partb], shell=True)
         msg=datetime.datetime.now()
         print("End   processing "+var[ivar])

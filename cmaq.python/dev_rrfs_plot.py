@@ -179,9 +179,9 @@ else:
     nrtout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
 usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
 
-if not os.path.exists(comout+"/aqm."+sdate.strftime(YMD_date_format)):
+if not os.path.exists(nrtout+"/aqm."+sdate.strftime(YMD_date_format)):
     if not os.path.exists(usrout):
-        print("Can not find ioutput dir with experiment id "+envir)
+        print("Can not find input dir with experiment id "+envir)
         sys.exit()
 figout=stmp_dir
 
