@@ -62,6 +62,7 @@ else:
     else:
         comout="/lfs/h2/emc/physics/noscrub/"+user+"/rrfs_sfc_chem_met/"+envir
         comout="/lfs/h3/emc/eib/noscrub/ptmp/lin.gan/ecflow_aqm/para/com/aqm/v7.0"
+        comout="/lfs/h1/ops/para/com/aqm/v7.0"
     usrout="/lfs/h2/emc/physics/noscrub/"+user+"/rrfs_sfc_chem_met/"+envir
 script_dir=os.getcwd()
 print("Script directory is "+script_dir)
