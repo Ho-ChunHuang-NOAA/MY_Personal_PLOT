@@ -183,6 +183,7 @@ if envir == "aqmv70":
     nrtout="/lfs/h1/ops/prod/com/aqm/v7.0"
 else:
     nrtout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
+    nrtout="/lfs/h1/ops/para/com/aqm/v7.0"
 usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
 
 figout=stmp_dir

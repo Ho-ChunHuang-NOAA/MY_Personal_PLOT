@@ -154,6 +154,7 @@ else:
     else:
         comout="/lfs/h2/emc/physics/noscrub/"+user+"/rrfs_sfc_chem_met/"+EXP.lower()
         comout="/lfs/h3/emc/eib/noscrub/ptmp/lin.gan/ecflow_aqm/para/com/aqm/v7.0"
+        comout="/lfs/h1/ops/para/com/aqm/v7.0"
     usrout="/lfs/h2/emc/physics/noscrub/"+user+"/rrfs_sfc_chem_met/"+EXP.lower()
 if not os.path.exists(comout+"/aqm."+sdate.strftime(YMD_date_format)):
     if not os.path.exists(usrout+"/aqm."+sdate.strftime(YMD_date_format)):

@@ -174,12 +174,13 @@ if nfind == -1:
 
 aqm_ver="v7.0"
 if envir == "aqmv70":
-    nrtout="/lfs/h1/ops/prod/com/aqm/v7.0"
+    comout="/lfs/h1/ops/prod/com/aqm/v7.0"
 else:
-    nrtout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
+    comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
+    comout="/lfs/h1/ops/para/com/aqm/v7.0"
 usrout="/lfs/h2/emc/vpppg/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
 
-if not os.path.exists(nrtout+"/aqm."+sdate.strftime(YMD_date_format)):
+if not os.path.exists(comout+"/aqm."+sdate.strftime(YMD_date_format)):
     if not os.path.exists(usrout):
         print("Can not find input dir with experiment id "+envir)
         sys.exit()

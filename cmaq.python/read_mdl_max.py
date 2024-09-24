@@ -239,7 +239,7 @@ while date <= edate:
             hour_end = 72
             hour_end = hour_beg + 1
             hour_beg = 24
-            hour_end = 49
+            hour_end = 48
             if hour_beg != 0:
                 set_hour=0
                 while set_hour < hour_beg:
@@ -422,8 +422,13 @@ while date <= edate:
                         print("Can not find "+aqmfilein2)
                         sys.exit()
 
+                plot_location = True
                 plot_location = False
                 if plot_location:
+                    prlon0=-165.
+                    prlon1=-70.
+                    prlat0=10.
+                    prlat1=75.
                     prlon0=-125.
                     prlon1=-103.
                     prlat0=38.
