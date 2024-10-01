@@ -156,12 +156,12 @@ else:
                   "dev_rrfs_plot_max_ave_bc.py",
                   "dev_aqm_plot_max_ave_overlay.py",
                   "dev_rrfs_plot_bc_overlay.py",
-                  "dev_aqm_grib2_hourly_p1.py",
-                  "dev_aqm_grib2_hourly_p2.py",
                   "dev_rrfs_plot_overlay.py",
                   "dev_rrfs_plot.py"
                   ]
     working_name = [
+                  "dev_aqm_grib2_hourly_p1.py",
+                  "dev_aqm_grib2_hourly_p2.py",
                   "dev_aqm_plot_max_ave_overlay.py",
                   "dev_aqm_grib2_overlay_p11.py",
                   "dev_aqm_grib2_overlay_p12.py",

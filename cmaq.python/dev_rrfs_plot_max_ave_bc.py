@@ -179,7 +179,7 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## Current operational CMAQ does include runs for AK and HI domain
 ## Current EMC development CMAQ does not include runs for AK and HI domain
 ##
-if envir == "aqmv70":
+if envir == "aqmv70" or envir == "aqmv708":
     nrtout="/lfs/h1/ops/prod/com/aqm/v7.0"
 else:
     nrtout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir

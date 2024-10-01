@@ -57,7 +57,7 @@ else:
         print("exp="+EXP)
         print("expid="+expid)
         print("BC_append="+BC_append)
-    if EXP.lower() == "aqmv70":
+    if EXP.lower() == "aqmv70" or envir == "aqmv708":
         comout="/lfs/h1/ops/prod/com/aqm/v7.0"
     else:
         comout="/lfs/h2/emc/physics/noscrub/"+user+"/rrfs_sfc_chem_met/"+envir

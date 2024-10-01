@@ -173,7 +173,7 @@ if nfind == -1:
     sys.exit()
 
 aqm_ver="v7.0"
-if envir == "aqmv70":
+if envir == "aqmv70" or envir == "aqmv708":
     comout="/lfs/h1/ops/prod/com/aqm/v7.0"
 else:
     comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir

@@ -243,7 +243,7 @@ while date <= edate:
 
     YMD=date.strftime(YMD_date_format)
     comout="/lfs/h1/ops/prod/com/aqm/v7.0/aqm."+YMD
-    usrout="/lfs/h2/emc/physics/noscrub/"+user+"/rave_fire_emission/NRT/"+YMD
+    usrout="/lfs/h2/emc/physics/noscrub/"+user+"/rave2_fire_emission/NRT/"+YMD
 
     for cyc in cycle:
         figout=working_dir+"/"+date.strftime(YMD_date_format)+"_fireemisr3_"+cyc
@@ -366,7 +366,7 @@ while date <= edate:
                         ax.add_feature(cfeature.LAKES, edgecolor='black')
                         if beg_time.strftime(YMD_date_format) == end_time.strftime(YMD_date_format):
                             ## ax.set_title(end_time.strftime(YMD_date_format)+" "+beg_time.strftime(H_date_format)+"-"+end_time.strftime(H_date_format)+"Z "+envir.upper()+" run fire location - "+emis_var.upper())
-                            ax.set_title(end_time.strftime(YMD_date_format)+" "+beg_time.strftime(H_date_format)+"-"+end_time.strftime(H_date_format)+"Z V70 run NA_G793 fire location - "+emis_var.upper())
+                            ax.set_title(end_time.strftime(YMD_date_format)+" "+beg_time.strftime(H_date_format)+"-"+end_time.strftime(H_date_format)+"Z V70 run RAVE2 fire location - "+emis_var.upper())
                         else:
                             ## ax.set_title(beg_time.strftime(YMD_date_format)+" "+beg_time.strftime(H_date_format)+"Z - "+end_time.strftime(YMD_date_format)+" "+end_time.strftime(H_date_format)+"Z "+envir.upper()+" run fire location - "+emis_var.upper())
                             ax.set_title(beg_time.strftime(YMD_date_format)+" "+beg_time.strftime(H_date_format)+"Z - "+end_time.strftime(YMD_date_format)+" "+end_time.strftime(H_date_format)+"Z V70 exp run fire location - "+emis_var.upper())

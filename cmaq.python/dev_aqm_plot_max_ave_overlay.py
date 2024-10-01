@@ -221,7 +221,7 @@ else:
         print("BC_append="+BC_append)
         flag_ak=False
         flag_hi=False
-    if EXP.lower() == "aqmv70":
+    if EXP.lower() == "aqmv70" or envir == "aqmv708":
         comout="/lfs/h1/ops/prod/com/aqm/v7.0"
     else:
         comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+EXP.lower()
