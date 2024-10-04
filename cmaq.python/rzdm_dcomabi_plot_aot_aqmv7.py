@@ -18,13 +18,15 @@ import subprocess
 user=os.environ['USER']
 
 ### PASSED AGRUEMENTS
-if len(sys.argv) < 3:
-    print("you must set 3 arguments as quality_flag[high|med|all] start_date end_date")
+if len(sys.argv) < 5:
+    print("you must set 5 arguments as [g16|g18] [aodc|aodf] quality_flag[high|med|all] start_date end_date")
     sys.exit()
 else:
-    qc_sel = sys.argv[1]
-    start_date = sys.argv[2]
-    end_date = sys.argv[3]
+    sat_sel = sys.argv[1]
+    scan_sel = sys.argv[2]
+    qc_sel = sys.argv[3]
+    start_date = sys.argv[4]
+    end_date = sys.argv[5]
 
 if qc_sel.lower() == "high":
     qc_list=[ "high" ]
@@ -118,8 +120,23 @@ hour_inc = datetime.timedelta(hours=1)
 
 expid="aqm"
 expid="aqmv7"
-satid=["g16", "g18"]
-scanid=["AODC", "AODF"]
+if sat_sel == "all":
+    satid=["g16", "g18"]
+elif sat_sel == "g16" or sat_sel == "g18":
+    satid=[]
+    satid.append(sat_sel)
+else:
+    print(f"Input sat ID = {sat_sel}, is not defined")
+    sys.exit()
+
+if scan_sel == "all":
+    scanid=["AODC", "AODF"]
+elif scan_sel == "AODC" or scan_sel == "AODF":
+    scanid=[]
+    scanid.append(scan_sel)
+else:
+    print(f"Input Scan ID = {scan_sel}, is not defined")
+    sys.exit()
 
 date=sdate
 while date <= edate:

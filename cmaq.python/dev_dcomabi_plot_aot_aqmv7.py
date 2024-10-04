@@ -33,13 +33,15 @@ for line in rfile:
 rfile.close()
 
 ### PASSED AGRUEMENTS
-if len(sys.argv) < 3:
-    print("you must set 3 arguments as quality_flag[high|med|all] start_date end_date")
+if len(sys.argv) < 5:
+    print("you must set 5 arguments as [g16|g18] [aodc|aodf] quality_flag[high|med|all] start_date end_date")
     sys.exit()
 else:
-    qc_sel = sys.argv[1]
-    start_date = sys.argv[2]
-    end_date = sys.argv[3]
+    sat_sel = sys.argv[1]
+    scan_sel = sys.argv[2]
+    qc_sel = sys.argv[3]
+    start_date = sys.argv[4]
+    end_date = sys.argv[5]
 
 if qc_sel.lower() == "high":
     qc_list=[ "high" ]
@@ -47,6 +49,8 @@ elif qc_sel.lower() == "med" or qc_sel.lower() == "medium":
     qc_list=[ "medium" ]
 elif qc_sel.lower() == "low":
     qc_list=[ "low" ]
+    prints(f"QC Flag Low is not support at current time, program exit.")
+    sys.exit()
 else:
     qc_list=[ "high", "medium", "low" ]
 
@@ -140,8 +144,23 @@ hour_inc = datetime.timedelta(hours=1)
 
 expid="aqm"
 expid="aqmv7"
-satid=["g16", "g18"]
-scanid=["AODC", "AODF"]
+if sat_sel == "all":
+    satid=["g16", "g18"]
+elif sat_sel == "g16" or sat_sel == "g18":
+    satid=[]
+    satid.append(sat_sel)
+else:
+    print(f"Input sat ID = {sat_sel}, is not defined")
+    sys.exit()
+
+if scan_sel == "all":
+    scanid=["AODC", "AODF"]
+elif scan_sel == "AODC" or scan_sel == "AODF":
+    scanid=[]
+    scanid.append(scan_sel)
+else:
+    print(f"Input Scan ID = {scan_sel}, is not defined")
+    sys.exit()
 
 warnings.filterwarnings('ignore')
 plt.rcParams['font.weight'] = 'bold'
@@ -184,7 +203,7 @@ else:
     rlat1 = [   45., 40., 70.0,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   41.8,   72.0,   23.0,   70.0 ]
 xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
 ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
-if 1 == 2:
+if 1 == 1:
     iplot = [    0, 0,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      0, 1 ]
 else:
     iplot = [    0,  0, 0,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]

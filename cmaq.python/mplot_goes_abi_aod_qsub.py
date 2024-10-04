@@ -47,13 +47,15 @@ for line in rfile:
 ## print("netcdf_ver="+netcdf_ver)
 
 ### PASSED AGRUEMENTS
-if len(sys.argv) < 3:
-    print("you must set 3 arguments as aod_qc[high|medium|low] start_date end_date")
+if len(sys.argv) < 5:
+    print("you must set 5 arguments as [g16|g18] [aodc|aodf] quality_flag[high|med|all] start_date end_date")
     sys.exit()
 else:
-    sel_qc = sys.argv[1]
-    start_date = sys.argv[2]
-    end_date = sys.argv[3]
+    sel_sat= sys.argv[1]
+    sel_scan= sys.argv[2]
+    sel_qc= sys.argv[3]
+    start_date = sys.argv[4]
+    end_date = sys.argv[5]
 
 task_cpu="04:30:00"
 task_cpu1="01:00:00"
@@ -84,7 +86,7 @@ if not os.path.exists(working_dir):
 
 os.chdir(working_dir)
 
-msg_file=working_dir+"/msg_"+sel_qc+"_"+start_date
+msg_file=f"{working_dir}/msg_{sel_sat}_{sel_scan}_{sel_qc}_{start_date}"
 cmd="cat /etc/cluster_name"
 subprocess.call([cmd+" > "+msg_file], shell=True)
 cmd="cat /etc/wcoss.conf | grep cluster_name | awk -F\":\" '{print $2}'"
@@ -132,7 +134,7 @@ print(msg)
 run_root=stmp_dir+"/run_python_script"
 if not os.path.exists(run_root):
     os.mkdir(run_root)
-working_dir=os.path.join(run_root,"abi_aod_"+sel_qc,"run_start_time_"+start_date)
+working_dir=os.path.join(run_root,f"abi_aod_{sel_sat}_{sel_scan}_{sel_qc}",f"run_start_time_{start_date}")
 if os.path.exists(working_dir):
     os.chdir(working_dir)
 else:
@@ -174,17 +176,37 @@ date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
 if sel_qc == "all":
-    var=[ "high", "medium", "low" ]
+    qc_list=[ "high", "medium", "low" ]
 elif sel_qc == "high":
-    var=[ "high" ]
+    qc_list=[ "high" ]
 elif sel_qc == "medium":
-    var=[ "medium" ]
+    qc_list=[ "medium" ]
 elif sel_qc == "low":
-    var=[ "low" ]
+    qc_list=[ "low" ]
 else:
-    print("input variable "+sel_qc+" can not be recongized.")
+    print("input qc_listiable "+sel_qc+" can not be recongized.")
     sys.exit()
-num_var=len(var)
+num_qc_list=len(qc_list)
+
+if sel_sat == "all":
+    satid=["g16", "g18"]
+elif sel_sat == "g16" or sel_sat == "g18":
+    satid=[]
+    satid.append(sel_sat)
+else:
+    print(f"Input sat ID = {sel_sat}, is not defined")
+    sys.exit()
+
+if sel_scan == "all":
+    scanid=["AODC", "AODF"]
+
+elif sel_scan == "AODC" or sel_scan == "AODF":
+    scanid=[]
+    scanid.append(sel_scan)
+else:
+    print(f"Input Scan ID = {sel_scan}, is not defined")
+    sys.exit()
+
 
 ic=0
 date=sdate
@@ -193,64 +215,66 @@ while date <= edate:
     for i in script_name:
         if i == "dev_dcomabi_plot_aot_aqmv7.py":
             print("    Start processing "+i)
-            for j in var:
-                jobid="plot_dcomabi_aot_"+j+"_"+YMD
-                ftpid="ftp_dcomabi_aot_"+j+"_"+YMD
-                plot_script=os.path.join(os.getcwd(),jobid+".sh")
-                logfile=log_dir+"/"+jobid+".log"
-                if os.path.exists(plot_script):
-                    os.remove(plot_script)
-                if os.path.exists(logfile):
-                    os.remove(logfile)
-                filein=i
-                rzdm_file="rzdm"+filein[3:]
-                ftp_script=os.path.join(os.getcwd(),ftpid+".sh")
-                ftplog=log_dir+"/"+ftpid+".log"
-                if os.path.exists(ftp_script):
-                    os.remove(ftp_script)
-                if os.path.exists(ftplog):
-                    os.remove(ftplog)
-                with open(ftp_script, 'a') as fsh:
-                    fsh.write("#!/bin/bash\n")
-                    fsh.write("#PBS -o "+ftplog+"\n")
-                    fsh.write("#PBS -e "+ftplog+"\n")
-                    fsh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
-                    fsh.write("#PBS -N j"+ftpid+"\n")
-                    fsh.write("#PBS -q dev_transfer\n")
-                    fsh.write("#PBS -A AQM-DEV\n")
-                    fsh.write("#PBS -l walltime="+task_cpu1+"\n")
-                    fsh.write("###PBS -l debug=true\n")
-                    fsh.write("set -x\n")
-                    fsh.write("    cd "+working_dir+"\n")
-                    fsh.write("    python "+rzdm_file+" "+j+" "+YMD+" "+YMD+"\n")
-                    fsh.write("\n")
-                    fsh.write("exit\n")
-                with open(plot_script, 'a') as sh:
-                    sh.write("#!/bin/bash\n")
-                    sh.write("#PBS -o "+logfile+"\n")
-                    sh.write("#PBS -e "+logfile+"\n")
-                    sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=10GB:prepost=true\n")
-                    sh.write("#PBS -N j"+jobid+"\n")
-                    sh.write("#PBS -q dev\n")
-                    sh.write("#PBS -A AQM-DEV\n")
-                    sh.write("#PBS -l walltime="+task_cpu+"\n")
-                    sh.write("###PBS -l debug=true\n")
-                    sh.write("# \n")
-                    sh.write("export OMP_NUM_THREADS=1\n")
-                    sh.write("\n")
-                    sh.write("##\n")
-                    sh.write("##  Plot ABI AOD\n")
-                    sh.write("##\n")
-                    sh.write("set -x\n")
-                    sh.write("\n")
-                    sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+j+" "+YMD+" "+YMD+"\n")
-                    if flag_ftp:
-                        sh.write("    cat "+ftp_script+" | qsub\n")
-                    sh.write("\n")
-                    sh.write("exit\n")
-                print("run_script = "+plot_script)
-                print("log file   = "+logfile)
-                subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                ## subprocess.call(["cat "+plot_script], shell=True)
+            for qc in qc_list:
+                for sat in satid:
+                    for scan in scanid:
+                        jobid=f"plot_dcomabi_aod_{sat}_{scan}_{qc}_{YMD}"
+                        ftpid=f"ftp_dcomabi_aod_{sat}_{scan}_{qc}_{YMD}"
+                        plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                        logfile=log_dir+"/"+jobid+".log"
+                        if os.path.exists(plot_script):
+                            os.remove(plot_script)
+                        if os.path.exists(logfile):
+                            os.remove(logfile)
+                        filein=i
+                        rzdm_file="rzdm"+filein[3:]
+                        ftp_script=os.path.join(os.getcwd(),ftpid+".sh")
+                        ftplog=log_dir+"/"+ftpid+".log"
+                        if os.path.exists(ftp_script):
+                            os.remove(ftp_script)
+                        if os.path.exists(ftplog):
+                            os.remove(ftplog)
+                        with open(ftp_script, 'a') as fsh:
+                            fsh.write("#!/bin/bash\n")
+                            fsh.write("#PBS -o "+ftplog+"\n")
+                            fsh.write("#PBS -e "+ftplog+"\n")
+                            fsh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
+                            fsh.write("#PBS -N j"+ftpid+"\n")
+                            fsh.write("#PBS -q dev_transfer\n")
+                            fsh.write("#PBS -A AQM-DEV\n")
+                            fsh.write("#PBS -l walltime="+task_cpu1+"\n")
+                            fsh.write("###PBS -l debug=true\n")
+                            fsh.write("set -x\n")
+                            fsh.write("    cd "+working_dir+"\n")
+                            fsh.write(f"    python {rzdm_file} {sat} {scan} {qc} {YMD} {YMD}\n")
+                            fsh.write("\n")
+                            fsh.write("exit\n")
+                        with open(plot_script, 'a') as sh:
+                            sh.write("#!/bin/bash\n")
+                            sh.write("#PBS -o "+logfile+"\n")
+                            sh.write("#PBS -e "+logfile+"\n")
+                            sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=10GB:prepost=true\n")
+                            sh.write("#PBS -N j"+jobid+"\n")
+                            sh.write("#PBS -q dev\n")
+                            sh.write("#PBS -A AQM-DEV\n")
+                            sh.write("#PBS -l walltime="+task_cpu+"\n")
+                            sh.write("###PBS -l debug=true\n")
+                            sh.write("# \n")
+                            sh.write("export OMP_NUM_THREADS=1\n")
+                            sh.write("\n")
+                            sh.write("##\n")
+                            sh.write("##  Plot ABI AOD\n")
+                            sh.write("##\n")
+                            sh.write("set -x\n")
+                            sh.write("\n")
+                            sh.write("   cd "+working_dir+"\n")
+                            sh.write(f"    python {i} {sat} {scan} {qc} {YMD} {YMD}\n")
+                            if flag_ftp:
+                                sh.write("    cat "+ftp_script+" | qsub\n")
+                            sh.write("\n")
+                            sh.write("exit\n")
+                        print("run_script = "+plot_script)
+                        print("log file   = "+logfile)
+                        subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
+                        ## subprocess.call(["cat "+plot_script], shell=True)
     date = date + date_inc
