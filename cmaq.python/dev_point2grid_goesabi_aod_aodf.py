@@ -33,21 +33,20 @@ for line in rfile:
 rfile.close()
 
 ### PASSED AGRUEMENTS
-if len(sys.argv) < 5:
-    print("you must set 5 arguments as [g16|g18] [aodc|aodf] quality_flag[high|med|all] start_date end_date")
+if len(sys.argv) < 6:
+    print("you must set 6 arguments as [aqm|gefs] [g16|g18] [aodc|aodf] quality_flag[high|med|all] start_date end_date")
     sys.exit()
 else:
-    sat_sel = sys.argv[1]
-    scan_sel = sys.argv[2]
-    qc_sel = sys.argv[3]
-    start_date = sys.argv[4]
-    end_date = sys.argv[5]
+    model = sys.argv[1]
+    sat_sel = sys.argv[2]
+    scan_sel = sys.argv[3]
+    qc_sel = sys.argv[4]
+    start_date = sys.argv[5]
+    end_date = sys.argv[6]
 
-if sat_sel == "g1618" or sat_sel == "all":
-    combine= sys.argv[6]
-
-expid="aqm"
-expid="aqmv7"
+if model != "aqm" and model != "gefs":
+    print(f"Input model {model} is not supported by this code, program exit")
+    sys.exit()
 
 if qc_sel.lower() == "high":
     qc_list=[ "high" ]
@@ -55,14 +54,22 @@ elif qc_sel.lower() == "med" or qc_sel.lower() == "medium":
     qc_list=[ "medium" ]
 elif qc_sel.lower() == "low":
     qc_list=[ "low" ]
-    prints(f"QC Flag Low is not support at current time, program exit.")
-    sys.exit()
-else:
+    ## prints(f"QC Flag Low is not support at current time, program exit.")
+    ## sys.exit()
+elif qc_sel.lower() == "all":
     qc_list=[ "high", "medium", "low" ]
+elif qc_sel.lower() == "hm":
+    qc_list=[ "high", "medium" ]
+else:
+    qc_list=[ "high", "medium" ]
 
 comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/GOES16_AOD/REGRID"
 comout=f"/lfs/h2/emc/vpppg/noscrub/{user}/dcom/dev/abi_granule"
-comout=f"/lfs/h2/emc/vpppg/noscrub/{user}/evs/aqmaod_v2.0/prep/aqm"
+if model == "aqm":
+    comout=f"/lfs/h2/emc/vpppg/noscrub/{user}/evs/aqmaod_v2.0/prep/aqm"
+elif model == "gefs":
+    comout=f"/lfs/h2/emc/physics/noscrub/{user}/evs/gefs_v2.0/prep/global_ens"
+
 if not os.path.exists(comout):
     print("Can not find output dir "+comout)
     sys.exit()
@@ -85,13 +92,13 @@ if nfind == -1:
     workid=py_code
 else:
     workid=py_code[0:nfind-1]
-working_dir=f"{stmp_dir}/{sat_sel}_{scan_sel}_{qc_sel}_{expid}_{start_date}_{workid}"
+working_dir=f"{stmp_dir}/{sat_sel}_{scan_sel}_{qc_sel}_{model}_{start_date}_{workid}"
 if not os.path.exists(working_dir):
     os.mkdir(working_dir)
 
 os.chdir(working_dir)
 
-msg_file=f"{working_dir}/msg_{sat_sel}_{scan_sel}_{qc_sel}_{expid}_{start_date}"
+msg_file=f"{working_dir}/msg_{sat_sel}_{scan_sel}_{qc_sel}_{model}_{start_date}"
 cmd="cat /etc/cluster_name"
 subprocess.call([cmd+" > "+msg_file], shell=True)
 cmd="cat /etc/wcoss.conf | grep cluster_name | awk -F\":\" '{print $2}'"
@@ -150,6 +157,8 @@ hour_inc = datetime.timedelta(hours=1)
 
 if sat_sel == "all":
     satid=["g16", "g18", "g1618"]
+elif sat_sel == "ew":
+    satid=["g16", "g18"]
 elif sat_sel == "g16" or sat_sel == "g18" or sat_sel == "g1618":
     satid=[]
     satid.append(sat_sel)
@@ -162,6 +171,9 @@ if scan_sel == "all":
 elif scan_sel == "AODC" or scan_sel == "AODF":
     scanid=[]
     scanid.append(scan_sel)
+elif scan_sel == "aodc" or scan_sel == "aodf":
+    scanid=[]
+    scanid.append(scan_sel.upper())
 else:
     print(f"Input Scan ID = {scan_sel}, is not defined")
     sys.exit()
@@ -195,10 +207,16 @@ mksize= [     64, 64, 16,     36,      36,      36,     49,     49,     49,     
 ## mksize= [  64, 64, 16,      16,      25,     25,     36,     36,     36,     36,     49,     49,    121,    100,    121,     36 ]
 if flag_proj == "LambertConf":
     regname = [ "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
-    rlon0 = [ -125., -120., -180.0, -120.4,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0,  -75.0, -166.0, -161.5, -141.0 ]
-    rlon1 = [  -110., -100., -40.0,  -70.6,   -67.0,  -95.0,  -67.0, -103.0,  -74.0, -100.0,  -83.0,  -78.0,  -71.0, -132.0, -153.1, -60.0 ]
-    rlat0 = [   40., 30.0, 10.0,   22.2,    21.9,   24.5,   37.0,   38.0,   24.0,   30.0,   35.0,   23.5,   40.2,   53.2,   17.8,   38.0 ]
-    rlat1 = [   45., 40., 75.0,   50.7,    50.0,   52.0,   48.0,   52.0,   40.0,   45.0,   50.0,   38.0,   41.8,   71.2,   23.1,   70.0 ]
+    if model == "aqm":
+        rlon0 = [ -125., -120., -210.0, -210.0,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0,  -75.0, -166.0, -161.5, -141.0 ]
+        rlon1 = [  -110., -100., -30.,  -30.0,   -67.0,  -95.0,  -67.0, -103.0,  -74.0, -100.0,  -83.0,  -78.0,  -71.0, -132.0, -153.1, -60.0 ]
+        rlat0 = [   40., 30.0, 0.0,  0.0,    21.9,   24.5,   37.0,   38.0,   24.0,   30.0,   35.0,   23.5,   40.2,   53.2,   17.8,   38.0 ]
+        rlat1 = [   45., 40., 70.0,   70.0,    50.0,   52.0,   48.0,   52.0,   40.0,   45.0,   50.0,   38.0,   41.8,   71.2,   23.1,   70.0 ]
+    if model == "gefs":
+        rlon0 = [ -125., -120., -230.0, -230.0,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0,  -75.0, -166.0, -161.5, -141.0 ]
+        rlon1 = [  -110., -100., -30.,  -30.0,   -67.0,  -95.0,  -67.0, -103.0,  -74.0, -100.0,  -83.0,  -78.0,  -71.0, -132.0, -153.1, -60.0 ]
+        rlat0 = [   40., 30.0, -70.0,  -70.0,    21.9,   24.5,   37.0,   38.0,   24.0,   30.0,   35.0,   23.5,   40.2,   53.2,   17.8,   38.0 ]
+        rlat1 = [   45., 40., 70.0,   70.0,    50.0,   52.0,   48.0,   52.0,   40.0,   45.0,   50.0,   38.0,   41.8,   71.2,   23.1,   70.0 ]
 else:
     regname = [   "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
     rlon0 = [ -125., -120., -175.0, -124.0,  -100.0, -128.0,  -82.0, -125.0,  -95.0, -125.0, -105.0, -105.0,  -75.0, -170.0, -161.0, -141.0 ]
@@ -207,10 +225,10 @@ else:
     rlat1 = [   45., 40., 70.0,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   41.8,   72.0,   23.0,   70.0 ]
 xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
 ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
-if 1 == 1:
+if 1 == 2:
     iplot = [    0, 0,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1, 1 ]
 else:
-    iplot = [    0,  0, 0,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
+    iplot = [    0,  0, 1,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
 num_reg=len(iplot)
 
 flag_ak=False
@@ -232,8 +250,12 @@ while date <= edate:
                 flag_hi=True
         scan_lower=scan.lower()
         ## data_dir=f"{comout}/{YMD}/goes_abi/GOES_{scan}"
-        data_dir=f"{comout}/atmos.{YMD}/aqm"
-        merged_data_dir=f"{comout}/merged/atmos.{YMD}/aqm"
+        if model == "aqm":
+            data_dir=f"{comout}/atmos.{YMD}/{model}"
+            merged_data_dir=f"{comout}/merged/atmos.{YMD}/{model}"
+        elif model == "gefs":
+            data_dir=f"{comout}/chem.{YMD}/{model}"
+            merged_data_dir=f"{comout}/merged/chem.{YMD}/{model}"
         if not os.path.exists(data_dir):
             print(f"Can not find {data_dir} skip to next ABI scan")
             continue
@@ -245,24 +267,25 @@ while date <= edate:
             elif goes_capt == "G18":
                 goes_name="GOES West"
             elif goes_capt == "G1618":
+                combine= sys.argv[7]
                 goes_name=f"G16/18 {combine}"
 
-            figdir = f"{stmp_dir}/{goes}_{scan}_{expid}_{YMD}"
+            figdir = f"{stmp_dir}/{goes}_{scan}_{model}_{YMD}"
             print(f"FIGDIR={figdir}")
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)
             os.makedirs(figdir)
 
-            for cyc in range(0,24):
-            ## for cyc in range(21,22):
+            ## for cyc in range(0,24):
+            for cyc in range(21,22):
                 str_obs_hr=str(cyc)
                 fhh=str_obs_hr.zfill(2)
                 for qc_now in qc_list:
                     qc=qc_now.lower()
                     if goes == "g1618":
-                        checkfile=f"{merged_data_dir}/abi_{scan}_aqm_{combine}_merged_{YMD}_{fhh}_{qc}.nc" 
+                        checkfile=f"{merged_data_dir}/abi_{scan}_{model}_{combine}_merged_{YMD}_{fhh}_{qc}.nc" 
                     else:
-                        checkfile=f"{data_dir}/abi_{scan}_aqm_{goes}_{YMD}_{fhh}_{qc}.nc" 
+                        checkfile=f"{data_dir}/abi_{scan}_{model}_{goes}_{YMD}_{fhh}_{qc}.nc" 
                     if not os.path.exists(checkfile):
                         print(f"Can not find {checkfile} skip to next obsvered hour")
                         continue
@@ -286,8 +309,12 @@ while date <= edate:
                         print(aqmfilein+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein)
                         pvar_cs = cs_aqm.variables["AOD"][:,:]
-                        cs_lat = cs_aqm.variables['lat'][:,:]
-                        cs_lon = cs_aqm.variables['lon'][:,:]
+                        if model == "aqm":
+                            cs_lat = cs_aqm.variables['lat'][:,:]
+                            cs_lon = cs_aqm.variables['lon'][:,:]
+                        if model == "gefs":
+                            cs_lat = cs_aqm.variables['lat'][:]
+                            cs_lon = cs_aqm.variables['lon'][:]
                         fill_value_read=cs_aqm.variables["AOD"].getncattr("_FillValue")
                         cs_aqm.close()
                         imax=pvar_cs.shape[0]
@@ -321,7 +348,13 @@ while date <= edate:
                                 elif figarea == "hi" and flag_hi:
                                     aqmproj=ccrs.LambertConformal(central_longitude=clon, central_latitude=clat, standard_parallels=(19, 21), globe=None)
                                 else:
-                                    aqmproj=ccrs.LambertConformal(central_longitude=clon, central_latitude=clat, false_easting=-58.775, false_northing=48.772, standard_parallels=(33, 45), globe=None)
+                                    ## aqmproj=ccrs.LambertConformal(central_longitude=clon, central_latitude=clat, false_easting=-58.775, false_northing=48.772, standard_parallels=(33, 45), globe=None)
+                                    ## aqmproj=ccrs.LambertCylindrical(central_longitude=-100)
+                                    aqmproj=ccrs.PlateCarree(central_longitude=-180.)
+                                    ## aqmproj=ccrs.Robinson()
+                                    ## aqmproj=ccrs.AlbersEqualArea(central_longitude=-180., central_latitude=0., false_easting=0, false_northing=0., standard_parallels=(20, 50), globe=None)
+                                    ## aqmproj=ccrs.Miller(central_longitude=-180.)
+                                    ## aqmproj=ccrs.Mercator(central_longitude=-180., globe=None)
                                 fig, ax = plt.subplots(figsize=(xsize[ireg],ysize[ireg]))
             
                                 ax = plt.axes(projection=aqmproj)
@@ -346,7 +379,23 @@ while date <= edate:
                                 #  to have only the negative values (such as CONUS domain)
                                 ## for consistency, turn the east-west system to 360. system
 
-                                plot_lon=np.where(cs_lon>180., cs_lon-360., cs_lon)
+                                ## plat=cs_lat.reshape(-1)
+                                ## plon=cs_lon.reshape(-1)
+                                ## paod=pvar_cs.reshape(-1)
+                                ## paod, plon==cutil.add_cyclic_point(paod, coord=plon)
+                                ## plot_lat=cs_lat
+                                ## plot_aod=pvar_cs
+                                ## plot_lon=np.where(cs_lon>180., cs_lon -360., cs_lon)
+                                ## plot_lat=cs_lat.reshape(-1)
+                                ## plot_lon=cs_lon.reshape(-1)
+                                ## plot_aod=pvar_cs.reshape(-1)
+                                ## plot_aod, plot_lon, plot_lat=cutil.add_cyclic_point(pvar_cs, plot_lon, plot_lat)
+                                ## plot_aod, plot_lon=cutil.add_cyclic(pvar_cs, x=plot_lon)
+                                ## plot_lon=np.where(cs_lon>180., cs_lon-360., cs_lon)
+                                ## plot_lon2=np.where(plot_lon==360., 0., plot_lon)
+                                ## plot_lon=plot_lon
+                                plot_lon=np.where(cs_lon>100., cs_lon -360., cs_lon)
+                                ## plot_lon=cs_lon
                                 ## ax.add_feature(cfeature.RIVERS)
                                 try:
                                     cf1 = ax.contourf(
@@ -359,9 +408,9 @@ while date <= edate:
                                 ## cb2.set_label('Discrete intervals, some other units')
                                 fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
                                 if goes_capt == "G1618":
-                                    savefig_name = f"{figdir}/aqm.{figarea}.{goes}{combine}.{scan_lower}.{YMD}.{fhh}.aod.{qc}.png"
+                                    savefig_name = f"{figdir}/{model}.{figarea}.{goes}{combine}.{scan_lower}.{YMD}.{fhh}.aod.{qc}.png"
                                 else:
-                                    savefig_name = f"{figdir}/aqm.{figarea}.{goes}.{scan_lower}.{YMD}.{fhh}.aod.{qc}.png"
+                                    savefig_name = f"{figdir}/{model}.{figarea}.{goes}.{scan_lower}.{YMD}.{fhh}.aod.{qc}.png"
                                 plt.savefig(savefig_name, bbox_inches='tight')
                                 plt.close()
                     else:
@@ -373,7 +422,7 @@ while date <= edate:
             else:
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
-            ## subprocess.call(['scp -p * '+partb], shell=True)
+            subprocess.call(['scp -p * '+partb], shell=True)
             print("FIG DIR = "+figdir)
     msg=datetime.datetime.now()
     print("End   processing "+YMD+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))

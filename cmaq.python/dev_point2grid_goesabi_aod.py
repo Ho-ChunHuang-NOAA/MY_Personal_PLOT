@@ -207,7 +207,7 @@ else:
     rlat1 = [   45., 40., 70.0,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   41.8,   72.0,   23.0,   70.0 ]
 xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
 ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
-if 1 == 1:
+if 1 == 2:
     iplot = [    0, 0,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1, 1 ]
 else:
     iplot = [    0,  0, 0,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
@@ -253,8 +253,8 @@ while date <= edate:
                 shutil.rmtree(figdir)
             os.makedirs(figdir)
 
-            for cyc in range(0,24):
-            ## for cyc in range(21,22):
+            ## for cyc in range(0,24):
+            for cyc in range(21,22):
                 str_obs_hr=str(cyc)
                 fhh=str_obs_hr.zfill(2)
                 for qc_now in qc_list:
@@ -373,7 +373,7 @@ while date <= edate:
             else:
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
-            ## subprocess.call(['scp -p * '+partb], shell=True)
+            subprocess.call(['scp -p * '+partb], shell=True)
             print("FIG DIR = "+figdir)
     msg=datetime.datetime.now()
     print("End   processing "+YMD+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
