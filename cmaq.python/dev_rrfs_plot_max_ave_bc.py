@@ -219,6 +219,7 @@ num_reg=len(iplot)
 expid="aqm"   # after 4/1/2023 directory will be changed into aqm.yyyymmdd
 date=sdate
 while date <= edate:
+    YMD=date.strftime(YMD_date_format)
     flag_find_cyc=True
     for cyc in cyc_opt:
         cycle="t"+cyc+"z"
@@ -280,7 +281,7 @@ while date <= edate:
             print("Start processing "+date.strftime(YMD_date_format)+" "+cycle+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
 
             file_hdr="aqm."+cycle+"."+fileid+"_bc."+grid793
-            aqmfilein=comout+"/"+dirid+"."+date.strftime(YMD_date_format)+"/"+file_hdr+".grib2"
+            aqmfilein=f"{comout}/{dirid}.{YMD}/{cyc}/{file_hdr}.grib2"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
                 outfile=working_dir+"/"+file_hdr+"."+date.strftime(YMD_date_format)+"."+cycle+".nc"
