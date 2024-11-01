@@ -149,7 +149,7 @@ else:
     else:
         print("This code is designed for AQMv7 raw model cases, program stop")
         sys.exit()
-    if EXP.lower() == "aqmv70" or envir == "aqmv708":
+    if EXP.lower() == "aqmv70" or EXP.lower() == "aqmv708":
         comout="/lfs/h1/ops/prod/com/aqm/v7.0"
     else:
         comout="/lfs/h2/emc/physics/noscrub/"+user+"/rrfs_sfc_chem_met/"+EXP.lower()
