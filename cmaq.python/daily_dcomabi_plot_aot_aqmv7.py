@@ -43,7 +43,7 @@ else:
     start_date = sys.argv[4]
     end_date = sys.argv[5]
 
-expid="aqm"
+mdl="aqm"
 expid="aqmv7"
 
 if qc_sel.lower() == "high":
@@ -57,7 +57,6 @@ elif qc_sel.lower() == "low":
 else:
     qc_list=[ "high" ]
 
-mdl="aqm"
 comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/GOES16_AOD/REGRID"
 comout=f"/lfs/h2/emc/vpppg/noscrub/{user}/dcom/dev/abi_granule"
 evsout=f"/lfs/h2/emc/vpppg/noscrub/{user}/evs/aqmaod_v2.0/prep/{mdl}"
