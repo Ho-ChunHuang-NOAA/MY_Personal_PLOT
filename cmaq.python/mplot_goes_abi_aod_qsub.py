@@ -48,14 +48,13 @@ for line in rfile:
 
 ### PASSED AGRUEMENTS
 if len(sys.argv) < 5:
-    print("you must set 5 arguments as [g16|g18] [aodc|aodf] quality_flag[high|med|all] start_date end_date")
+    print("you must set 5 arguments as [g16|g18|g1618|all] quality_flag[high|med|all] start_date end_date")
     sys.exit()
 else:
     sel_sat= sys.argv[1]
-    sel_scan= sys.argv[2]
-    sel_qc= sys.argv[3]
-    start_date = sys.argv[4]
-    end_date = sys.argv[5]
+    sel_qc= sys.argv[2]
+    start_date = sys.argv[3]
+    end_date = sys.argv[4]
 
 task_cpu="04:30:00"
 task_cpu1="01:00:00"
@@ -86,7 +85,7 @@ if not os.path.exists(working_dir):
 
 os.chdir(working_dir)
 
-msg_file=f"{working_dir}/msg_{sel_sat}_{sel_scan}_{sel_qc}_{start_date}"
+msg_file=f"{working_dir}/msg_{sel_sat}_{sel_qc}_{start_date}"
 cmd="cat /etc/cluster_name"
 subprocess.call([cmd+" > "+msg_file], shell=True)
 cmd="cat /etc/wcoss.conf | grep cluster_name | awk -F\":\" '{print $2}'"
@@ -134,7 +133,7 @@ print(msg)
 run_root=stmp_dir+"/run_python_script"
 if not os.path.exists(run_root):
     os.mkdir(run_root)
-working_dir=os.path.join(run_root,f"abi_aod_{sel_sat}_{sel_scan}_{sel_qc}",f"run_start_time_{start_date}")
+working_dir=os.path.join(run_root,f"abi_aod_{sel_sat}_{sel_qc}",f"run_start_time_{start_date}")
 if os.path.exists(working_dir):
     os.chdir(working_dir)
 else:
@@ -143,6 +142,7 @@ else:
 
 script_name = [
               "dev_dcomabi_plot_aot_aqmv7.py"
+              "dev_dcomabi_plot_aot_gefs.py"
               ]
 for i in script_name:
     from_file=os.path.join(script_dir,i)
@@ -189,24 +189,13 @@ else:
 num_qc_list=len(qc_list)
 
 if sel_sat == "all":
-    satid=["g16", "g18"]
-elif sel_sat == "g16" or sel_sat == "g18":
+    satid=["g16", "g18", "g1618" ]
+elif sel_sat == "g16" or sel_sat == "g18" or sel_sat == "g1618":
     satid=[]
     satid.append(sel_sat)
 else:
     print(f"Input sat ID = {sel_sat}, is not defined")
     sys.exit()
-
-if sel_scan == "all":
-    scanid=["AODC", "AODF"]
-
-elif sel_scan == "AODC" or sel_scan == "AODF":
-    scanid=[]
-    scanid.append(sel_scan)
-else:
-    print(f"Input Scan ID = {sel_scan}, is not defined")
-    sys.exit()
-
 
 ic=0
 date=sdate
@@ -215,6 +204,72 @@ while date <= edate:
     for i in script_name:
         if i == "dev_dcomabi_plot_aot_aqmv7.py":
             print("    Start processing "+i)
+            scanid=[ "AODC" ]
+            for qc in qc_list:
+                for sat in satid:
+                    for scan in scanid:
+                        jobid=f"plot_dcomabi_aod_{sat}_{scan}_{qc}_{YMD}"
+                        ftpid=f"ftp_dcomabi_aod_{sat}_{scan}_{qc}_{YMD}"
+                        plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                        logfile=log_dir+"/"+jobid+".log"
+                        if os.path.exists(plot_script):
+                            os.remove(plot_script)
+                        if os.path.exists(logfile):
+                            os.remove(logfile)
+                        filein=i
+                        rzdm_file="rzdm"+filein[3:]
+                        ftp_script=os.path.join(os.getcwd(),ftpid+".sh")
+                        ftplog=log_dir+"/"+ftpid+".log"
+                        if os.path.exists(ftp_script):
+                            os.remove(ftp_script)
+                        if os.path.exists(ftplog):
+                            os.remove(ftplog)
+                        with open(ftp_script, 'a') as fsh:
+                            fsh.write("#!/bin/bash\n")
+                            fsh.write("#PBS -o "+ftplog+"\n")
+                            fsh.write("#PBS -e "+ftplog+"\n")
+                            fsh.write("#PBS -l place=shared,select=1:ncpus=1:mem=5GB\n")
+                            fsh.write("#PBS -N j"+ftpid+"\n")
+                            fsh.write("#PBS -q dev_transfer\n")
+                            fsh.write("#PBS -A AQM-DEV\n")
+                            fsh.write("#PBS -l walltime="+task_cpu1+"\n")
+                            fsh.write("###PBS -l debug=true\n")
+                            fsh.write("set -x\n")
+                            fsh.write("    cd "+working_dir+"\n")
+                            fsh.write(f"    python {rzdm_file} {sat} {scan} {qc} {YMD} {YMD}\n")
+                            fsh.write("\n")
+                            fsh.write("exit\n")
+                        with open(plot_script, 'a') as sh:
+                            sh.write("#!/bin/bash\n")
+                            sh.write("#PBS -o "+logfile+"\n")
+                            sh.write("#PBS -e "+logfile+"\n")
+                            sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=10GB:prepost=true\n")
+                            sh.write("#PBS -N j"+jobid+"\n")
+                            sh.write("#PBS -q dev\n")
+                            sh.write("#PBS -A AQM-DEV\n")
+                            sh.write("#PBS -l walltime="+task_cpu+"\n")
+                            sh.write("###PBS -l debug=true\n")
+                            sh.write("# \n")
+                            sh.write("export OMP_NUM_THREADS=1\n")
+                            sh.write("\n")
+                            sh.write("##\n")
+                            sh.write("##  Plot ABI AOD\n")
+                            sh.write("##\n")
+                            sh.write("set -x\n")
+                            sh.write("\n")
+                            sh.write("   cd "+working_dir+"\n")
+                            sh.write(f"    python {i} {sat} {scan} {qc} {YMD} {YMD}\n")
+                            if flag_ftp:
+                                sh.write("    cat "+ftp_script+" | qsub\n")
+                            sh.write("\n")
+                            sh.write("exit\n")
+                        print("run_script = "+plot_script)
+                        print("log file   = "+logfile)
+                        subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
+                        ## subprocess.call(["cat "+plot_script], shell=True)
+        if i == "dev_dcomabi_plot_aot_gefs.py":
+            print("    Start processing "+i)
+            scanid=[ "AODF" ]
             for qc in qc_list:
                 for sat in satid:
                     for scan in scanid:
