@@ -47,8 +47,8 @@ for line in rfile:
 ## print("netcdf_ver="+netcdf_ver)
 
 ### PASSED AGRUEMENTS
-if len(sys.argv) < 5:
-    print("you must set 5 arguments as [g16|g18|g1618|all] quality_flag[high|med|all] start_date end_date")
+if len(sys.argv) < 4:
+    print("you must set 4 arguments as [g16|g18|g1618|all] quality_flag[high|med|all] start_date end_date")
     sys.exit()
 else:
     sel_sat= sys.argv[1]
