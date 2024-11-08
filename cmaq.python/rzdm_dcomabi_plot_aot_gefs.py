@@ -28,8 +28,8 @@ else:
     start_date = sys.argv[4]
     end_date = sys.argv[5]
 
-mdl="aqm"
-expid="aqmv7"
+mdl="gefs"
+expid="gefsv12.3"
 
 if qc_sel.lower() == "high":
     qc_list=[ "high" ]

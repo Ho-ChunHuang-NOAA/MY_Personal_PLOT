@@ -147,7 +147,7 @@ H_date_format = "%H"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
-if sat_sel == "all":
+if sat_sel == "all" or sat_sel == "ALL":
     satid=["g16", "g18", "g1618"]
 elif sat_sel == "g16" or sat_sel == "g18" or sat_sel == "g1618":
     satid=[]
@@ -157,7 +157,7 @@ else:
     sys.exit()
 
 scan_check=scan_sel.upper()
-if scan_check == "all":
+if scan_check == "ALL":
     scanid=["AODC", "AODF"]
 elif scan_check == "AODC" or scan_check == "AODF":
     scanid=[]
