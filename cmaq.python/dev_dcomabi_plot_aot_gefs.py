@@ -43,8 +43,11 @@ else:
     start_date = sys.argv[4]
     end_date = sys.argv[5]
 
-expid="aqm"
-expid="aqmv7"
+if sat_sel == "g1618" or sat_sel == "all":
+    combine= sys.argv[6]
+
+expid="gefs"
+expid="gefsv12.3"
 
 if qc_sel.lower() == "high":
     qc_list=[ "high" ]
@@ -57,10 +60,10 @@ elif qc_sel.lower() == "low":
 else:
     qc_list=[ "high", "medium", "low" ]
 
-mdl="aqm"
+mdl="gefs"
 comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/GOES16_AOD/REGRID"
 comout=f"/lfs/h2/emc/vpppg/noscrub/{user}/dcom/dev/abi_granule"
-comout=f"/lfs/h2/emc/vpppg/noscrub/{user}/evs/aqmaod_v2.0/prep/{mdl}"
+comout=f"/lfs/h2/emc/vpppg/noscrub/{user}/evs/gefsaod_v2.0/prep/global_ens"
 comout=f"/lfs/h2/emc/vpppg/noscrub/{user}/point2grid_goes_abi/{mdl}"
 if not os.path.exists(comout):
     print("Can not find output dir "+comout)
@@ -185,31 +188,23 @@ msg=msg - date_inc
 ## new area need to be added ahead of ak.  The last three areas need to be fixed as "ak",   "hi",  "can"
 ## this is due to the code below remove plotting of ak and hi if no ak and hi input files ash been found
 ##
-flag_proj="LambertConf"
 ## from 22.574179720000018 to 51.47512722912568
 ## from 228.37073225113136 to 296.6273160909873
 # old -70.6 to -120.4
 #     22.2 to 50.7
 mksize= [     64, 64, 16,     36,      36,      36,     49,     49,     49,     49,     64,     64,    121,    100,    121,     36 ]
 ## mksize= [  64, 64, 16,      16,      25,     25,     36,     36,     36,     36,     49,     49,    121,    100,    121,     36 ]
-if flag_proj == "LambertConf":
-    regname = [ "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
-    rlon0 = [ -125., -120., -175.0, -120.4,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0,  -75.0, -166.0, -161.5, -141.0 ]
-    rlon1 = [  -110., -100., -40.0,  -70.6,   -67.0,  -95.0,  -67.0, -103.0,  -74.0, -100.0,  -83.0,  -78.0,  -71.0, -132.0, -153.1, -60.0 ]
-    rlat0 = [   40., 30.0, 10.0,   22.2,    21.9,   24.5,   37.0,   38.0,   24.0,   30.0,   35.0,   23.5,   40.2,   53.2,   17.8,   38.0 ]
-    rlat1 = [   45., 40., 60.0,   50.7,    50.0,   52.0,   48.0,   52.0,   40.0,   45.0,   50.0,   38.0,   41.8,   71.2,   23.1,   70.0 ]
-else:
-    regname = [   "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
-    rlon0 = [ -125., -120., -175.0, -124.0,  -100.0, -128.0,  -82.0, -125.0,  -95.0, -125.0, -105.0, -105.0,  -75.0, -170.0, -161.0, -141.0 ]
-    rlon1 = [  -110., -100., -55.0,  -70.0,   -65.0,  -90.0,  -67.0, -103.0,  -79.0, -105.0,  -85.0,  -85.0,   -71.0, -130.0, -154.0,  -60.0 ]
-    rlat0 = [    40., 30.0, 0.0,   22.0,    22.0,   24.5,   37.0,   38.0,   24.0,   30.0,   38.0,   24.0,   40.2,   52.0,   18.0,   38.0 ]
-    rlat1 = [   45., 40., 70.0,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   41.8,   72.0,   23.0,   70.0 ]
+regname = [   "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
+rlon0 = [ -125., -120., 140.0, -130.0,  -100.0, -128.0,  -82.0, -127.0,  -95.0, -125.0, -105.0, -105.0,  -75.0, -170.0, -161.0, -141.0 ]
+rlon1 = [  -110., -100., -30.0,  -70.0,   -65.0,  -90.0,  -66.0, -103.0,  -74.0, -105.0,  -85.0,  -85.0,   -71.0, -130.0, -154.0,  -60.0 ]
+rlat0 = [    40., 30.0, -40.0,   22.0,    22.0,   24.5,   36.5,   38.0,   24.0,   30.0,   38.0,   24.0,   40.2,   52.0,   18.0,   38.0 ]
+rlat1 = [   45., 40., 65.0,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   41.8,   72.0,   23.0,   70.0 ]
 xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
 ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
 if 1 == 2:
     iplot = [    0, 0,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      1,      1, 1 ]
 else:
-    iplot = [    0,  0, 1,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
+    iplot = [    0,  0, 1,      1,       0,      0,      0,      1,      0,      0,      0,      0,      0,      0,      0, 0 ]
 num_reg=len(iplot)
 
 flag_ak=False
@@ -231,7 +226,7 @@ while date <= edate:
                 flag_hi=True
         scan_lower=scan.lower()
         ## data_dir=f"{comout}/{YMD}/goes_abi/GOES_{scan}"
-        data_dir=f"{comout}/atmos.{YMD}/{mdl}"
+        data_dir=f"{comout}/chem.{YMD}/gefs"
         data_dir=f"{comout}/{mdl}.{YMD}"
         if not os.path.exists(data_dir):
             print(f"Can not find {data_dir} skip to next ABI scan")
@@ -265,6 +260,21 @@ while date <= edate:
                     if not os.path.exists(checkfile):
                         print(f"Can not find {checkfile} skip to next obsvered hour")
                         continue
+                    '''
+                    checkfile=f"OR_ABI-L2-{scan}-M*_{goes_capt}_s{YY}{JDAY}{fhh}*.nc" 
+                    output_file=f"{working_dir}/num_hourly_aod_file"
+                    cmd=f"find {data_dir} -name {checkfile} > {output_file}"
+                    subprocess.call([cmd], shell=True)
+                    with open(output_file,"r") as ofile:
+                        filein_aod=ofile.readlines()
+                    ofile.close()
+                    if len(filein_aod) == 0:
+                        print("Can not find {checkfile} skip to next obsvered hour")
+                        continue
+                    line=filein_aod[0]
+                    input_file=line.rstrip("\n")
+                    print(input_file)
+                    '''
                     aqmfilein=checkfile
                     if os.path.exists(aqmfilein):
                         print(aqmfilein+" exists")
@@ -306,7 +316,8 @@ while date <= edate:
                                 elif figarea == "hi" and flag_hi:
                                     aqmproj=ccrs.LambertConformal(central_longitude=clon, central_latitude=clat, standard_parallels=(19, 21), globe=None)
                                 else:
-                                    aqmproj=ccrs.LambertConformal(central_longitude=clon, central_latitude=clat, false_easting=-58.775, false_northing=48.772, standard_parallels=(33, 45), globe=None)
+                                    aqmproj=ccrs.PlateCarree(central_longitude=-180.)
+                                    ## aqmproj=ccrs.LambertConformal(central_longitude=clon, central_latitude=clat, false_easting=-58.775, false_northing=48.772, standard_parallels=(33, 45), globe=None)
                                 fig, ax = plt.subplots(figsize=(xsize[ireg],ysize[ireg]))
             
                                 ax = plt.axes(projection=aqmproj)
@@ -331,7 +342,7 @@ while date <= edate:
                                 #  to have only the negative values (such as CONUS domain)
                                 ## for consistency, turn the east-west system to 360. system
 
-                                plot_lon=np.where(cs_lon>180., cs_lon-360., cs_lon)
+                                plot_lon=np.where(cs_lon>150., cs_lon -360., cs_lon)
                                 ## ax.add_feature(cfeature.RIVERS)
                                 try:
                                     cf1 = ax.contourf(
