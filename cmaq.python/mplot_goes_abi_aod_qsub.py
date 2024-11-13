@@ -60,6 +60,7 @@ task_cpu="04:30:00"
 task_cpu1="01:00:00"
 task_cpu2="02:00:00"
 task_cpu3="03:00:00"
+task_cpu30m="00:30:00"
 
 stmp_dir="/lfs/h2/emc/stmp/"+user
 if not os.path.exists(stmp_dir):
@@ -141,7 +142,7 @@ else:
     os.chdir(working_dir)
 
 script_name = [
-              "dev_dcomabi_plot_aot_aqmv7.py"
+              "dev_dcomabi_plot_aot_aqmv7.py", 
               "dev_dcomabi_plot_aot_gefs.py"
               ]
 for i in script_name:
@@ -208,8 +209,8 @@ while date <= edate:
             for qc in qc_list:
                 for sat in satid:
                     for scan in scanid:
-                        jobid=f"plot_dcomabi_aod_{sat}_{scan}_{qc}_{YMD}"
-                        ftpid=f"ftp_dcomabi_aod_{sat}_{scan}_{qc}_{YMD}"
+                        jobid=f"plot_aqmv7_dcomabi_aod_{sat}_{scan}_{qc}_{YMD}"
+                        ftpid=f"ftp_aqmv7_dcomabi_aod_{sat}_{scan}_{qc}_{YMD}"
                         plot_script=os.path.join(os.getcwd(),jobid+".sh")
                         logfile=log_dir+"/"+jobid+".log"
                         if os.path.exists(plot_script):
@@ -247,7 +248,7 @@ while date <= edate:
                             sh.write("#PBS -N j"+jobid+"\n")
                             sh.write("#PBS -q dev\n")
                             sh.write("#PBS -A AQM-DEV\n")
-                            sh.write("#PBS -l walltime="+task_cpu+"\n")
+                            sh.write("#PBS -l walltime="+task_cpu2+"\n")
                             sh.write("###PBS -l debug=true\n")
                             sh.write("# \n")
                             sh.write("export OMP_NUM_THREADS=1\n")
@@ -273,8 +274,8 @@ while date <= edate:
             for qc in qc_list:
                 for sat in satid:
                     for scan in scanid:
-                        jobid=f"plot_dcomabi_aod_{sat}_{scan}_{qc}_{YMD}"
-                        ftpid=f"ftp_dcomabi_aod_{sat}_{scan}_{qc}_{YMD}"
+                        jobid=f"plot_gefs_dcomabi_aod_{sat}_{scan}_{qc}_{YMD}"
+                        ftpid=f"ftp_gefs_dcomabi_aod_{sat}_{scan}_{qc}_{YMD}"
                         plot_script=os.path.join(os.getcwd(),jobid+".sh")
                         logfile=log_dir+"/"+jobid+".log"
                         if os.path.exists(plot_script):
@@ -312,7 +313,7 @@ while date <= edate:
                             sh.write("#PBS -N j"+jobid+"\n")
                             sh.write("#PBS -q dev\n")
                             sh.write("#PBS -A AQM-DEV\n")
-                            sh.write("#PBS -l walltime="+task_cpu+"\n")
+                            sh.write("#PBS -l walltime="+task_cpu2+"\n")
                             sh.write("###PBS -l debug=true\n")
                             sh.write("# \n")
                             sh.write("export OMP_NUM_THREADS=1\n")
