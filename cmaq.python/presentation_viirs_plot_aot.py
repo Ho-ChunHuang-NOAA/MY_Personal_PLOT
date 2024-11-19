@@ -229,7 +229,7 @@ while date <= edate:
                 cs_lat = cs_aqm.variables['lat'][:,:]
                 cs_lon = cs_aqm.variables['lon'][:,:]
                 aot_cs = cs_aqm.variables[var[ivar]][:,:]
-                clevs = [ 0., 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 ]
+                clevs = [ 0.1, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 ]
                 var_cs=aot_cs
                 cmap = mpl.colors.ListedColormap([
                        (0.8627,0.8627,1.0000), (0.6471,0.6471,1.0000),

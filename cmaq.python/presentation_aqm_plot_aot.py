@@ -324,7 +324,7 @@ while date <= edate:
                     s2_title = fcst_hour.strftime(YMDH_date_format)+"00V"+fhh
                     msg=datetime.datetime.now()
                     s3_title="Total AOD"
-                    clevs = [ 0., 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 ]
+                    clevs = [ 0.1, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 ]
                     var_cs=aot_cs
                     if flag_ak == "yes":
                         var_ak=aot_ak

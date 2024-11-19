@@ -234,7 +234,7 @@ while date <= edate:
         if flag_cs_plot:
             for ivar in range(0,num_var):
                 s1_title="VIIRS Total AOD at 550 nm "+fig_index[ivar]+" "+YMD+" "+fhh+"Z"
-                clevs = [ 0., 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 ]
+                clevs = [ 0.1, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 ]
                 pvar_cs = cs_aqm.variables[var[ivar]][:,:]
                 cmap = mpl.colors.ListedColormap([
                        (0.8627,0.8627,1.0000), (0.6471,0.6471,1.0000),
