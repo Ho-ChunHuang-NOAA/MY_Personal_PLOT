@@ -172,7 +172,7 @@ plt.rcParams['axes.titlesize'] = 15
 plt.rcParams['axes.titleweight'] = 'bold'
 plt.rcParams['axes.formatter.useoffset'] = False
 ## cbar_num_format = "%d"
-cbar_num_format = "%.1f"
+cbar_num_format = "%.2f"
 plt.close('all') # close all figures
 
 msg=datetime.datetime.now()

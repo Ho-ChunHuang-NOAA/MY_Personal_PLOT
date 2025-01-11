@@ -32,7 +32,7 @@ for line in rfile:
             aqm_ver=ver[1]
 rfile.close()
 if aqm_ver=="":
-    aqm_ver="v6.1"
+    aqm_ver="v7.0"
 print("aqm_ver="+aqm_ver)
 
 wgrib2=os.environ['WGRIB2']
@@ -81,7 +81,7 @@ if not os.path.exists(working_dir):
 
 os.chdir(working_dir)
 
-msg_file=working_dir+"/msg_read_"+start_date+"_"+sel_cyc
+msg_file=working_dir+"/msg_read_aot_v7_"+start_date+"_"+sel_cyc
 cmd="cat /etc/cluster_name"
 subprocess.call([cmd+" > "+msg_file], shell=True)
 cmd="cat /etc/wcoss.conf | grep cluster_name | awk -F\":\" '{print $2}'"
@@ -136,17 +136,9 @@ H_date_format = "%H"
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
-## aqmv7 (aod) and aqmv6 (aot)
 if envir == "prod":
-    var=[ "aot" ]
-    comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/verification/aqm/"+envir
-    comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
-else:
     var=[ "aod" ]
-    comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/aqmv7_aod/"+envir
     comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
-    comout="/lfs/h2/emc/ptmp/jianping.huang/emc.para/com/aqm/v7.0"
-    comout="/lfs/h1/ops/prod/com/aqm/v7.0"
 num_var=len(var)
 print("var length = "+str(num_var))
 
@@ -214,10 +206,10 @@ else:
     rlat1 = [   45., 40., 70.0,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   41.8,   72.0,   23.0,   70.0 ]
 xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
 ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
-if 1 == 1:
+if 1 == 2:
     iplot = [    0, 0,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      0,      0, 1 ]
 else:
-    iplot = [    0,  0, 0,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
+    iplot = [    0,  0, 0,      0,       0,      0,      0,      0,      0,      1,      0,      0,      0,      0,      0, 0 ]
 num_reg=len(iplot)
 
 date=sdate
@@ -264,6 +256,7 @@ while date <= edate:
             flag_read_latlon="no"
             hour_beg = 1
             hour_end = 72
+            hour_end = 5
             if hour_beg != 1:
                 set_hour=1
                 while set_hour < hour_beg:
@@ -274,7 +267,7 @@ while date <= edate:
                 fhh=str_fcst_hr.zfill(2)
                 fhh3=str_fcst_hr.zfill(3)
                 flag_plot_aod=False
-                if var[ivar] == "aod":
+                if var[ivar] == "aod_new":
                     file_hdr="aqm."+cycle+"."+var[ivar]+".f"+fhh3
                     aqmfilein=comout+"/aqm."+YMD+"/"+cyc+"/"+file_hdr+".nc"
                     if os.path.exists(aqmfilein):
@@ -288,11 +281,15 @@ while date <= edate:
                     else:
                         print("Can not find "+aqmfilein)
                 flag_plot_aot=False
-                if var[ivar] == "aot":
-                    file_hdr="aqm."+cycle+"."+var[ivar]+".f"+fhh+".148"
-                    aqmfilein=comout+"/cs."+YMD+"/"+file_hdr+".grib2"
-                    outfile=working_dir+"/"+file_hdr+"."+YMD+"."+cycle+".nc"
-                    subprocess.call([wgrib2+' -netcdf '+outfile+' '+aqmfilein], shell=True)
+                if var[ivar] == "aod":
+                    file_hdr=f"aqm.{cycle}.cmaq.f{fhh3}.793"
+                    aqmfilein=f"{comout}/aqm.{YMD}/{cyc}/{file_hdr}.grib2"
+                    reduceaot=f"{working_dir}/{file_hdr}_reduced.grib2"
+                    cmd=f"wgrib2 -match  \"AOTK\" {aqmfilein} -grib {reduceaot}"
+                    subprocess.call([cmd], shell=True)
+                    outfile=f"{working_dir}/{file_hdr}.{YMD}.{cycle}.nc"
+                    cmd=f"wgrib2 -netcdf {outfile} {reduceaot}"
+                    subprocess.call([cmd], shell=True)
                     aqmfilein=outfile
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
@@ -305,7 +302,7 @@ while date <= edate:
                         lonmin=np.amin(cs_lon)
                         ## print("from "+str(latmin)+" to "+str(latmax))
                         ## print("from "+str(lonmin)+" to "+str(lonmax))
-                        aot_cs = cs_aqm.variables['AOTK_1sigmalevel'][0,:,:]
+                        aot_cs = cs_aqm.variables['AOTK_entireatmosphere_consideredasasinglelayer_'][0,:,:]
                         cs_aqm.close()
                         flag_plot_aot=True
                     else:
@@ -313,7 +310,7 @@ while date <= edate:
 
                 if flag_plot_aot or flag_plot_aod:
                     fcst_hour=fcst_hour+hour_inc
-                    s2_title = fcst_hour.strftime(YMDH_date_format)+"00V"+fhh
+                    s2_title = fcst_hour.strftime(YMDH_date_format)+"00V"+fhh3
                     msg=datetime.datetime.now()
                     s3_title="Total AOD"
                     var_cs=aot_cs
@@ -429,7 +426,7 @@ while date <= edate:
             else:
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
-            ## subprocess.call(['scp -p * '+partb], shell=True)
+            subprocess.call(['scp -p * '+partb], shell=True)
         msg=datetime.datetime.now()
         print("End   processing "+var[ivar])
         print("FIG DIR = "+figdir)
