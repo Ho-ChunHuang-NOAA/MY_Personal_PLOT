@@ -263,8 +263,8 @@ figout=stmp_dir
 ## this is due to the code below remove plotting of ak and hi if no ak and hi input files ash been found
 ##
 flag_proj="LambertConf"
-mksize= [  64,64, 64, 16,     36,      36,      36,     49,     49,     49,     49,     64,     64,    121,    100,    121,     36 ]
-## mksize= [ 64,64, 64, 16,      16,      25,     25,     36,     36,     36,     36,     49,     49,    121,    100,    121,     36 ]
+mksize= [  64,64, 64, 64, 16,     36,      36,      36,     49,     49,     49,     49,     64,     64,    121,    100,    121,     36 ]
+## mksize= [ 64,64, 64, 64, 16,      16,      25,     25,     36,     36,     36,     36,     49,     49,    121,    100,    121,     36 ]
 if flag_proj == "LambertConf":
     regname = [ "LAfire", "LABasin", "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ]
     rlon0 = [ -130., -121., -125., -120., -165.0, -120.4,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0,  -75.0, -166.0, -161.5, -141.0 ]
