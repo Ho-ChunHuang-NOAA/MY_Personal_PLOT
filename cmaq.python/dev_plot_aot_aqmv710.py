@@ -139,6 +139,7 @@ hour_inc = datetime.timedelta(hours=1)
 if envir == "prod":
     var=[ "aod" ]
     comout="/lfs/h1/ops/prod/com/aqm/"+aqm_ver
+    usrout="/lfs/h2/emc/vpppg/noscrub/ho-chun.huang/aod_verification/aqm/aqmv708"
 num_var=len(var)
 print("var length = "+str(num_var))
 
@@ -176,8 +177,8 @@ grdcro2d_date=msg.strftime("%Y%m%d")
 ## print("experiment is "+envir[0:ilen])
 ## sys.exit()
 
-if not os.path.exists(comout):
-    print("Can not find output dir "+comout)
+if not os.path.exists(comout) and not os.path.exists(usrout):
+    print(f"Can not find output dir {comout} and {usrout}")
     sys.exit()
 figout=stmp_dir
 
@@ -186,30 +187,17 @@ figout=stmp_dir
 ## this is due to the code below remove plotting of ak and hi if no ak and hi input files ash been found
 ##
 flag_proj="LambertConf"
-## from 22.574179720000018 to 51.47512722912568
-## from 228.37073225113136 to 296.6273160909873
-# old -70.6 to -120.4
-#     22.2 to 50.7
-mksize= [     64, 64, 16,     36,      36,      36,     49,     49,     49,     49,     64,     64,    121,    100,    121,     36 ]
-## mksize= [  64, 64, 16,      16,      25,     25,     36,     36,     36,     36,     49,     49,    121,    100,    121,     36 ]
-if flag_proj == "LambertConf":
-    regname = [ "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
-    rlon0 = [ -125., -120., -165.0, -120.4,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0,  -75.0, -166.0, -161.5, -141.0 ]
-    rlon1 = [  -110., -100., -70.0,  -70.6,   -67.0,  -95.0,  -67.0, -103.0,  -74.0, -100.0,  -83.0,  -78.0,  -71.0, -132.0, -153.1, -60.0 ]
-    rlat0 = [   40., 30.0, 10.0,   22.2,    21.9,   24.5,   37.0,   38.0,   24.0,   30.0,   35.0,   23.5,   40.2,   53.2,   17.8,   38.0 ]
-    rlat1 = [   45., 40., 75.0,   50.7,    50.0,   52.0,   48.0,   52.0,   40.0,   45.0,   50.0,   38.0,   41.8,   71.2,   23.1,   70.0 ]
+regname = [ "LAfire", "LABasin", "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ]
+rlon0 = [ -130., -121., -125., -120., -165.0, -120.4,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0,  -75.0, -166.0, -161.5, -141.0 ]
+rlon1 = [  -112., -116.8, -110., -100., -70.0,  -70.6,   -67.0,  -95.0,  -67.0, -103.0,  -74.0, -100.0,  -83.0,  -78.0,  -71.0, -132.0, -153.1, -60.0 ]
+rlat0 = [   22.5, 32.2, 40., 30.0, 10.0,   22.2,    21.9,   24.5,   37.0,   38.0,   24.0,   30.0,   35.0,   23.5,   40.2,   53.2,   17.8,   38.0 ]
+rlat1 = [   38.5, 35.5, 45., 40., 75.0,   50.7,    50.0,   52.0,   48.0,   52.0,   40.0,   45.0,   50.0,   38.0,   41.8,   71.2,   23.1,   70.0 ]
+xsize = [   8,8, 10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
+ysize = [    8,8, 5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
+if 1 == 1:
+    iplot = [ 1, 1, 0, 0, 1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      0,      0, 1 ]
 else:
-    regname = [   "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ] 
-    rlon0 = [ -125., -120., -175.0, -124.0,  -100.0, -128.0,  -82.0, -125.0,  -95.0, -125.0, -105.0, -105.0,  -75.0, -170.0, -161.0, -141.0 ]
-    rlon1 = [  -110., -100., -55.0,  -70.0,   -65.0,  -90.0,  -67.0, -103.0,  -79.0, -105.0,  -85.0,  -85.0,   -71.0, -130.0, -154.0,  -60.0 ]
-    rlat0 = [    40., 30.0, 0.0,   22.0,    22.0,   24.5,   37.0,   38.0,   24.0,   30.0,   38.0,   24.0,   40.2,   52.0,   18.0,   38.0 ]
-    rlat1 = [   45., 40., 70.0,   51.0,    50.0,   54.5,   48.0,   52.0,   38.0,   45.0,   52.0,   40.0,   41.8,   72.0,   23.0,   70.0 ]
-xsize = [     10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
-ysize = [      5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
-if 1 == 2:
-    iplot = [    0, 0,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      0,      0, 1 ]
-else:
-    iplot = [    0,  0, 0,      0,       0,      0,      0,      0,      0,      1,      0,      0,      0,      0,      0, 0 ]
+    iplot = [ 0, 1, 0, 0, 0,      0,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
 num_reg=len(iplot)
 
 date=sdate
@@ -256,7 +244,6 @@ while date <= edate:
             flag_read_latlon="no"
             hour_beg = 1
             hour_end = 72
-            hour_end = 5
             if hour_beg != 1:
                 set_hour=1
                 while set_hour < hour_beg:
@@ -283,15 +270,26 @@ while date <= edate:
                 flag_plot_aot=False
                 if var[ivar] == "aod":
                     file_hdr=f"aqm.{cycle}.cmaq.f{fhh3}.793"
-                    aqmfilein=f"{comout}/aqm.{YMD}/{cyc}/{file_hdr}.grib2"
-                    reduceaot=f"{working_dir}/{file_hdr}_reduced.grib2"
-                    cmd=f"wgrib2 -match  \"AOTK\" {aqmfilein} -grib {reduceaot}"
-                    subprocess.call([cmd], shell=True)
-                    outfile=f"{working_dir}/{file_hdr}.{YMD}.{cycle}.nc"
-                    cmd=f"wgrib2 -netcdf {outfile} {reduceaot}"
-                    subprocess.call([cmd], shell=True)
-                    aqmfilein=outfile
+                    aodfilein1=f"{comout}/aqm.{YMD}/{cyc}/{file_hdr}.grib2"
+                    aodfilein2=f"{usrout}/aqm.{YMD}/{cyc}/{file_hdr}.grib2"
+                    aqmfilein=aodfilein1
+                    if os.path.exists(aodfilein1):
+                        aqmfilein=aodfilein1
+                    elif os.path.exists(aodfilein2):
+                        print(f"Can not find {aodfile1}")
+                        aqmfilein=aodfilein2
+                    else:
+                        print(f"Can not find {aodfile1}")
+                        print(f"Can not find {aodfile2}")
+                        print(f"WARNING:: SKIP {YMD} {cyc} f{fhh3} graphic")
                     if os.path.exists(aqmfilein):
+                        reduceaot=f"{working_dir}/{file_hdr}_reduced.grib2"
+                        cmd=f"wgrib2 -match  \"AOTK\" {aqmfilein} -grib {reduceaot}"
+                        subprocess.call([cmd], shell=True)
+                        outfile=f"{working_dir}/{file_hdr}.{YMD}.{cycle}.nc"
+                        cmd=f"wgrib2 -netcdf {outfile} {reduceaot}"
+                        subprocess.call([cmd], shell=True)
+                        aqmfilein=outfile
                         ## print(aqmfilein+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein)
                         cs_lat = cs_aqm.variables['latitude'][:,:]
@@ -426,7 +424,7 @@ while date <= edate:
             else:
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
-            subprocess.call(['scp -p * '+partb], shell=True)
+            ## subprocess.call(['scp -p * '+partb], shell=True)
         msg=datetime.datetime.now()
         print("End   processing "+var[ivar])
         print("FIG DIR = "+figdir)
