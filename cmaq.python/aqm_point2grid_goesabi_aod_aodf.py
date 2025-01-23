@@ -61,7 +61,7 @@ else:
     qc_list=[ "high", "medium" ]
 
 comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/GOES16_AOD/REGRID"
-comout=f"/lfs/h2/emc/vpppg/noscrub/{user}/dcom/dev/abi_granule"
+comout=f"/lfs/h2/emc/vpppg/noscrub/{user}/dcom/prod/abi_granule"
 if model == "aqm":
     comout=f"/lfs/h2/emc/vpppg/noscrub/{user}/evs/aqmaod_v2.0/prep/aqm"
 elif model == "gefs":

@@ -58,7 +58,7 @@ else:
     qc_list=[ "high", "medium", "low" ]
 
 comout="/lfs/h2/emc/physics/noscrub/"+os.environ['USER']+"/GOES16_AOD/REGRID"
-comout=f"/lfs/h2/emc/vpppg/noscrub/{user}/dcom/dev/abi_granule"
+comout=f"/lfs/h2/emc/vpppg/noscrub/{user}/dcom/prod/abi_granule"
 evsout=f"/lfs/h2/emc/vpppg/noscrub/{user}/evs/gefsaod_v2.0/prep/global_ens"
 comout=f"/lfs/h2/emc/vpppg/noscrub/{user}/point2grid_goes_abi/{mdl}"
 if not os.path.exists(comout):
