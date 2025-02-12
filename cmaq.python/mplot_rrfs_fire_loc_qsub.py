@@ -144,10 +144,13 @@ else:
 
 if envir == "prod":
     script_name = [
-                  "daily.aqm.plot.py", "daily.aqm.plot_bc.py",
-                  "diff.aqm.plot_bc.py"
+                  "dev_rrfs_fire_loc_retro1.py",
+                  "dev_rrfs_fire_loc_retro2.py",
+                  "dev_rrfs_fire_loc_retro3.py"
                   ]
     working_name = [
+                  "daily.aqm.plot.py", "daily.aqm.plot_bc.py",
+                  "diff.aqm.plot_bc.py",
                   "daily.aqm.plot_max_ave_overlay.py"
                   ]
 else:

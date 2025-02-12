@@ -259,7 +259,7 @@ while date <= edate:
                     sh.write("#PBS -e "+logfile+"\n")
                     sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=10GB\n")
                     sh.write("#PBS -N j"+jobid+"\n")
-                    sh.write("#PBS -q dev_transfer\n")
+                    sh.write("#PBS -q dev\n")
                     sh.write("#PBS -A AQM-DEV\n")
                     sh.write("#PBS -l walltime="+task_cpu+"\n")
                     sh.write("###PBS -l debug=true\n")
