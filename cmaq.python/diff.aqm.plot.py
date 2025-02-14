@@ -112,8 +112,8 @@ else:
     msg=msg+" as BACKUPSYS"
 print(msg)
 
-sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]))
-edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]))
+sdate = datetime.datetime.strptime(start_date, '%Y%m%d')
+edate = datetime.datetime.strptime(end_date, '%Y%m%d')
 
 YMDH_date_format = "%Y%m%d/%H"
 YMD_date_format = "%Y%m%d"

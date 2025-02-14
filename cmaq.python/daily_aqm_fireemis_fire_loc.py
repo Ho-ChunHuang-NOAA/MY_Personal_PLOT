@@ -170,8 +170,8 @@ else:
     msg=msg+" as BACKUPSYS"
 print(msg)
 
-sdate = datetime.datetime(int(start_date[0:4]), int(start_date[4:6]), int(start_date[6:]), 00, 00, 00 )
-edate = datetime.datetime(int(end_date[0:4]), int(end_date[4:6]), int(end_date[6:]), 00, 00, 00 )
+sdate = datetime.datetime.strptime(start_date, '%Y%m%d' )
+edate = datetime.datetime.strptime(end_date, '%Y%m%d' )
 
 date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
