@@ -21,7 +21,7 @@ MSG="USAGE $0 obs_sat (default:viirs) model_grid [default:aqm|hysplit|ngac] YYYY
       FIRSTDAY=$3
       LASTDAY=$4
    fi
-   HOMEevs=/lfs/h2/emc/vpppg/noscrub/ho-chun.huang/EVS
+   HOMEevs=/lfs/h2/emc/vpppg/noscrub/ho-chun.huang/EVSNRT
    source $HOMEevs/versions/run.ver
 
    module reset
