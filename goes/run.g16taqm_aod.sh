@@ -24,7 +24,7 @@ fi
 pm=`echo ${prodmachine} | cut -c1-1`
 if [ -s prod_info_list ]; then /bin/rm -f prod_info_list; fi
 
-   HOMEevs=/lfs/h2/emc/vpppg/noscrub/ho-chun.huang/EVS
+   HOMEevs=/lfs/h2/emc/vpppg/noscrub/ho-chun.huang/EVSNRT
    source $HOMEevs/versions/run.ver
 
    module reset
