@@ -19,7 +19,7 @@ user=os.environ['USER']
 
 ### PASSED AGRUEMENTS
 if len(sys.argv) < 5:
-    print("you must set 5 arguments as [g16|g18] [aodc|aodf] quality_flag[high|med|all] start_date end_date")
+    print("you must set 5 arguments as [g19|g18] [aodc|aodf] quality_flag[high|med|all] start_date end_date")
     sys.exit()
 else:
     sat_sel = sys.argv[1]
@@ -124,8 +124,8 @@ date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
 if sat_sel == "all" or sat_sel == "ALL":
-    satid=["g16", "g18", "g1618"]
-elif sat_sel == "g16" or sat_sel == "g18" or sat_sel == "g1618":
+    satid=["g19", "g18", "g1918"]
+elif sat_sel == "g19" or sat_sel == "g18" or sat_sel == "g1918":
     satid=[]
     satid.append(sat_sel)
 else:

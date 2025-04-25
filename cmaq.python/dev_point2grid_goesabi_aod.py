@@ -34,7 +34,7 @@ rfile.close()
 
 ### PASSED AGRUEMENTS
 if len(sys.argv) < 5:
-    print("you must set 5 arguments as [g16|g18] [aodc|aodf] quality_flag[high|med|all] start_date end_date")
+    print("you must set 5 arguments as [g19|g18] [aodc|aodf] quality_flag[high|med|all] start_date end_date")
     sys.exit()
 else:
     sat_sel = sys.argv[1]
@@ -43,7 +43,7 @@ else:
     start_date = sys.argv[4]
     end_date = sys.argv[5]
 
-if sat_sel == "g1618" or sat_sel == "all":
+if sat_sel == "g1918" or sat_sel == "all":
     combine= sys.argv[6]
 
 expid="aqm"
@@ -149,8 +149,8 @@ date_inc = datetime.timedelta(hours=24)
 hour_inc = datetime.timedelta(hours=1)
 
 if sat_sel == "all":
-    satid=["g16", "g18", "g1618"]
-elif sat_sel == "g16" or sat_sel == "g18" or sat_sel == "g1618":
+    satid=["g19", "g18", "g1918"]
+elif sat_sel == "g19" or sat_sel == "g18" or sat_sel == "g1918":
     satid=[]
     satid.append(sat_sel)
 else:
@@ -230,12 +230,12 @@ while date <= edate:
         for goes in satid:
             goes_capt=goes.upper()
             goes_name="GOES OBS"
-            if goes_capt == "G16":
+            if goes_capt == "G19":
                 goes_name="GOES East"
             elif goes_capt == "G18":
                 goes_name="GOES West"
-            elif goes_capt == "G1618":
-                goes_name=f"G16/18 {combine}"
+            elif goes_capt == "G1918":
+                goes_name=f"G19/18 {combine}"
 
             figdir = f"{stmp_dir}/{goes}_{scan}_{expid}_{YMD}"
             print(f"FIGDIR={figdir}")
@@ -249,7 +249,7 @@ while date <= edate:
                 fhh=str_obs_hr.zfill(2)
                 for qc_now in qc_list:
                     qc=qc_now.lower()
-                    if goes == "g1618":
+                    if goes == "g1918":
                         checkfile=f"{merged_data_dir}/abi_{scan}_aqm_{combine}_merged_{YMD}_{fhh}_{qc}.nc" 
                     else:
                         checkfile=f"{data_dir}/abi_{scan}_aqm_{goes}_{YMD}_{fhh}_{qc}.nc" 
@@ -349,7 +349,7 @@ while date <= edate:
                                 ax.set_title(title)
                                 ## cb2.set_label('Discrete intervals, some other units')
                                 fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
-                                if goes_capt == "G1618":
+                                if goes_capt == "G1918":
                                     savefig_name = f"{figdir}/aqm.{figarea}.{goes}{combine}.{scan_lower}.{YMD}.{fhh}.aod.{qc}.png"
                                 else:
                                     savefig_name = f"{figdir}/aqm.{figarea}.{goes}.{scan_lower}.{YMD}.{fhh}.aod.{qc}.png"

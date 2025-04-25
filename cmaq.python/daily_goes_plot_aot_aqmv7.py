@@ -224,7 +224,7 @@ while date <= edate:
         str_obs_hr=str(cyc)
         fhh=str_obs_hr.zfill(2)
         for qc in qc_list:
-            file_hdr="OBS_AOD_"+expid+"_g16_"+YMD+"_"+fhh+"_"+qc.lower()
+            file_hdr="OBS_AOD_"+expid+"_g19_"+YMD+"_"+fhh+"_"+qc.lower()
             aqmfilein=comout+"/"+expid+"."+YMD+"/"+file_hdr+".nc"
             if os.path.exists(aqmfilein):
                 print(aqmfilein+" exists")
@@ -291,7 +291,7 @@ while date <= edate:
                         ax.set_title(title)
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
-                        savefig_name = figdir+"/aqm."+figarea+".g16."+YMD+"."+fhh+".aod."+qc.lower()+".png"
+                        savefig_name = figdir+"/aqm."+figarea+".g19."+YMD+"."+fhh+".aod."+qc.lower()+".png"
                         plt.savefig(savefig_name, bbox_inches='tight')
                         plt.close()
             else:

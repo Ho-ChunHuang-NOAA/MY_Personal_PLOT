@@ -48,7 +48,7 @@ for line in rfile:
 
 ### PASSED AGRUEMENTS
 if len(sys.argv) < 4:
-    print("you must set 4 arguments as [g16|g18|g1618|all] quality_flag[high|med|all] start_date end_date")
+    print("you must set 4 arguments as [g19|g18|g1918|all] quality_flag[high|med|all] start_date end_date")
     sys.exit()
 else:
     sel_sat= sys.argv[1]
@@ -190,8 +190,8 @@ else:
 num_qc_list=len(qc_list)
 
 if sel_sat == "all":
-    satid=["g16", "g18", "g1618" ]
-elif sel_sat == "g16" or sel_sat == "g18" or sel_sat == "g1618":
+    satid=["g19", "g18", "g1918" ]
+elif sel_sat == "g19" or sel_sat == "g18" or sel_sat == "g1918":
     satid=[]
     satid.append(sel_sat)
 else:
