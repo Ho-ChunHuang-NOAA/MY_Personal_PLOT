@@ -276,11 +276,11 @@ while date <= edate:
                     if os.path.exists(aodfilein1):
                         aqmfilein=aodfilein1
                     elif os.path.exists(aodfilein2):
-                        print(f"Can not find {aodfile1}")
+                        print(f"Can not find {aodfilein1}")
                         aqmfilein=aodfilein2
                     else:
-                        print(f"Can not find {aodfile1}")
-                        print(f"Can not find {aodfile2}")
+                        print(f"Can not find {aodfilein1}")
+                        print(f"Can not find {aodfilein2}")
                         print(f"WARNING:: SKIP {YMD} {cyc} f{fhh3} graphic")
                     if os.path.exists(aqmfilein):
                         reduceaot=f"{working_dir}/{file_hdr}_reduced.grib2"
@@ -312,10 +312,6 @@ while date <= edate:
                     msg=datetime.datetime.now()
                     s3_title="Total AOD"
                     var_cs=aot_cs
-                    if flag_ak == "yes":
-                        var_ak=aot_ak
-                    if flag_hi == "yes":
-                        var_hi=aot_hi
                     clevs = [ 0.05, 0.1, 0.15, 0.2, 0.4, 0.6, 0.8, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 ]
                     cmap = mpl.colors.ListedColormap([
                            (0.8627,0.8627,1.0000), (0.6471,0.6471,1.0000),
@@ -332,10 +328,6 @@ while date <= edate:
     
                     title=s1_title+"\n"+s2_title+" "+s3_title
                     pvar_cs = var_cs[:,:]
-                    if flag_ak == "yes":
-                        pvar_ak = var_ak[:,:]
-                    if flag_hi == "yes":
-                        pvar_hi = var_hi[:,:]
                     for ireg in range(0,num_reg):
                         if iplot[ireg] == 1:
                             figarea=regname[ireg]
@@ -366,47 +358,13 @@ while date <= edate:
                             ax.add_feature(cfeature.BORDERS, facecolor='none', linestyle=':')
                             ax.add_feature(cfeature.LAKES, facecolor='None', edgecolor='black', alpha=0.5)
                             ## ax.add_feature(cfeature.RIVERS)
-                            if figarea == "ak":
-                                try:
-                                    cf1 = ax.contourf(
-                                         ak_lon, ak_lat, pvar_ak,
-                                         levels=clevs, cmap=cmap, norm=norm, extend='both',
-                                         transform=ccrs.PlateCarree() )
-                                except ValueError:
-                                    continue
-                            elif figarea == "hi":
-                                try:
-                                    cf1 = ax.contourf(
-                                         hi_lon, hi_lat, pvar_hi,
-                                         levels=clevs, cmap=cmap, norm=norm, extend='both',
-                                         transform=ccrs.PlateCarree() )
-                                except ValueError:
-                                    continue
-                            else:
-                                try:
-                                    cf1 = ax.contourf(
-                                         cs_lon, cs_lat, pvar_cs,
-                                         levels=clevs, cmap=cmap, norm=norm, extend='both',
-                                         transform=ccrs.PlateCarree() )
-                                except ValueError:
-                                    continue
-                                if figarea == "dset":
-                                    if flag_ak == "yes":
-                                        try:
-                                            ax.contourf(
-                                             ak_lon, ak_lat, pvar_ak,
-                                             levels=clevs, cmap=cmap, norm=norm, extend='both',
-                                             transform=ccrs.PlateCarree() )
-                                        except ValueError:
-                                            continue
-                                    if flag_hi == "yes":
-                                        try:
-                                            ax.contourf(
-                                             hi_lon, hi_lat, pvar_hi,
-                                             levels=clevs, cmap=cmap, norm=norm, extend='both',
-                                             transform=ccrs.PlateCarree() )
-                                        except ValueError:
-                                            continue
+                            try:
+                                cf1 = ax.contourf(
+                                     cs_lon, cs_lat, pvar_cs,
+                                     levels=clevs, cmap=cmap, norm=norm, extend='both',
+                                     transform=ccrs.PlateCarree() )
+                            except ValueError:
+                                continue
                             ax.set_title(title)
                             ## cb2.set_label('Discrete intervals, some other units')
                             fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
