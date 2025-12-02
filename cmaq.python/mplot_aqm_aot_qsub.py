@@ -242,7 +242,7 @@ while date <= edate:
                     fsh.write("#!/bin/bash\n")
                     fsh.write("#PBS -o "+ftplog+"\n")
                     fsh.write("#PBS -e "+ftplog+"\n")
-                    fsh.write("#PBS -l place=shared,select=1:ncpus=1:mem=10GB\n")
+                    fsh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4GB\n")
                     fsh.write("#PBS -N j"+ftpid+"\n")
                     fsh.write("#PBS -q dev_transfer\n")
                     fsh.write("#PBS -A AQM-DEV\n")
