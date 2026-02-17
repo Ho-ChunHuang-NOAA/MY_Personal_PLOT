@@ -159,6 +159,7 @@ else:
 if not os.path.exists(comout+"/aqm."+sdate.strftime(YMD_date_format)):
     if not os.path.exists(usrout+"/aqm."+sdate.strftime(YMD_date_format)):
         print("Can not find ioutput dir with experiment id "+envir)
+        print(usrout+"/aqm."+sdate.strftime(YMD_date_format))
         sys.exit()
 
 
