@@ -54,6 +54,7 @@ else:
     end_date = sys.argv[5]
 
 flag_obs=False
+flag_obs=True
 
 stmp_dir="/lfs/h2/emc/stmp/"+user
 if not os.path.exists(stmp_dir):
@@ -265,6 +266,9 @@ else:
     iplot = [ 0, 0, 0, 0,  0, 0,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
 
 num_reg=len(iplot)
+if num_reg == 0:
+    print(f"no region has been selected")
+    sys.exit(0)
 
 date=sdate
 while date <= edate:
@@ -289,22 +293,22 @@ while date <= edate:
                 figdir = figout+"/gcafs"+"_"+EXP.lower()+"obs_"+YMD+"_"+var[ivar]+cycle_time+BC_append.lower()+"_hrlyp1"
             else:
                 figdir = figout+"/gcafs"+"_"+EXP.lower()+"_"+YMD+"_"+var[ivar]+cycle_time+BC_append.lower()+"_p1"
-            print(figdir)
+            print(f"figure dir = {figdir}")
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)
             os.makedirs(figdir)
             print("working on "+YMD+" t"+cyc+"z "+var[ivar])
-            hour_end = 120
-            for fcst_hr in range(hour_end,hour_end,3):
-                nout=fcst_hr+1
-                str_fcst_hr=str(nout)
-                ## fhh=str_pad(fcst_hr,3,'0',STR_PAD_LEFT)
-                fhh2=str_fcst_hr.zfill(2)
-                fhh3=str_fcst_hr.zfill(3)
+            fcst_inc = 3
+            fcst_beg = 0
+            fcst_end = 6
+            for fcst_hr in range(fcst_beg,fcst_end+1,fcst_inc):
+                str_fcst_hr=str(fcst_hr)
+                fhh=str_fcst_hr.zfill(3)
                 ## READ hourly EPA AirNOW OBS data
                 ## note obs is forward average and model is backward, so they are different by an hour
-                obs_hour=fcst_hour
-                fcst_hour=fcst_hour + hour_inc
+                hour_adv = datetime.timedelta(hours=fcst_hr)
+                fcst_hour=fcst_ini+hour_adv
+                obs_hour=fcst_hour-hour_inc
 
                 ## Read in one hourly data one at a time
                 flag_with_obs=True
@@ -350,33 +354,34 @@ while date <= edate:
                     pmunit = airnow['PM25_Unit']
 
                 if var[ivar] == "pm25":
-                    gcafsfilein=f"{usrout}/{expid}.{YMD}/{cyc}/products/atmos/grib2/0p25/gcafs.atmos.{cycle_time}.0p25.f{fhh3}.trim.grib2"
-                    gcafsfilein2=f"{comout}/{expid}.{YMD}/{cyc}/products/atmos/grib2/0p25/gcafs.{cycle_time}.pres_a.0p25.f{fhh3}.grib2"
+                    gcafsfilein=f"{usrout}/{expid}.{YMD}/{cyc}/products/atmos/grib2/0p25/gcafs.atmos.{cycle_time}.0p25.f{fhh}.trim.grib2"
+                    gcafsfilein2=f"{comout}/{expid}.{YMD}/{cyc}/products/atmos/grib2/0p25/gcafs.{cycle_time}.pres_a.0p25.f{fhh}.grib2"
                     if os.path.exists(gcafsfilein):
                         ## print(gcafsfilein+" exists")
-                        outfile=working_dir+"/pm25."+fhh3+"."+YMD+"."+cycle_time+".nc"
+                        outfile=working_dir+"/pm25."+fhh+"."+YMD+"."+cycle_time+".nc"
                         subprocess.call([wgrib2+' -d 2 -netcdf '+outfile+' '+gcafsfilein], shell=True)
                         gcafsfilein=outfile
                         cs_gcafs = netcdf.Dataset(gcafsfilein)
-                        cs_lat = cs_gcafs.variables['latitude'][:,:]
-                        cs_lon = cs_gcafs.variables['longitude'][:,:]
-                        pm_cs = cs_gcafs.variables['PMTF_1sigmalevel'][0,:,:]
+                        cs_lat = cs_gcafs.variables['latitude'][:]
+                        cs_lon = cs_gcafs.variables['longitude'][:]
+                        pm_cs = cs_gcafs.variables['PMTF_surface'][0,:,:]
                         cs_gcafs.close()
                     elif os.path.exists(gcafsfilein2):
                         ## print(gcafsfilein2+" exists")
-                        outfile=working_dir+"/pm25."+fhh3+"."+YMD+"."+cycle_time+".nc"
+                        outfile=working_dir+"/pm25."+fhh+"."+YMD+"."+cycle_time+".nc"
                         subprocess.call([wgrib2+' -d 40 -netcdf '+outfile+' '+gcafsfilein2], shell=True)
                         gcafsfilein2=outfile
                         cs_gcafs = netcdf.Dataset(gcafsfilein2)
-                        cs_lat = cs_gcafs.variables['latitude'][:,:]
-                        cs_lon = cs_gcafs.variables['longitude'][:,:]
-                        pm_cs = cs_gcafs.variables['PMTF_1sigmalevel'][0,:,:]
+                        cs_lat = cs_gcafs.variables['latitude'][:]
+                        cs_lon = cs_gcafs.variables['longitude'][:]
+                        pm_cs = cs_gcafs.variables['PMTF_surface'][0,:,:]
                         cs_gcafs.close()
                     else:
                         print("Can not find "+gcafsfilein)
                         print("Can not find "+gcafsfilein2)
                         continue
                         ## sys.exit()
+                s2_title = fcst_hour.strftime(YMDH_date_format)+"00V"+fhh
                 if var[ivar] == "pm25":
                     s3_title="PM25 sfc_conc ($\u03bcg/m^3$)"
                     scale=1.
@@ -513,9 +518,9 @@ while date <= edate:
                             ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=mksize[ireg],zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
 
                         if flag_obs and flag_with_obs:
-                            savefig_name = figdir+"/gcafs."+figarea+"."+fig_exp+"obs."+YMD+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
+                            savefig_name = figdir+"/gcafs."+figarea+"."+fig_exp+"obs."+YMD+"."+cycle_time+"."+fhh+"."+var[ivar]+".k1.png"
                         else:
-                            savefig_name = figdir+"/gcafs."+figarea+"."+fig_exp+"."+YMD+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
+                            savefig_name = figdir+"/gcafs."+figarea+"."+fig_exp+"."+YMD+"."+cycle_time+"."+fhh+"."+var[ivar]+".k1.png"
                         plt.savefig(savefig_name, bbox_inches='tight')
                         plt.close()
             ## scp by cycle and variable
