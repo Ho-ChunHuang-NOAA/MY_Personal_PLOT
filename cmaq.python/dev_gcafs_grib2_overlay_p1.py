@@ -300,7 +300,7 @@ while date <= edate:
             print("working on "+YMD+" t"+cyc+"z "+var[ivar])
             fcst_inc = 3
             fcst_beg = 0
-            fcst_end = 6
+            fcst_end = 3
             for fcst_hr in range(fcst_beg,fcst_end+1,fcst_inc):
                 str_fcst_hr=str(fcst_hr)
                 fhh=str_fcst_hr.zfill(3)
@@ -356,10 +356,26 @@ while date <= edate:
                 if var[ivar] == "pm25":
                     gcafsfilein=f"{usrout}/{expid}.{YMD}/{cyc}/products/atmos/grib2/0p25/gcafs.atmos.{cycle_time}.0p25.f{fhh}.trim.grib2"
                     gcafsfilein2=f"{comout}/{expid}.{YMD}/{cyc}/products/atmos/grib2/0p25/gcafs.{cycle_time}.pres_a.0p25.f{fhh}.grib2"
+                    wgrib2_exe = "wgrib2" # Path to your wgrib2 executable
                     if os.path.exists(gcafsfilein):
                         ## print(gcafsfilein+" exists")
                         outfile=working_dir+"/pm25."+fhh+"."+YMD+"."+cycle_time+".nc"
-                        subprocess.call([wgrib2+' -d 2 -netcdf '+outfile+' '+gcafsfilein], shell=True)
+                        
+                        ## subprocess.call([wgrib2+' -d 2 -netcdf '+outfile+' '+gcafsfilein], shell=True)
+                        cmd = [
+                            "wgrib2",
+                            gcafsfilein,
+                            "-match", "PMTF",
+                            "-match", "aerosol=Total Aerosol",
+                            "-match", "aerosol_size <2.5e-06",
+                            "-netcdf", outfile
+                        ]
+
+                        print(outfile)
+                        try:
+                            subprocess.run(cmd, check=True)
+                        except subprocess.CalledProcessError as e:
+                            print(f"Error: wgrib2 failed for {gcafsfilein}")
                         gcafsfilein=outfile
                         cs_gcafs = netcdf.Dataset(gcafsfilein)
                         cs_lat = cs_gcafs.variables['latitude'][:]
@@ -369,7 +385,21 @@ while date <= edate:
                     elif os.path.exists(gcafsfilein2):
                         ## print(gcafsfilein2+" exists")
                         outfile=working_dir+"/pm25."+fhh+"."+YMD+"."+cycle_time+".nc"
-                        subprocess.call([wgrib2+' -d 40 -netcdf '+outfile+' '+gcafsfilein2], shell=True)
+                        ## subprocess.call([wgrib2+' -d 40 -netcdf '+outfile+' '+gcafsfilein2], shell=True)
+                        cmd = [
+                            wgrib2_exe,
+                            gcafsfilein2,
+                            "-match", "PMTF",
+                            "-match", "aerosol=Total Aerosol",
+                            "-match", "aerosol_size <2.5e-06",
+                            "-netcdf", outfile
+                        ]
+
+                        # Run it
+                        try:
+                            subprocess.run(cmd, check=True)
+                        except subprocess.CalledProcessError as e:
+                            print(f"Error: wgrib2 failed for {gcafsfilein}")
                         gcafsfilein2=outfile
                         cs_gcafs = netcdf.Dataset(gcafsfilein2)
                         cs_lat = cs_gcafs.variables['latitude'][:]
