@@ -16,6 +16,7 @@ import datetime
 import shutil
 import subprocess
 import pandas as pd
+import glob
 
 user=os.environ['USER']
 
@@ -673,6 +674,10 @@ while date <= edate:
             print("FIG DIR = "+figdir)
         msg=datetime.datetime.now()
         print("End   processing "+date.strftime(YMD_date_format)+" "+cycle_time+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+    del_files = glob.glob(f"{working_dir}/*.nc")
+    for f in del_files:
+        if os.path.isfile(f):
+            os.remove(f)
     msg=datetime.datetime.now()
     print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     date = date + date_inc

@@ -16,6 +16,7 @@ import datetime
 import shutil
 import subprocess
 import pandas as pd
+import glob
 
 user=os.environ['USER']
 
@@ -33,8 +34,12 @@ for line in rfile:
         if ver_name[1] == "gcafs_ver":
             gcafs_ver_prod=ver[1]
 rfile.close()
-if gcafs_ver_prod=="":
-    gcafs_ver_prod="v1.0"
+
+try:
+    if gcafs_ver_prod == "NONE":
+        gcafs_ver_prod="v1.0"
+except NameError:
+        gcafs_ver_prod="v1.0"
 print("gcafs_ver="+gcafs_ver_prod)
 
 wgrib2=os.environ['WGRIB2']
@@ -148,7 +153,7 @@ grid793="793"
 
 gcafs = True
 caseid="gcafs"
-s1_lead="Inline GCAFS"
+s1_lead="Inline"
 gcafs_ver="v1.0"
 dataid=gcafs_ver.split('.')[0]
 
@@ -250,20 +255,20 @@ flag_proj="LambertConf"
 ## from 228.37073225113136 to 296.6273160909873
 # old -70.6 to -120.4
 #     22.2 to 50.7
-mksize= [  64,64, 121, 64, 64, 16,     36,      36,      36,     49,     49,     49,     49,     64,     64,    121,    100,    121,     36 ]
+mksize= [  49, 64,64, 121, 64, 64, 16,     36,      36,      36,     49,     49,     49,     49,     64,     64,    121,    100,    121,     36 ]
 ## mksize= [ 64,64, 64, 64, 16,      16,      25,     25,     36,     36,     36,     36,     49,     49,    121,    100,    121,     36 ]
 if flag_proj == "LambertConf":
-    regname = [ "LAfire", "LABasin", "ctdeep", "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ]
-    rlon0 = [ -130., -121., -75., -125., -120., -165.0, -120.4,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0,  -75.0, -166.0, -161.5, -141.0 ]
-    rlon1 = [  -112., -116.8, -71., -110., -100., -70.0,  -70.6,   -67.0,  -95.0,  -67.0, -103.0,  -74.0, -100.0,  -83.0,  -78.0,  -71.0, -132.0, -153.1, -60.0 ]
-    rlat0 = [   22.5, 32.2, 40.4, 40., 30.0, 10.0,   22.2,    21.9,   24.5,   37.0,   38.0,   24.0,   30.0,   35.0,   23.5,   40.2,   53.2,   17.8,   38.0 ]
-    rlat1 = [   38.5, 35.5, 42.2, 45., 40., 75.0,   50.7,    50.0,   52.0,   48.0,   52.0,   40.0,   45.0,   50.0,   38.0,   41.8,   71.2,   23.1,   70.0 ]
-xsize = [   8,8, 10, 10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
-ysize = [    8,8, 8, 5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
-if 1 == 2:
-    iplot = [  0, 0, 1, 0, 0,   1,      1,       1,      1,      1,      1,      1,      1,      1,      1,      1,      0,      0, 1 ]
+    regname = [ "july26", "LAfire", "LABasin", "ctdeep", "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ]
+    rlon0 = [ -100., -130., -121., -75., -125., -120., -165.0, -120.4,   -95.0, -125.0,  -82.0, -125.0,  -90.0, -125.0, -103.0,  -98.0,  -75.0, -166.0, -161.5, -141.0 ]
+    rlon1 = [  -70., -112., -116.8, -71., -110., -100., -70.0,  -70.6,   -67.0,  -95.0,  -67.0, -103.0,  -74.0, -100.0,  -83.0,  -78.0,  -71.0, -132.0, -153.1, -60.0 ]
+    rlat0 = [   35., 22.5, 32.2, 40.4, 40., 30.0, 10.0,   22.2,    21.9,   24.5,   37.0,   38.0,   24.0,   30.0,   35.0,   23.5,   40.2,   53.2,   17.8,   38.0 ]
+    rlat1 = [   55., 38.5, 35.5, 42.2, 45., 40., 75.0,   50.7,    50.0,   52.0,   48.0,   52.0,   40.0,   45.0,   50.0,   38.0,   41.8,   71.2,   23.1,   70.0 ]
+xsize = [ 10, 8,8, 10, 10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
+ysize = [ 8, 8,8, 8, 5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
+if 1 == 1:
+    iplot = [ 1,  1, 1, 1, 1, 1,   1,      0,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
 else:
-    iplot = [ 0, 0, 0, 0,  0, 0,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
+    iplot = [ 0, 0, 0, 0, 0,  0, 0,      1,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0 ]
 
 num_reg=len(iplot)
 if num_reg == 0:
@@ -300,7 +305,7 @@ while date <= edate:
             print("working on "+YMD+" t"+cyc+"z "+var[ivar])
             fcst_inc = 3
             fcst_beg = 0
-            fcst_end = 3
+            fcst_end = 120
             for fcst_hr in range(fcst_beg,fcst_end+1,fcst_inc):
                 str_fcst_hr=str(fcst_hr)
                 fhh=str_fcst_hr.zfill(3)
@@ -557,17 +562,21 @@ while date <= edate:
             ##
             os.chdir(figdir)
             parta=os.path.join("/usr", "bin", "scp")
-            if 1 == 2 :
+            if 1 == 1 :
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), YMD, cycle_time)
             else:
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "ftp")
-            subprocess.call(['scp -p * '+partb], shell=True)
+            ## subprocess.call(['scp -p * '+partb], shell=True)
             msg=datetime.datetime.now()
             print("End   processing "+var[ivar])
             print("FIG DIR = "+figdir)
         msg=datetime.datetime.now()
         print("End   processing "+YMD+" "+cycle_time+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+    del_files = glob.glob(f"{working_dir}/*.nc")
+    for f in del_files:
+        if os.path.isfile(f):
+            os.remove(f)
     msg=datetime.datetime.now()
     print("End   processing "+YMD+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     date = date + date_inc
