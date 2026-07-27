@@ -316,7 +316,7 @@ num_reg=len(iplot)
 
 date=sdate
 while date <= edate:
-
+    YMD = date.strftime(YMD_date_format)
     if not flag_ak and iplot[num_reg-3] == 1:
         iplot[num_reg-3] = 0
     if not flag_hi and iplot[num_reg-2] == 1:
@@ -325,18 +325,18 @@ while date <= edate:
     for cyc in cycle:
         cycle_time="t"+cyc+"z"
         msg=datetime.datetime.now()
-        print("Start processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
-        s1_title=s1_lead+" "+EXP.upper()+BC_append.upper()+" "+date.strftime(YMD_date_format)+" t"+cyc+"z"
+        print("Start processing "+YMD+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+        s1_title=s1_lead+" "+EXP.upper()+BC_append.upper()+" "+YMD+" t"+cyc+"z"
         fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[0:2]))
 
         for ivar in range(0,num_var):
             fcst_hour=fcst_ini
-            figdir = figout+"/aqm"+"_"+EXP.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cycle_time+BC_append.lower()+"_overp2"
+            figdir = figout+"/aqm"+"_"+EXP.lower()+"obs_"+YMD+"_"+var[ivar]+cycle_time+BC_append.lower()+"_overp2"
             print(figdir)
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)
             os.makedirs(figdir)
-            print("working on "+date.strftime(YMD_date_format)+" t"+cyc+"z "+var[ivar])
+            print("working on "+YMD+" t"+cyc+"z "+var[ivar])
             hour_end = 72
             for fcst_hr in range(0,hour_end):
                 nout=fcst_hr+1
@@ -396,14 +396,14 @@ while date <= edate:
 
                 if var[ivar] == "pm25":
                     if aqmv7:
-                        aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh3+"."+exp_grid+".grib2"
-                        aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh3+"."+exp_grid+".grib2"
+                        aqmfilein=comout+"/"+expid+"."+YMD+"/"+cyc+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh3+"."+exp_grid+".grib2"
+                        aqmfilein2=usrout+"/"+expid+"."+YMD+"/"+cyc+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh3+"."+exp_grid+".grib2"
                     else:
-                        aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
-                        aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
+                        aqmfilein=comout+"/"+expid+"."+YMD+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
+                        aqmfilein2=usrout+"/"+expid+"."+YMD+"/aqm."+cycle_time+".pm25"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
-                        outfile=working_dir+"/pm25p2."+fhh2+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"
+                        outfile=working_dir+"/pm25p2."+fhh2+"."+YMD+"."+cycle_time+".nc"
                         subprocess.call([wgrib2+' -d 1 -netcdf '+outfile+' '+aqmfilein], shell=True)
                         aqmfilein=outfile
                         cs_aqm = netcdf.Dataset(aqmfilein)
@@ -413,7 +413,7 @@ while date <= edate:
                         cs_aqm.close()
                     elif os.path.exists(aqmfilein2):
                         ## print(aqmfilein2+" exists")
-                        outfile=working_dir+"/pm25p2."+fhh2+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"
+                        outfile=working_dir+"/pm25p2."+fhh2+"."+YMD+"."+cycle_time+".nc"
                         subprocess.call([wgrib2+' -d 1 -netcdf '+outfile+' '+aqmfilein2], shell=True)
                         aqmfilein2=outfile
                         cs_aqm = netcdf.Dataset(aqmfilein2)
@@ -429,14 +429,14 @@ while date <= edate:
                 ## in ppm
                 if var[ivar] == "o3":
                     if aqmv7:
-                        aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh3+"."+exp_grid+".grib2"
-                        aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh3+"."+exp_grid+".grib2"
+                        aqmfilein=comout+"/"+expid+"."+YMD+"/"+cyc+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh3+"."+exp_grid+".grib2"
+                        aqmfilein2=usrout+"/"+expid+"."+YMD+"/"+cyc+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh3+"."+exp_grid+".grib2"
                     else:
-                        aqmfilein=comout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
-                        aqmfilein2=usrout+"/"+expid+"."+date.strftime(YMD_date_format)+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
+                        aqmfilein=comout+"/"+expid+"."+YMD+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
+                        aqmfilein2=usrout+"/"+expid+"."+YMD+"/aqm."+cycle_time+".awpozcon"+BC_append+".f"+fhh2+"."+exp_grid+".grib2"
                     if os.path.exists(aqmfilein):
                         ## print(aqmfilein+" exists")
-                        outfile=working_dir+"/o3p2."+fhh2+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"
+                        outfile=working_dir+"/o3p2."+fhh2+"."+YMD+"."+cycle_time+".nc"
                         subprocess.call([wgrib2+' -d 1 -netcdf '+outfile+' '+aqmfilein], shell=True)
                         aqmfilein=outfile
                         cs_aqm = netcdf.Dataset(aqmfilein)
@@ -447,7 +447,7 @@ while date <= edate:
                         cs_aqm.close()
                     elif os.path.exists(aqmfilein2):
                         ## print(aqmfilein2+" exists")
-                        outfile=working_dir+"/o3p2."+fhh2+"."+date.strftime(YMD_date_format)+"."+cycle_time+".nc"
+                        outfile=working_dir+"/o3p2."+fhh2+"."+YMD+"."+cycle_time+".nc"
                         subprocess.call([wgrib2+' -d 1 -netcdf '+outfile+' '+aqmfilein2], shell=True)
                         aqmfilein2=outfile
                         cs_aqm = netcdf.Dataset(aqmfilein2)
@@ -654,18 +654,24 @@ while date <= edate:
                             ax.scatter(var_lon,var_lat,c=color,cmap=cmap,marker='o',s=mksize[ireg],zorder=1, transform=ccrs.PlateCarree(), edgecolors='black')
 
                         if flag_with_obs:
-                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
+                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+YMD+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
                         else:
-                            ## savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
-                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
+                            ## savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+YMD+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
+                            savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"obs."+YMD+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
                         plt.savefig(savefig_name, bbox_inches='tight')
                         plt.close()
+                        del_var=var[ivar]+"p2"
+                        del_files = glob.glob(f"{working_dir}/{del_var}.*.{YMD}.{cycle_time}.nc")
+                        for f in del_files:
+                            if os.path.isfile(f):
+                                os.remove(f)
+                                print(f"remove {f}")
             ## scp by cycle and variable
             ##
             os.chdir(figdir)
             parta=os.path.join("/usr", "bin", "scp")
             if 1 == 1 :
-                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cycle_time)
+                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), YMD, cycle_time)
             else:
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer_36")
@@ -675,12 +681,7 @@ while date <= edate:
             print("End   processing "+var[ivar])
             print("FIG DIR = "+figdir)
         msg=datetime.datetime.now()
-        print("End   processing "+date.strftime(YMD_date_format)+" "+cycle_time+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
-    del_files = glob.glob(f"{working_dir}/*.nc")
-    for f in del_files:
-        if os.path.isfile(f):
-            os.remove(f)
-            print(f"remove {f}")
+        print("End   processing "+YMD+" "+cycle_time+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     msg=datetime.datetime.now()
-    print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+    print("End   processing "+YMD+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     date = date + date_inc
