@@ -651,7 +651,7 @@ while date <= edate:
             os.chdir(figdir)
             parta=os.path.join("/usr", "bin", "scp")
             if 1 == 1 :
-                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cyc)
+                partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "regional", "restricted", "aqm", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cyc)
             else:
                 partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
             subprocess.call(['scp -p * '+partb], shell=True)

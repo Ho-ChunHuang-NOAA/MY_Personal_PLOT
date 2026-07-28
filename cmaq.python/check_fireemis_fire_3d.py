@@ -414,7 +414,7 @@ while date <= edate:
                 ## print("skip "+title[i])
         os.chdir(figout)
         parta=os.path.join("/usr", "bin", "scp")
-        partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), "t06z" )
+        partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "regional", "restricted", "aqm", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), "t06z" )
         ##partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
         subprocess.call(["scp -p * "+partb], shell=True)
     else:

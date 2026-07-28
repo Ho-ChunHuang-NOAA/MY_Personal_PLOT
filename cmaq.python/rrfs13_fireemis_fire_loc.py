@@ -394,7 +394,7 @@ while date <= edate:
         os.chdir(figout)
         subprocess.call("chmod 644 *", shell=True)
         parta=os.path.join("/usr", "bin", "scp")
-        partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format) )
+        partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "regional", "restricted", "aqm", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format) )
         ## rzdmdir=envir+emission_resolution
         ## partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", rzdmdir )
         subprocess.call(["scp -p * "+partb], shell=True)
