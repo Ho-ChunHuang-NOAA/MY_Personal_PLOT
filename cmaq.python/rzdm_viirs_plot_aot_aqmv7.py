@@ -138,7 +138,7 @@ while date <= edate:
     YM=date.strftime(YM_date_format)
     YMD=date.strftime(YMD_date_format)
 
-    figdir = figout+"/sp_viirs_"+expid+"_"+YMD
+    figdir = figout+"/viirs_"+expid+"_"+YMD
     if os.path.exists(figdir):
         os.chdir(figdir)
 

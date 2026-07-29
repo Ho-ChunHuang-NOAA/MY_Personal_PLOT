@@ -82,7 +82,7 @@ ftp_script_name=w2h_viirs_regrid_aod.py
          OBSOUT=${output_root}/${mdl_name}.${TDY}
          mkdir -p ${OBSOUT}
          #
-         obsfile=${OBSVDIR}/${TDY}/${filehdr}_${TDY}_${oh}"0000".nc
+         obsfile=${OBSVDIR}/${NOW}/${filehdr}_${TDY}_${oh}"0000".nc
          if [ -s ${obsfile} ]; then
             out_file=${OBSOUT}/${filehdr}_${mdl_name}_${TDY}_${oh}.nc
             if [ -s ${out_file} ]; then /bin/rm -f ${out_file}; fi
