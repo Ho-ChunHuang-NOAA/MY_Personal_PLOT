@@ -146,7 +146,10 @@ if envir == "prod":
                   ]
 else:
     script_name = [
-                  "dev_plot_aot_aqmv710.py"
+                  "dev_plot_aot_aqmv7_p1.py",
+                  "dev_plot_aot_aqmv7_p2.py",
+                  "dev_plot_aot_aqmv7_p3.py",
+                  "dev_plot_aot_aqmv7_p4.py"
                   ]
     print(" Not for experimental run, use *rrfs*")
     sys.exit()
@@ -220,10 +223,18 @@ while date <= edate:
         YMD=date.strftime(YMD_date_format)
         msg=datetime.datetime.now()
         for i in script_name:
-            if i == "dev_plot_aot_aqmv710.py":
+            if i in [ "dev_plot_aot_aqmv7_p1.py", "dev_plot_aot_aqmv7_p2.py", "dev_plot_aot_aqmv7_p3.py", "dev_plot_aot_aqmv7_p4.py" ]:
                 print("    Start processing "+i)
-                jobid=f"plot_aot_{envir}_{cyc}_{YMD}"
-                ftpid=f"ftp_aot_{envir}_{cyc}_{YMD}"
+                if i == "dev_plot_aot_aqmv7_p1.py" :
+                    sec_id="p1"
+                if i == "dev_plot_aot_aqmv7_p2.py" :
+                    sec_id="p2"
+                if i == "dev_plot_aot_aqmv7_p3.py" :
+                    sec_id="p3"
+                if i == "dev_plot_aot_aqmv7_p4.py" :
+                    sec_id="p4"
+                jobid=f"plot_aot_{envir}_{cyc}_{YMD}_{sec_id}"
+                ftpid=f"ftp_aot_{envir}_{cyc}_{YMD}_{sec_id}"
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
