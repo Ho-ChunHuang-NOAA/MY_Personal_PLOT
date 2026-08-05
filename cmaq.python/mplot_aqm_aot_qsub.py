@@ -142,7 +142,10 @@ else:
 
 if envir == "prod":
     script_name = [
-                  "dev_plot_aot_aqmv710.py"
+                  "dev_plot_aot_aqmv7_p1.py",
+                  "dev_plot_aot_aqmv7_p2.py",
+                  "dev_plot_aot_aqmv7_p3.py",
+                  "dev_plot_aot_aqmv7_p4.py"
                   ]
 else:
     script_name = [
