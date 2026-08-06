@@ -153,8 +153,16 @@ if envir == "prod":
 else:
     script_name = [
                   "dev_aqm_plot_max_ave_overlay.py",
-                  "dev_rrfs_plot_bc_overlay.py",
-                  "dev_rrfs_plot_overlay.py"
+                  "dev_rrfs_plot_bc_overlay_p1.py",
+                  "dev_rrfs_plot_bc_overlay_p2.py",
+                  "dev_rrfs_plot_bc_overlay_p3.py",
+                  "dev_rrfs_plot_bc_overlay_p4.py",
+                  "dev_rrfs_plot_bc_overlay_p5.py",
+                  "dev_rrfs_plot_overlay_p1.py",
+                  "dev_rrfs_plot_overlay_p2.py",
+                  "dev_rrfs_plot_overlay_p3.py",
+                  "dev_rrfs_plot_overlay_p4.py",
+                  "dev_rrfs_plot_overlay_p5.py"
                   ]
     working_name = [
                   "dev_aqm_plot_max_ave_overlay.py",
@@ -236,26 +244,27 @@ else:
 ic=0
 date=sdate
 while date <= edate:
+    YMD = date.strftime(YMD_date_format)
     for cyc in cycle:
         msg=datetime.datetime.now()
-        print("Start processing "+date.strftime(YMD_date_format)+" "+cyc+"Z Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+        print("Start processing "+YMD+" "+cyc+"Z Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
         for i in script_name:
             msg=datetime.datetime.now()
             if i == "daily.aqm.plot.py" or i == "daily.aqm.plot_overlay.py" or i == "daily.aqm.plot_bc.py" or i == "daily.aqm.plot_bc_overlay.py":
                 print("    Start processing "+i)
                 for j in var:
                     if i == "daily.aqm.plot.py":
-                      jobid="plot_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                      ftpid="ftp_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                      jobid="plot_"+envir+"_"+j+"_"+cyc+"_"+YMD
+                      ftpid="ftp_"+envir+"_"+j+"_"+cyc+"_"+YMD
                     if i == "daily.aqm.plot_overlay.py":
-                      jobid="plot_"+envir+"obs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                      ftpid="ftp_"+envir+"obs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                      jobid="plot_"+envir+"obs_"+j+"_"+cyc+"_"+YMD
+                      ftpid="ftp_"+envir+"obs_"+j+"_"+cyc+"_"+YMD
                     if i == "daily.aqm.plot_bc.py":
-                      jobid="plot_"+envir+"bc_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                      ftpid="ftp_"+envir+"bc_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                      jobid="plot_"+envir+"bc_"+j+"_"+cyc+"_"+YMD
+                      ftpid="ftp_"+envir+"bc_"+j+"_"+cyc+"_"+YMD
                     if i == "daily.aqm.plot_bc_overlay.py":
-                      jobid="plot_"+envir+"bcobs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                      ftpid="ftp_"+envir+"bcobs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                      jobid="plot_"+envir+"bcobs_"+j+"_"+cyc+"_"+YMD
+                      ftpid="ftp_"+envir+"bcobs_"+j+"_"+cyc+"_"+YMD
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
@@ -282,7 +291,7 @@ while date <= edate:
                         sh.write("###PBS -l debug=true\n")
                         sh.write("set -x\n")
                         sh.write("    cd "+working_dir+"\n")
-                        sh.write("    python "+rzdm_file+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("    python "+rzdm_file+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     with open(plot_script, 'a') as sh:
@@ -312,7 +321,7 @@ while date <= edate:
                         sh.write("set -x\n")
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
-                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         if flag_ftp:
                             sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
@@ -320,13 +329,13 @@ while date <= edate:
                     print("run_script = "+plot_script)
                     print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD
                     print(msg)
             if i == "dev_aqm_grib2_hourly_p1.py":
                 print("    Start processing "+i)
                 for j in var:
-                    jobid="pgribp1_"+envir+"bc_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftpgbp1_"+envir+"bc_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="pgribp1_"+envir+"bc_"+j+"_"+cyc+"_"+YMD
+                    ftpid="ftpgbp1_"+envir+"bc_"+j+"_"+cyc+"_"+YMD
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
@@ -353,7 +362,7 @@ while date <= edate:
                         sh.write("###PBS -l debug=true\n")
                         sh.write("set -x\n")
                         sh.write("    cd "+working_dir+"\n")
-                        sh.write("   python "+rzdm_file+" "+envir+"_bc "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+rzdm_file+" "+envir+"_bc "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     with open(plot_script, 'a') as sh:
@@ -381,7 +390,7 @@ while date <= edate:
                         sh.write("set -x\n")
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
-                        sh.write("   python "+i+" "+envir+"_bc "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+i+" "+envir+"_bc "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         if flag_ftp:
                             sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
@@ -389,13 +398,13 @@ while date <= edate:
                     print("run_script = "+plot_script)
                     print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                    msg="        python "+i+" "+envir+"bcobs "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    msg="        python "+i+" "+envir+"bcobs "+j+" "+cyc+" "+YMD+" "+YMD
                     print(msg)
             if i == "dev_aqm_grib2_hourly_p2.py":
                 print("    Start processing "+i)
                 for j in var:
-                    jobid="pgribp2_"+envir+"bc_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftpgbp2_"+envir+"bc_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="pgribp2_"+envir+"bc_"+j+"_"+cyc+"_"+YMD
+                    ftpid="ftpgbp2_"+envir+"bc_"+j+"_"+cyc+"_"+YMD
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
@@ -422,7 +431,7 @@ while date <= edate:
                         sh.write("###PBS -l debug=true\n")
                         sh.write("set -x\n")
                         sh.write("    cd "+working_dir+"\n")
-                        sh.write("   python "+rzdm_file+" "+envir+"_bc "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+rzdm_file+" "+envir+"_bc "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     with open(plot_script, 'a') as sh:
@@ -450,7 +459,7 @@ while date <= edate:
                         sh.write("set -x\n")
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
-                        sh.write("   python "+i+" "+envir+"_bc "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+i+" "+envir+"_bc "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         if flag_ftp:
                             sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
@@ -458,12 +467,12 @@ while date <= edate:
                     print("run_script = "+plot_script)
                     print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                    msg="        python "+i+" "+envir+"bcobs "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    msg="        python "+i+" "+envir+"bcobs "+j+" "+cyc+" "+YMD+" "+YMD
             if i == "dev_aqm_grib2_overlay_p11.py":
                 print("    Start processing "+i)
                 for j in var:
-                    jobid="pgribp1_"+envir+"bcobs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftpgbp1_"+envir+"bcobs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="pgribp1_"+envir+"bcobs_"+j+"_"+cyc+"_"+YMD
+                    ftpid="ftpgbp1_"+envir+"bcobs_"+j+"_"+cyc+"_"+YMD
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
@@ -490,7 +499,7 @@ while date <= edate:
                         sh.write("###PBS -l debug=true\n")
                         sh.write("set -x\n")
                         sh.write("    cd "+working_dir+"\n")
-                        sh.write("   python "+rzdm_file+" "+envir+"_bc "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+rzdm_file+" "+envir+"_bc "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     with open(plot_script, 'a') as sh:
@@ -518,7 +527,7 @@ while date <= edate:
                         sh.write("set -x\n")
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
-                        sh.write("   python "+i+" "+envir+"_bc "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+i+" "+envir+"_bc "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         if flag_ftp:
                             sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
@@ -526,13 +535,13 @@ while date <= edate:
                     print("run_script = "+plot_script)
                     print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                    msg="        python "+i+" "+envir+"bcobs "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    msg="        python "+i+" "+envir+"bcobs "+j+" "+cyc+" "+YMD+" "+YMD
                     print(msg)
             if i == "dev_aqm_grib2_overlay_p12.py":
                 print("    Start processing "+i)
                 for j in var:
-                    jobid="pgribp2_"+envir+"bcobs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftpgbp2_"+envir+"bcobs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="pgribp2_"+envir+"bcobs_"+j+"_"+cyc+"_"+YMD
+                    ftpid="ftpgbp2_"+envir+"bcobs_"+j+"_"+cyc+"_"+YMD
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
@@ -559,7 +568,7 @@ while date <= edate:
                         sh.write("###PBS -l debug=true\n")
                         sh.write("set -x\n")
                         sh.write("    cd "+working_dir+"\n")
-                        sh.write("   python "+rzdm_file+" "+envir+"_bc "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+rzdm_file+" "+envir+"_bc "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     with open(plot_script, 'a') as sh:
@@ -587,7 +596,7 @@ while date <= edate:
                         sh.write("set -x\n")
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
-                        sh.write("   python "+i+" "+envir+"_bc "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+i+" "+envir+"_bc "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         if flag_ftp:
                             sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
@@ -595,12 +604,12 @@ while date <= edate:
                     print("run_script = "+plot_script)
                     print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                    msg="        python "+i+" "+envir+"bcobs "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    msg="        python "+i+" "+envir+"bcobs "+j+" "+cyc+" "+YMD+" "+YMD
             if i == "daily_aqm_grib2_overlay.py":
                 print("    Start processing "+i)
                 for j in var:
-                    jobid="pgrib_"+envir+"obs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftpgb_"+envir+"obs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="pgrib_"+envir+"obs_"+j+"_"+cyc+"_"+YMD
+                    ftpid="ftpgb_"+envir+"obs_"+j+"_"+cyc+"_"+YMD
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
@@ -627,7 +636,7 @@ while date <= edate:
                         sh.write("###PBS -l debug=true\n")
                         sh.write("set -x\n")
                         sh.write("    cd "+working_dir+"\n")
-                        sh.write("   python "+rzdm_file+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+rzdm_file+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     with open(plot_script, 'a') as sh:
@@ -656,7 +665,7 @@ while date <= edate:
                         sh.write("set -x\n")
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
-                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         if flag_ftp:
                             sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
@@ -664,22 +673,22 @@ while date <= edate:
                     print("run_script = "+plot_script)
                     print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD
                     print(msg)
             if i == "daily.aqm.plot_specs1.py" or i == "daily.aqm.plot_specs2.py" or i == "daily.aqm.plot_specs3.py" or i == "daily.aqm.plot_specs4.py" or i == "daily.aqm.plot_spec_xsel.py":
                 print("    Start processing "+i)
                 if i == "daily.aqm.plot_specs1.py":
-                    jobid="plot_sp1_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_sp1_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_sp1_"+envir+"_"+cyc+"_"+YMD
+                    ftpid="ftp_sp1_"+envir+"_"+cyc+"_"+YMD
                 if i == "daily.aqm.plot_specs2.py":
-                    jobid="plot_sp2_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_sp2_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_sp2_"+envir+"_"+cyc+"_"+YMD
+                    ftpid="ftp_sp2_"+envir+"_"+cyc+"_"+YMD
                 if i == "daily.aqm.plot_specs3.py":
-                    jobid="plot_sp3_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_sp3_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_sp3_"+envir+"_"+cyc+"_"+YMD
+                    ftpid="ftp_sp3_"+envir+"_"+cyc+"_"+YMD
                 if i == "daily.aqm.plot_specs4.py":
-                    jobid="plot_sp4_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_sp4_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_sp4_"+envir+"_"+cyc+"_"+YMD
+                    ftpid="ftp_sp4_"+envir+"_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
@@ -706,7 +715,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -734,7 +743,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -742,13 +751,13 @@ while date <= edate:
                 print("run_script = "+plot_script)
                 print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                msg="        python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD
                 print(msg)
             if i == "diff_aqm_plot_bc.py":
                 print("    Start processing "+i)
                 for j in var:
-                    jobid="plot_diffbc_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_diffbc_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_diffbc_"+envir+"_"+j+"_"+cyc+"_"+YMD
+                    ftpid="ftp_diffbc_"+envir+"_"+j+"_"+cyc+"_"+YMD
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
@@ -775,7 +784,7 @@ while date <= edate:
                         sh.write("###PBS -l debug=true\n")
                         sh.write("set -x\n")
                         sh.write("    cd "+working_dir+"\n")
-                        sh.write("   python "+rzdm_file+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+rzdm_file+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     with open(plot_script, 'a') as sh:
@@ -802,7 +811,7 @@ while date <= edate:
                         sh.write("set -x\n")
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
-                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         if flag_ftp:
                             sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
@@ -810,12 +819,12 @@ while date <= edate:
                     print("run_script = "+plot_script)
                     print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                    msg="        python "+i+" "+envir+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    msg="        python "+i+" "+envir+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD
                     print(msg)
             if i == "diff.aqm.plot_bc.py":
                 print("    Start processing "+i)
                 for j in var:
-                    jobid="plot_diffbc_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_diffbc_"+envir+"_"+j+"_"+cyc+"_"+YMD
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
@@ -842,7 +851,7 @@ while date <= edate:
                         sh.write("###PBS -l debug=true\n")
                         sh.write("set -x\n")
                         sh.write("    cd "+working_dir+"\n")
-                        sh.write("   python "+rzdm_file+" "+envir+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+rzdm_file+" "+envir+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     with open(plot_script, 'a') as sh:
@@ -869,7 +878,7 @@ while date <= edate:
                         sh.write("set -x\n")
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
-                        sh.write("   python "+i+" "+envir+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+i+" "+envir+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         if flag_ftp:
                             sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
@@ -877,22 +886,22 @@ while date <= edate:
                     print("run_script = "+plot_script)
                     print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                    msg="        python "+i+" "+envir+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    msg="        python "+i+" "+envir+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD
                     print(msg)
             if i == ( "diff.aqm.plot_specs1.py" or i == "diff.aqm.plot_specs2.py" or i == "diff.aqm.plot_specs3.py" or i == "diff.aqm.plot_specs4.py" ) and envir != "prod":
                 print("    Start processing "+i)
                 if i == "diff.aqm.plot_specs1.py":
-                    jobid="plot_diff_sp1_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_diff_sp1_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_diff_sp1_"+envir+"_"+cyc+"_"+YMD
+                    ftpid="ftp_diff_sp1_"+envir+"_"+cyc+"_"+YMD
                 if i == "diff.aqm.plot_specs2.py":
-                    jobid="plot_diff_sp2_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_diff_sp2_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_diff_sp2_"+envir+"_"+cyc+"_"+YMD
+                    ftpid="ftp_diff_sp2_"+envir+"_"+cyc+"_"+YMD
                 if i == "diff.aqm.plot_specs3.py":
-                    jobid="plot_diff_sp3_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_diff_sp3_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_diff_sp3_"+envir+"_"+cyc+"_"+YMD
+                    ftpid="ftp_diff_sp3_"+envir+"_"+cyc+"_"+YMD
                 if i == "diff.aqm.plot_specs4.py":
-                    jobid="plot_diff_sp4_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_diff_sp4_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_diff_sp4_"+envir+"_"+cyc+"_"+YMD
+                    ftpid="ftp_diff_sp4_"+envir+"_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
@@ -919,7 +928,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" prod "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" prod "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -947,7 +956,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" prod "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" prod "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -955,21 +964,21 @@ while date <= edate:
                 print("run_script = "+plot_script)
                 print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" prod "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                msg="        python "+i+" prod "+envir+" "+cyc+" "+YMD+" "+YMD
                 print(msg)
                 if envir == "para":
                     if i == "diff.aqm.plot_specs1.py":
-                        jobid="plot_diff_sp1_"+envir+"_6d_"+cyc+"_"+date.strftime(YMD_date_format)
-                        ftpid="ftp_diff_sp1_"+envir+"_6d_"+cyc+"_"+date.strftime(YMD_date_format)
+                        jobid="plot_diff_sp1_"+envir+"_6d_"+cyc+"_"+YMD
+                        ftpid="ftp_diff_sp1_"+envir+"_6d_"+cyc+"_"+YMD
                     if i == "diff.aqm.plot_specs2.py":
-                        jobid="plot_diff_sp2_"+envir+"_6d_"+cyc+"_"+date.strftime(YMD_date_format)
-                        ftpid="ftp_diff_sp2_"+envir+"_6d_"+cyc+"_"+date.strftime(YMD_date_format)
+                        jobid="plot_diff_sp2_"+envir+"_6d_"+cyc+"_"+YMD
+                        ftpid="ftp_diff_sp2_"+envir+"_6d_"+cyc+"_"+YMD
                     if i == "diff.aqm.plot_specs3.py":
-                        jobid="plot_diff_sp3_"+envir+"_6d_"+cyc+"_"+date.strftime(YMD_date_format)
-                        ftpid="ftp_diff_sp3_"+envir+"_6d_"+cyc+"_"+date.strftime(YMD_date_format)
+                        jobid="plot_diff_sp3_"+envir+"_6d_"+cyc+"_"+YMD
+                        ftpid="ftp_diff_sp3_"+envir+"_6d_"+cyc+"_"+YMD
                     if i == "diff.aqm.plot_specs4.py":
-                        jobid="plot_diff_sp4_"+envir+"_6d_"+cyc+"_"+date.strftime(YMD_date_format)
-                        ftpid="ftp_diff_sp4_"+envir+"_6d_"+cyc+"_"+date.strftime(YMD_date_format)
+                        jobid="plot_diff_sp4_"+envir+"_6d_"+cyc+"_"+YMD
+                        ftpid="ftp_diff_sp4_"+envir+"_6d_"+cyc+"_"+YMD
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
@@ -996,7 +1005,7 @@ while date <= edate:
                         sh.write("###PBS -l debug=true\n")
                         sh.write("set -x\n")
                         sh.write("    cd "+working_dir+"\n")
-                        sh.write("   python "+rzdm_file+" "+envir+" para6d "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+rzdm_file+" "+envir+" para6d "+cyc+" "+YMD+" "+YMD+"\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     with open(plot_script, 'a') as sh:
@@ -1024,7 +1033,7 @@ while date <= edate:
                         sh.write("set -x\n")
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
-                        sh.write("   python "+i+" "+envir+" para6d "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+i+" "+envir+" para6d "+cyc+" "+YMD+" "+YMD+"\n")
                         if flag_ftp:
                             sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
@@ -1032,13 +1041,13 @@ while date <= edate:
                     print("run_script = "+plot_script)
                     print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                    msg="        python "+i+" "+envir+" para6d "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    msg="        python "+i+" "+envir+" para6d "+cyc+" "+YMD+" "+YMD
                     print(msg)
             if i == "diff.aqm.plot.py" and envir == "para":
                 print("    Start processing "+i)
                 for j in var:
-                    jobid="plot_diff_6d_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_diff_6d_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_diff_6d_"+envir+"_"+j+"_"+cyc+"_"+YMD
+                    ftpid="ftp_diff_6d_"+envir+"_"+j+"_"+cyc+"_"+YMD
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
@@ -1065,7 +1074,7 @@ while date <= edate:
                         sh.write("###PBS -l debug=true\n")
                         sh.write("set -x\n")
                         sh.write("    cd "+working_dir+"\n")
-                        sh.write("   python "+rzdm_file+" "+envir+" para6d "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+rzdm_file+" "+envir+" para6d "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     with open(plot_script, 'a') as sh:
@@ -1093,7 +1102,7 @@ while date <= edate:
                         sh.write("set -x\n")
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
-                        sh.write("   python "+i+" "+envir+" para6d "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+i+" "+envir+" para6d "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         if flag_ftp:
                             sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
@@ -1101,22 +1110,22 @@ while date <= edate:
                     print("run_script = "+plot_script)
                     print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                    msg="        python "+i+" "+envir+" para6d "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    msg="        python "+i+" "+envir+" para6d "+j+" "+cyc+" "+YMD+" "+YMD
                     print(msg)
             if ( i == "daily.aqm.plot_met_v6s1.py" or i == "daily.aqm.plot_met_v6s2.py" or i == "daily.aqm.plot_met_v6s3.py" or i == "daily.aqm.plot_met_v6s4.py" or i == "daily.aqm.plot_met_v6s5.py" ):
                 print("    Start processing "+i)
                 if i == "daily.aqm.plot_met_v6s1.py":
-                    jobid="plot_met1_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_met1_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_met1_"+envir+"_"+cyc+"_"+YMD
+                    ftpid="ftp_met1_"+envir+"_"+cyc+"_"+YMD
                 if i == "daily.aqm.plot_met_v6s2.py":
-                    jobid="plot_met2_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_met2_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_met2_"+envir+"_"+cyc+"_"+YMD
+                    ftpid="ftp_met2_"+envir+"_"+cyc+"_"+YMD
                 if i == "daily.aqm.plot_met_v6s3.py":
-                    jobid="plot_met3_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_met3_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_met3_"+envir+"_"+cyc+"_"+YMD
+                    ftpid="ftp_met3_"+envir+"_"+cyc+"_"+YMD
                 if i == "daily.aqm.plot_met_v6s4.py":
-                    jobid="plot_met4_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_met4_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_met4_"+envir+"_"+cyc+"_"+YMD
+                    ftpid="ftp_met4_"+envir+"_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
@@ -1143,7 +1152,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -1171,7 +1180,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -1179,22 +1188,22 @@ while date <= edate:
                 print("run_script = "+plot_script)
                 print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                msg="        python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD
                 print(msg)
             if ( i == "diff.aqm.plot_met_v6s1.py" or i == "diff.aqm.plot_met_v6s2.py" or i == "diff.aqm.plot_met_v6s3.py" or i == "diff.aqm.plot_met_v6s4.py" or i == "diff.aqm.plot_met_v6s5.py" ) and envir != "prod":
                 print("    Start processing "+i)
                 if i == "diff.aqm.plot_diff_met_v6s1.py":
-                    jobid="plot_diff_met1_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_diff_met1_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_diff_met1_"+envir+"_"+cyc+"_"+YMD
+                    ftpid="ftp_diff_met1_"+envir+"_"+cyc+"_"+YMD
                 if i == "diff.aqm.plot_diff_met_v6s2.py":
-                    jobid="plot_diff_met2_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_diff_met2_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_diff_met2_"+envir+"_"+cyc+"_"+YMD
+                    ftpid="ftp_diff_met2_"+envir+"_"+cyc+"_"+YMD
                 if i == "diff.aqm.plot_diff_met_v6s3.py":
-                    jobid="plot_diff_met3_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_diff_met3_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_diff_met3_"+envir+"_"+cyc+"_"+YMD
+                    ftpid="ftp_diff_met3_"+envir+"_"+cyc+"_"+YMD
                 if i == "diff.aqm.plot_diff_met_v6s4.py":
-                    jobid="plot_diff_met4_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_diff_met4_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_diff_met4_"+envir+"_"+cyc+"_"+YMD
+                    ftpid="ftp_diff_met4_"+envir+"_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
@@ -1221,7 +1230,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" prod "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" prod "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -1249,7 +1258,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" prod "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" prod "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -1257,13 +1266,13 @@ while date <= edate:
                 print("run_script = "+plot_script)
                 print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" prod "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                msg="        python "+i+" prod "+envir+" "+cyc+" "+YMD+" "+YMD
                 print(msg)
             if i == "daily.aqm.col_v6.py":
                 print("    Start processing "+i)
                 for j in col_var:
-                    jobid="plot_col_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_col_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_col_"+envir+"_"+j+"_"+cyc+"_"+YMD
+                    ftpid="ftp_col_"+envir+"_"+j+"_"+cyc+"_"+YMD
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     logfile=log_dir+"/"+jobid+".log"
                     if os.path.exists(plot_script):
@@ -1290,7 +1299,7 @@ while date <= edate:
                         sh.write("###PBS -l debug=true\n")
                         sh.write("set -x\n")
                         sh.write("    cd "+working_dir+"\n")
-                        sh.write("   python "+rzdm_file+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+rzdm_file+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     with open(plot_script, 'a') as sh:
@@ -1318,7 +1327,7 @@ while date <= edate:
                         sh.write("set -x\n")
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
-                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         if flag_ftp:
                             sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
@@ -1326,12 +1335,12 @@ while date <= edate:
                     print("run_script = "+plot_script)
                     print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD
                     print(msg)
             if i == "daily.aqm.plot_dustemis.py":
                 print("    Start processing "+i)
-                jobid="plot_dustem_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                ftpid="ftp_dustem_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                jobid="plot_dustem_"+envir+"_"+cyc+"_"+YMD
+                ftpid="ftp_dustem_"+envir+"_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
@@ -1358,7 +1367,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -1386,7 +1395,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -1394,12 +1403,12 @@ while date <= edate:
                 print("run_script = "+plot_script)
                 print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                msg="        python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD
                 print(msg)
             if i == "daily.aqm.plot_fireemis.py" and envir != "prod":
                 print("    Start processing "+i)
-                jobid="plot_fireem_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                ftpid="ftp_fireem_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                jobid="plot_fireem_"+envir+"_"+cyc+"_"+YMD
+                ftpid="ftp_fireem_"+envir+"_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
@@ -1426,7 +1435,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -1454,7 +1463,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -1462,12 +1471,12 @@ while date <= edate:
                 print("run_script = "+plot_script)
                 print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                msg="        python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD
                 print(msg)
             if i == "fireemis_fire_loc.py":
                 print("    Start processing "+i)
-                jobid="plot_fireloc_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                ftpid="ftp_fireloc_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                jobid="plot_fireloc_"+envir+"_"+cyc+"_"+YMD
+                ftpid="ftp_fireloc_"+envir+"_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
@@ -1494,7 +1503,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -1522,7 +1531,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -1530,12 +1539,12 @@ while date <= edate:
                 print("run_script = "+plot_script)
                 print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                msg="        python "+i+" "+envir+" "+YMD+" "+YMD
                 print(msg)
             if i == "gbbepx_fire_loc.py":
                 print("    Start processing "+i)
-                jobid="plot_gbbepxloc_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                ftpid="ftp_gbbepxloc_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                jobid="plot_gbbepxloc_"+envir+"_"+cyc+"_"+YMD
+                ftpid="ftp_gbbepxloc_"+envir+"_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
@@ -1562,7 +1571,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" "+envir+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" "+envir+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -1590,7 +1599,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+envir+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -1598,12 +1607,12 @@ while date <= edate:
                 print("run_script = "+plot_script)
                 print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                msg="        python "+i+" "+envir+" "+YMD+" "+YMD
                 print(msg)
             if i == "daily.aqm.plot_fireemis_r.py" and envir != "prod":
                 print("    Start processing "+i)
-                jobid="plot_fireem_r_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                ftpid="ftp_fireem_r_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                jobid="plot_fireem_r_"+envir+"_"+cyc+"_"+YMD
+                ftpid="ftp_fireem_r_"+envir+"_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
@@ -1630,7 +1639,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -1658,7 +1667,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -1666,12 +1675,12 @@ while date <= edate:
                 print("run_script = "+plot_script)
                 print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                msg="        python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD
                 print(msg)
             if i == "daily.aqm.plot_dustloc.py":
                 print("    Start processing "+i)
-                jobid="plot_dustloc_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                ftpid="ftp_dustloc_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                jobid="plot_dustloc_"+envir+"_"+cyc+"_"+YMD
+                ftpid="ftp_dustloc_"+envir+"_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
@@ -1698,7 +1707,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -1726,7 +1735,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -1734,12 +1743,12 @@ while date <= edate:
                 print("run_script = "+plot_script)
                 print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                msg="        python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD
                 print(msg)
             if i == "dev_aqm_plot_max_ave_overlay.py":
                 print("    Start processing "+i)
-                jobid="plot_maxaveobs_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                ftpid="ftp_maxaveobs_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                jobid="plot_maxaveobs_"+envir+"_"+cyc+"_"+YMD
+                ftpid="ftp_maxaveobs_"+envir+"_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
@@ -1766,7 +1775,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -1794,7 +1803,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -1802,11 +1811,11 @@ while date <= edate:
                 print("run_script = "+plot_script)
                 print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                msg="        python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD
                 print(msg)
                 print("    Start processing bias correction "+i)
-                jobid="plot_maxaveobs_"+envir+"bc_"+cyc+"_"+date.strftime(YMD_date_format)
-                ftpid="ftp_maxaveobs_"+envir+"bc_"+cyc+"_"+date.strftime(YMD_date_format)
+                jobid="plot_maxaveobs_"+envir+"bc_"+cyc+"_"+YMD
+                ftpid="ftp_maxaveobs_"+envir+"bc_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
@@ -1833,7 +1842,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" "+envir+"_bc "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" "+envir+"_bc "+cyc+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -1861,7 +1870,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+"_bc "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+envir+"_bc "+cyc+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -1869,12 +1878,12 @@ while date <= edate:
                 print("run_script = "+plot_script)
                 print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+"_bc "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                msg="        python "+i+" "+envir+"_bc "+cyc+" "+YMD+" "+YMD
                 print(msg)
             if i == "daily.aqm.plot_max_ave.py":
                 print("    Start processing "+i)
-                jobid="plot_maxave_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                ftpid="ftp_maxave_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                jobid="plot_maxave_"+envir+"_"+cyc+"_"+YMD
+                ftpid="ftp_maxave_"+envir+"_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
@@ -1901,7 +1910,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -1929,7 +1938,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -1937,12 +1946,12 @@ while date <= edate:
                 print("run_script = "+plot_script)
                 print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                msg="        python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD
                 print(msg)
             if i == "daily.aqm.plot_max_ave_bc.py":
                 print("    Start processing "+i)
-                jobid="plot_maxave_bc_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                ftpid="ftp_maxave_bc_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                jobid="plot_maxave_bc_"+envir+"_"+cyc+"_"+YMD
+                ftpid="ftp_maxave_bc_"+envir+"_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
@@ -1969,7 +1978,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -1997,7 +2006,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -2005,12 +2014,12 @@ while date <= edate:
                 print("run_script = "+plot_script)
                 print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                msg="        python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD
                 print(msg)
             if i == "diff.aqm.plot_max_ave_bc.py":
                 print("    Start processing "+i)
-                jobid="plot_diff_maxave_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                ftpid="ftp_diff_maxave_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                jobid="plot_diff_maxave_"+envir+"_"+cyc+"_"+YMD
+                ftpid="ftp_diff_maxave_"+envir+"_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
@@ -2037,7 +2046,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -2065,7 +2074,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -2073,12 +2082,12 @@ while date <= edate:
                 print("run_script = "+plot_script)
                 print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                msg="        python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD
                 print(msg)
             if i == "daily.aqm.plot_aot.py":
                 print("    Start processing "+i)
-                jobid="plot_aot_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                ftpid="ftp_aot_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                jobid="plot_aot_"+envir+"_"+cyc+"_"+YMD
+                ftpid="ftp_aot_"+envir+"_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
@@ -2105,7 +2114,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -2133,7 +2142,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -2141,12 +2150,12 @@ while date <= edate:
                 print("run_script = "+plot_script)
                 print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                msg="        python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD
                 print(msg)
             if i == "dev_rrfs_plot_max_ave.py":
                 print("    Start processing "+i)
-                jobid="plot_maxave_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                ftpid="ftp_maxave_"+envir+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                jobid="plot_maxave_"+envir+"_"+cyc+"_"+YMD
+                ftpid="ftp_maxave_"+envir+"_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
@@ -2173,7 +2182,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -2201,7 +2210,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -2209,12 +2218,12 @@ while date <= edate:
                 print("submit "+plot_script)
                 print("LOG =  "+plot_log)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                msg="        python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD
                 print(msg)
             if i == "dev_rrfs_plot_max_ave_bc.py":
                 print("    Start processing "+i)
-                jobid="plot_maxave_"+envir+"bc_"+cyc+"_"+date.strftime(YMD_date_format)
-                ftpid="ftp_maxave_"+envir+"bc_"+cyc+"_"+date.strftime(YMD_date_format)
+                jobid="plot_maxave_"+envir+"bc_"+cyc+"_"+YMD
+                ftpid="ftp_maxave_"+envir+"bc_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 if os.path.exists(plot_script):
                     os.remove(plot_script)
@@ -2241,7 +2250,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -2269,7 +2278,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -2277,13 +2286,13 @@ while date <= edate:
                 print("submit "+plot_script)
                 print("LOG =  "+plot_log)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                msg="        python "+i+" "+envir+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                msg="        python "+i+" "+envir+" "+cyc+" "+YMD+" "+YMD
                 print(msg)
             if i == "dev_rrfs_plot.py":
                 print("    Start processing "+i)
                 for j in var:
-                    jobid="plot_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_"+envir+"_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_"+envir+"_"+j+"_"+cyc+"_"+YMD
+                    ftpid="ftp_"+envir+"_"+j+"_"+cyc+"_"+YMD
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     if os.path.exists(plot_script):
                         os.remove(plot_script)
@@ -2310,7 +2319,7 @@ while date <= edate:
                         sh.write("###PBS -l debug=true\n")
                         sh.write("set -x\n")
                         sh.write("    cd "+working_dir+"\n")
-                        sh.write("   python "+rzdm_file+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+rzdm_file+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     with open(plot_script, 'a') as sh:
@@ -2338,7 +2347,7 @@ while date <= edate:
                         sh.write("set -x\n")
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
-                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         if flag_ftp:
                             sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
@@ -2346,12 +2355,12 @@ while date <= edate:
                     print("run_script = "+plot_script)
                     print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD
             if i == "dev_rrfs_plot_overlay.py":
                 print("    Start processing "+i)
                 for j in var:
-                    jobid="plot_"+envir+"obs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_"+envir+"obs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    jobid="plot_"+envir+"obs_"+j+"_"+cyc+"_"+YMD
+                    ftpid="ftp_"+envir+"obs_"+j+"_"+cyc+"_"+YMD
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     if os.path.exists(plot_script):
                         os.remove(plot_script)
@@ -2378,7 +2387,7 @@ while date <= edate:
                         sh.write("###PBS -l debug=true\n")
                         sh.write("set -x\n")
                         sh.write("    cd "+working_dir+"\n")
-                        sh.write("   python "+rzdm_file+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+rzdm_file+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     with open(plot_script, 'a') as sh:
@@ -2407,7 +2416,7 @@ while date <= edate:
                         sh.write("set -x\n")
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
-                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         if flag_ftp:
                             sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
@@ -2415,12 +2424,17 @@ while date <= edate:
                     print("run_script = "+plot_script)
                     print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
-            if i == "dev_rrfs_plot_bc_overlay.py":
+                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD
+            if i in [ "dev_rrfs_plot_overlay_p1.py", "dev_rrfs_plot_overlay_p2.py", "dev_rrfs_plot_overlay_p3.py", "dev_rrfs_plot_overlay_p4.py", "dev_rrfs_plot_overlay_p5.py" ]:
                 print("    Start processing "+i)
                 for j in var:
-                    jobid="plot_"+envir+"bcobs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
-                    ftpid="ftp_"+envir+"bcobs_"+j+"_"+cyc+"_"+date.strftime(YMD_date_format)
+                    # Splits by '_' to get 'p1.py', then splits by '.' to get 'p1'
+                    if i.startswith("dev_rrfs_plot_overlay_"):
+                        sec_id = i.split("_")[-1].split(".")[0]
+                    else:
+                        sec_id = np
+                    jobid=f"{sec_id}_plot_{envir}obs_{j}_{cyc}_{YMD}"
+                    ftpid=f"{sec_id}_ftp_{envir}obs_{j}_{cyc}_{YMD}"
                     plot_script=os.path.join(os.getcwd(),jobid+".sh")
                     if os.path.exists(plot_script):
                         os.remove(plot_script)
@@ -2447,7 +2461,76 @@ while date <= edate:
                         sh.write("###PBS -l debug=true\n")
                         sh.write("set -x\n")
                         sh.write("    cd "+working_dir+"\n")
-                        sh.write("   python "+rzdm_file+" "+envir+"_bc "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+rzdm_file+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
+                        sh.write("\n")
+                        sh.write("exit\n")
+                    with open(plot_script, 'a') as sh:
+                        sh.write("#!/bin/bash\n")
+                        sh.write("#PBS -o "+logfile+"\n")
+                        sh.write("#PBS -e "+logfile+"\n")
+                        sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=10GB:prepost=true\n")
+                        sh.write("#PBS -N j"+jobid+"\n")
+                        sh.write("#PBS -q dev\n")
+                        sh.write("#PBS -A AQM-DEV\n")
+                        sh.write("#PBS -l walltime="+task_cpu+"\n")
+                        sh.write("###PBS -l debug=true\n")
+                        ## sh.write("module load envvar/"+envvar_ver+"\n")
+                        ## sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                        ## sh.write("module load intel/"+intel_ver+"\n")
+                        ## sh.write("module load craype/"+craype_ver+"\n")
+                        ## sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                        ## sh.write("module load python/"+python_ver+"\n")
+                        ## sh.write("module load netcdf/"+netcdf_ver+"\n")
+                        sh.write("# \n")
+                        sh.write("export OMP_NUM_THREADS=1\n")
+                        sh.write("\n")
+                        sh.write("##\n")
+                        sh.write("##  Plot EMC "+envir+" using python script\n")
+                        sh.write("##\n")
+                        sh.write("set -x\n")
+                        sh.write("\n")
+                        sh.write("   cd "+working_dir+"\n")
+                        sh.write("   python "+i+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
+                        if flag_ftp:
+                            sh.write("    cat "+ftp_script+" | qsub\n")
+                        sh.write("\n")
+                        sh.write("exit\n")
+                    print("run_script = "+plot_script)
+                    print("log file   = "+logfile)
+                    subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
+                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD
+            if i == "dev_rrfs_plot_bc_overlay.py":
+                print("    Start processing "+i)
+                for j in var:
+                    jobid="plot_"+envir+"bcobs_"+j+"_"+cyc+"_"+YMD
+                    ftpid="ftp_"+envir+"bcobs_"+j+"_"+cyc+"_"+YMD
+                    plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                    if os.path.exists(plot_script):
+                        os.remove(plot_script)
+                    logfile=log_dir+"/"+jobid+".log"
+                    if os.path.exists(logfile):
+                        os.remove(logfile)
+                    filein=i
+                    rzdm_file="rzdm"+filein[3:]
+                    ftp_script=os.path.join(os.getcwd(),ftpid+".sh")
+                    ftplog=log_dir+"/"+ftpid+".log"
+                    if os.path.exists(ftp_script):
+                        os.remove(ftp_script)
+                    if os.path.exists(ftplog):
+                        os.remove(ftplog)
+                    with open(ftp_script, 'a') as sh:
+                        sh.write("#!/bin/bash\n")
+                        sh.write("#PBS -o "+ftplog+"\n")
+                        sh.write("#PBS -e "+ftplog+"\n")
+                        sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4GB\n")
+                        sh.write("#PBS -N j"+ftpid+"\n")
+                        sh.write("#PBS -q dev_transfer\n")
+                        sh.write("#PBS -A AQM-DEV\n")
+                        sh.write("#PBS -l walltime="+task_cpu1+"\n")
+                        sh.write("###PBS -l debug=true\n")
+                        sh.write("set -x\n")
+                        sh.write("    cd "+working_dir+"\n")
+                        sh.write("   python "+rzdm_file+" "+envir+"_bc "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         sh.write("\n")
                         sh.write("exit\n")
                     with open(plot_script, 'a') as sh:
@@ -2477,7 +2560,7 @@ while date <= edate:
                         sh.write("set -x\n")
                         sh.write("\n")
                         sh.write("   cd "+working_dir+"\n")
-                        sh.write("   python "+i+" "+envir+"_bc "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                        sh.write("   python "+i+" "+envir+"_bc "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
                         if flag_ftp:
                             sh.write("    cat "+ftp_script+" | qsub\n")
                         sh.write("\n")
@@ -2485,11 +2568,86 @@ while date <= edate:
                     print("run_script = "+plot_script)
                     print("log file   = "+logfile)
                     subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
-                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)
+                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD
+            if i in [ "dev_rrfs_plot_bc_overlay_p1.py", "dev_rrfs_plot_bc_overlay_p2.py", "dev_rrfs_plot_bc_overlay_p3.py", "dev_rrfs_plot_bc_overlay_p4.py", "dev_rrfs_plot_bc_overlay_p5.py" ]:
+                print("    Start processing "+i)
+                for j in var:
+                    # Splits by '_' to get 'p1.py', then splits by '.' to get 'p1'
+                    if i.startswith("dev_rrfs_plot_bc_overlay_"):
+                        sec_id = i.split("_")[-1].split(".")[0]
+                    else:
+                        sec_id = np
+                    jobid=f"{sec_id}_plot_{envir}bcobs_{j}_{cyc}_{YMD}"
+                    ftpid=f"{sec_id}_ftp_{envir}bcobs_{j}_{cyc}_{YMD}"
+                    plot_script=os.path.join(os.getcwd(),jobid+".sh")
+                    if os.path.exists(plot_script):
+                        os.remove(plot_script)
+                    logfile=log_dir+"/"+jobid+".log"
+                    if os.path.exists(logfile):
+                        os.remove(logfile)
+                    filein=i
+                    rzdm_file="rzdm"+filein[3:]
+                    ftp_script=os.path.join(os.getcwd(),ftpid+".sh")
+                    ftplog=log_dir+"/"+ftpid+".log"
+                    if os.path.exists(ftp_script):
+                        os.remove(ftp_script)
+                    if os.path.exists(ftplog):
+                        os.remove(ftplog)
+                    with open(ftp_script, 'a') as sh:
+                        sh.write("#!/bin/bash\n")
+                        sh.write("#PBS -o "+ftplog+"\n")
+                        sh.write("#PBS -e "+ftplog+"\n")
+                        sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=4GB\n")
+                        sh.write("#PBS -N j"+ftpid+"\n")
+                        sh.write("#PBS -q dev_transfer\n")
+                        sh.write("#PBS -A AQM-DEV\n")
+                        sh.write("#PBS -l walltime="+task_cpu1+"\n")
+                        sh.write("###PBS -l debug=true\n")
+                        sh.write("set -x\n")
+                        sh.write("    cd "+working_dir+"\n")
+                        sh.write("   python "+rzdm_file+" "+envir+"_bc "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
+                        sh.write("\n")
+                        sh.write("exit\n")
+                    with open(plot_script, 'a') as sh:
+                        sh.write("#!/bin/bash\n")
+                        sh.write("#PBS -o "+log_dir+"/"+jobid+".log\n")
+                        sh.write("#PBS -e "+log_dir+"/"+jobid+".log\n")
+                        sh.write("#PBS -l place=shared,select=1:ncpus=1:mem=10GB:prepost=true\n")
+                        sh.write("#PBS -N j"+jobid+"\n")
+                        sh.write("#PBS -q dev\n")
+                        sh.write("#PBS -A AQM-DEV\n")
+                        sh.write("#PBS -l walltime="+task_cpu+"\n")
+                        sh.write("###PBS -l debug=true\n")
+                        ## sh.write("module load envvar/"+envvar_ver+"\n")
+                        ## sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
+                        ## sh.write("module load intel/"+intel_ver+"\n")
+                        ## sh.write("module load craype/"+craype_ver+"\n")
+                        ## sh.write("module load cray-mpich/"+cray_mpich_ver+"\n")
+                        ## sh.write("module load python/"+python_ver+"\n")
+                        ## sh.write("module load netcdf/"+netcdf_ver+"\n")
+                        sh.write("# \n")
+                        sh.write("export OMP_NUM_THREADS=1\n")
+                        sh.write("# \n")
+                        sh.write("\n")
+                        sh.write("##\n")
+                        sh.write("##  Plot EMC "+envir+" using python script\n")
+                        sh.write("##\n")
+                        sh.write("set -x\n")
+                        sh.write("\n")
+                        sh.write("   cd "+working_dir+"\n")
+                        sh.write("   python "+i+" "+envir+"_bc "+j+" "+cyc+" "+YMD+" "+YMD+"\n")
+                        if flag_ftp:
+                            sh.write("    cat "+ftp_script+" | qsub\n")
+                        sh.write("\n")
+                        sh.write("exit\n")
+                    print("run_script = "+plot_script)
+                    print("log file   = "+logfile)
+                    subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
+                    msg="        python "+i+" "+envir+" "+j+" "+cyc+" "+YMD+" "+YMD
             if i == "rrfs_fireemis_fire_loc_retro1.py":
                 print("    Start processing "+i)
-                jobid="plot_rave_fire_loc_v1_"+cyc+"_"+date.strftime(YMD_date_format)
-                ftpid="ftp_rave_fire_loc_v1_"+cyc+"_"+date.strftime(YMD_date_format)
+                jobid="plot_rave_fire_loc_v1_"+cyc+"_"+YMD
+                ftpid="ftp_rave_fire_loc_v1_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
@@ -2516,7 +2674,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" "+cyc+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -2546,7 +2704,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+cyc+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -2556,8 +2714,8 @@ while date <= edate:
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
             if i == "rrfs_fireemis_fire_loc_retro2.py":
                 print("    Start processing "+i)
-                jobid="plot_rave_fire_loc_v2_"+cyc+"_"+date.strftime(YMD_date_format)
-                ftpid="ftp_rave_fire_loc_v2_"+cyc+"_"+date.strftime(YMD_date_format)
+                jobid="plot_rave_fire_loc_v2_"+cyc+"_"+YMD
+                ftpid="ftp_rave_fire_loc_v2_"+cyc+"_"+YMD
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
@@ -2584,7 +2742,7 @@ while date <= edate:
                     sh.write("###PBS -l debug=true\n")
                     sh.write("set -x\n")
                     sh.write("    cd "+working_dir+"\n")
-                    sh.write("   python "+rzdm_file+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+rzdm_file+" "+cyc+" "+YMD+" "+YMD+"\n")
                     sh.write("\n")
                     sh.write("exit\n")
                 with open(plot_script, 'a') as sh:
@@ -2614,7 +2772,7 @@ while date <= edate:
                     sh.write("set -x\n")
                     sh.write("\n")
                     sh.write("   cd "+working_dir+"\n")
-                    sh.write("   python "+i+" "+cyc+" "+date.strftime(YMD_date_format)+" "+date.strftime(YMD_date_format)+"\n")
+                    sh.write("   python "+i+" "+cyc+" "+YMD+" "+YMD+"\n")
                     if flag_ftp:
                         sh.write("    cat "+ftp_script+" | qsub\n")
                     sh.write("\n")
@@ -2623,8 +2781,8 @@ while date <= edate:
                 print("log file   = "+logfile)
                 subprocess.call(["cat "+plot_script+" | qsub"], shell=True)
         ## msg=datetime.datetime.now()
-        ## print("End   processing "+date.strftime(YMD_date_format)+" "+cyc+"Z Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+        ## print("End   processing "+YMD+" "+cyc+"Z Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     ## msg=datetime.datetime.now()
-    ## print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+    ## print("End   processing "+YMD+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     ## print("LOG file location "+working_dir)
     date = date + date_inc

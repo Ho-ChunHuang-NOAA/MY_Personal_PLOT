@@ -186,8 +186,6 @@ figout=stmp_dir
 ## new area need to be added ahead of ak.  The last three areas need to be fixed as "ak",   "hi",  "can"
 ## this is due to the code below remove plotting of ak and hi if no ak and hi input files ash been found
 ##
-mksize= [  49,64,64, 121, 64, 64, 16,     36,      36,      36,     49,     49,     49,     49,     64,     64,    121,    100,    121,     36 ]
-## mksize= [ 64,64, 64, 64, 16,      16,      25,     25,     36,     36,     36,     36,     49,     49,    121,    100,    121,     36 ]
 flag_proj="LambertConf"
 if flag_proj == "LambertConf":
     regname = [ "july26", "LAfire", "LABasin", "ctdeep", "Mckinney",  "aznw", "dset", "conus", "east", "west",   "ne",   "nw",   "se",   "sw",  "mdn",  "glf",  "lis",   "ak",   "hi",  "can" ]
@@ -198,7 +196,7 @@ if flag_proj == "LambertConf":
 xsize = [   10, 8, 8, 10, 10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
 ysize = [  8, 8, 8, 8, 5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
 if 1 == 1:
-    iplot = [  0, 0, 0, 0, 0,   0,      0,       0,      0,      1,      1,      1,      0,      0,      0,      0,      0,  0,  0, 0 ]
+    iplot = [  0, 0, 0, 0, 0,   0,      0,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,  1,  1, 1 ]
 else:
     iplot = [ 1, 0, 0, 0,  0, 0,      0,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0, 0 ]
 num_reg=len(iplot)
@@ -238,7 +236,7 @@ while date <= edate:
 
         for ivar in range(0,num_var):
             fcst_hour=fcst_ini
-            figdir = figout+"/aqm"+"_"+envir+"_"+YMD+"_"+var[ivar]+"_"+cycle+"_p3"
+            figdir = figout+"/aqm"+"_"+envir+"_"+YMD+"_"+var[ivar]+"_"+cycle+"_p5"
             print(figdir)
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)

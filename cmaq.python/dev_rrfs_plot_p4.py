@@ -202,13 +202,14 @@ if flag_proj == "LambertConf":
 xsize = [   10, 8, 8, 10, 10, 10, 10,     10,       8,      8,      8,      8,      8,      8,      8,      8,     10,      8,      8,     10 ]
 ysize = [  8, 8, 8, 8, 5, 5, 8,      8,       8,      8,      8,      8,      8,      8,      8,      8,      5,      8,      8,     8 ]
 if 1 == 1:
-    iplot = [  1, 1, 1, 0, 0,   0,      0,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,  0,  0, 0 ]
+    iplot = [  0, 0, 0, 0, 0,   0,      0,       0,      0,      0,      0,      0,      1,      1,      0,      0,      1,  0,  0, 0 ]
 else:
     iplot = [ 1, 0, 0, 0,  0, 0,      0,       0,      0,      0,      0,      0,      0,      0,      0,      0,      0,      0, 0, 0 ]
 num_reg=len(iplot)
 
 date=sdate
 while date <= edate:
+    YMD = date.strftime(YMD_date_format)
     flag_find_idir = True
 
     if flag_find_idir:
@@ -220,8 +221,8 @@ while date <= edate:
     for cyc in cycle:
         cycle_time="t"+cyc+"z"
         msg=datetime.datetime.now()
-        print("Start processing "+date.strftime(YMD_date_format)+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
-        s1_title="Online CMAQ "+fig_exp.upper()+" "+date.strftime(YMD_date_format)+" t"+cyc+"z"
+        print("Start processing "+YMD+" "+cyc+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+        s1_title="Online CMAQ "+fig_exp.upper()+" "+YMD+" t"+cyc+"z"
         fcst_ini=datetime.datetime(date.year, date.month, date.day, int(cyc[0:2]))
 
         ## metfilein=metout+"/cs."+grdcro2d_date+"/aqm."+cyc+".grdcro2d.ncf"
@@ -236,12 +237,12 @@ while date <= edate:
 
         for ivar in range(0,num_var):
             fcst_hour=fcst_ini
-            figdir = figout+"/aqm"+"_"+envir+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cycle_time
+            figdir = figout+"/aqm"+"_"+envir+"_"+YMD+"_"+var[ivar]+cycle_time+"_p4"
             print(figdir)
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)
             os.makedirs(figdir)
-            print("working on "+date.strftime(YMD_date_format)+" t"+cyc+"z "+var[ivar])
+            print("working on "+YMD+" t"+cyc+"z "+var[ivar])
             flag_read_latlon=False
             hour_end = 72
             for fcst_hr in range(0,hour_end):
@@ -252,8 +253,8 @@ while date <= edate:
                 fhh2=str_fcst_hr.zfill(2)
                 fcst_hour=fcst_hour+hour_inc
                 if var[ivar] == "pm25":
-                    aqmfilein=comout+"/aqm."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
-                    aqmfilein2=usrout+"/aqm."+date.strftime(YMD_date_format)+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    aqmfilein=comout+"/aqm."+YMD+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    aqmfilein2=usrout+"/aqm."+YMD+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     if os.path.exists(aqmfilein2):
                         ## print(aqmfilein2+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein2)
@@ -278,8 +279,8 @@ while date <= edate:
                         sys.exit()
                 ## in ppm
                 if var[ivar] == "o3":
-                    aqmfilein=comout+"/aqm."+date.strftime(YMD_date_format)+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
-                    aqmfilein2=usrout+"/aqm."+date.strftime(YMD_date_format)+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    aqmfilein=comout+"/aqm."+YMD+"/"+cyc+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
+                    aqmfilein2=usrout+"/aqm."+YMD+"/aqm.t"+cyc+"z.chem_sfc.f"+fhh+".nc"
                     if os.path.exists(aqmfilein2):
                         ## print(aqmfilein2+" exists")
                         cs_aqm = netcdf.Dataset(aqmfilein2)
@@ -395,7 +396,7 @@ while date <= edate:
                         ax.set_title(title)
                         ## cb2.set_label('Discrete intervals, some other units')
                         fig.colorbar(cf1,cmap=cmap,orientation='horizontal',pad=0.015,aspect=80,extend='both',ticks=clevs,norm=norm,shrink=1.0,format=cbar_num_format)
-                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+date.strftime(YMD_date_format)+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
+                        savefig_name = figdir+"/aqm."+figarea+"."+fig_exp+"."+YMD+"."+cycle_time+"."+fhh2+"."+var[ivar]+".k1.png"
                         plt.savefig(savefig_name, bbox_inches='tight')
                         plt.close()
             ## scp by cycle and variable
@@ -403,7 +404,7 @@ while date <= edate:
         os.chdir(figdir)
         parta=os.path.join("/usr", "bin", "scp")
         if 1 == 1 :
-            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "regional", "restricted", "aqm", "web", "fig", date.strftime(Y_date_format), date.strftime(YMD_date_format), cycle_time)
+            partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "regional", "restricted", "aqm", "web", "fig", date.strftime(Y_date_format), YMD, cycle_time)
         else:
             partb=os.path.join("hchuang@rzdm:", "home", "www", "emc", "htdocs", "mmb", "hchuang", "transfer")
         ## subprocess.call(['scp -p * '+partb], shell=True)
@@ -411,7 +412,7 @@ while date <= edate:
         print("End   processing "+var[ivar])
         print("FIG DIR = "+figdir)
         msg=datetime.datetime.now()
-        print("End   processing "+date.strftime(YMD_date_format)+" "+cycle_time+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+        print("End   processing "+YMD+" "+cycle_time+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     msg=datetime.datetime.now()
-    print("End   processing "+date.strftime(YMD_date_format)+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
+    print("End   processing "+YMD+" Current system time is :: "+msg.strftime("%Y-%m-%d %H:%M:%S"))
     date = date + date_inc

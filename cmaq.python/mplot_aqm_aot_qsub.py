@@ -145,14 +145,16 @@ if envir == "prod":
                   "dev_plot_aot_aqmv7_p1.py",
                   "dev_plot_aot_aqmv7_p2.py",
                   "dev_plot_aot_aqmv7_p3.py",
-                  "dev_plot_aot_aqmv7_p4.py"
+                  "dev_plot_aot_aqmv7_p4.py",
+                  "dev_plot_aot_aqmv7_p5.py"
                   ]
 else:
     script_name = [
                   "dev_plot_aot_aqmv7_p1.py",
                   "dev_plot_aot_aqmv7_p2.py",
                   "dev_plot_aot_aqmv7_p3.py",
-                  "dev_plot_aot_aqmv7_p4.py"
+                  "dev_plot_aot_aqmv7_p4.py",
+                  "dev_plot_aot_aqmv7_p5.py"
                   ]
     print(" Not for experimental run, use *rrfs*")
     sys.exit()
@@ -226,18 +228,15 @@ while date <= edate:
         YMD=date.strftime(YMD_date_format)
         msg=datetime.datetime.now()
         for i in script_name:
-            if i in [ "dev_plot_aot_aqmv7_p1.py", "dev_plot_aot_aqmv7_p2.py", "dev_plot_aot_aqmv7_p3.py", "dev_plot_aot_aqmv7_p4.py" ]:
+            if i in [ "dev_plot_aot_aqmv7_p1.py", "dev_plot_aot_aqmv7_p2.py", "dev_plot_aot_aqmv7_p3.py", "dev_plot_aot_aqmv7_p4.py", "dev_plot_aot_aqmv7_p5.py" ]:
                 print("    Start processing "+i)
-                if i == "dev_plot_aot_aqmv7_p1.py" :
-                    sec_id="p1"
-                if i == "dev_plot_aot_aqmv7_p2.py" :
-                    sec_id="p2"
-                if i == "dev_plot_aot_aqmv7_p3.py" :
-                    sec_id="p3"
-                if i == "dev_plot_aot_aqmv7_p4.py" :
-                    sec_id="p4"
-                jobid=f"plot_aot_{envir}_{cyc}_{YMD}_{sec_id}"
-                ftpid=f"ftp_aot_{envir}_{cyc}_{YMD}_{sec_id}"
+                # Splits by '_' to get 'p1.py', then splits by '.' to get 'p1'
+                if i.startswith("dev_plot_aot_aqmv7_"):
+                    sec_id = i.split("_")[-1].split(".")[0]
+                else:
+                    sec_id = np
+                jobid=f"{sec_id}_plot_{envir}_{cyc}_{YMD}"
+                ftpid=f"{sec_id}_ftp_{envir}_{cyc}_{YMD}"
                 plot_script=os.path.join(os.getcwd(),jobid+".sh")
                 logfile=log_dir+"/"+jobid+".log"
                 if os.path.exists(plot_script):
