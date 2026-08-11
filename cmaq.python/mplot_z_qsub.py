@@ -419,7 +419,7 @@ while date <= edate:
                         sh.write("#PBS -N j"+jobid+"\n")
                         sh.write("#PBS -q dev\n")
                         sh.write("#PBS -A AQM-DEV\n")
-                        sh.write("#PBS -l walltime="+task_cpu+"\n")
+                        sh.write("#PBS -l walltime="+task_cpu1+"\n")
                         sh.write("###PBS -l debug=true\n")
                         ## sh.write("module load envvar/"+envvar_ver+"\n")
                         ## sh.write("module load PrgEnv-intel/"+PrgEnv_intel_ver+"\n")
