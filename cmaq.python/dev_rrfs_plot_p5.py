@@ -52,6 +52,12 @@ if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
 py_code=sys.argv[0]
+if py_code.startswith("dev_rrfs_plot_"):
+    fig_sec_id = i.split("_")[-1].split(".")[0]
+else:
+    fig_sec_id = np
+print(f" Test fig dir location id = {fig_sec_id}")
+
 nfind=py_code.find("py")
 if nfind == -1:
     workid=py_code

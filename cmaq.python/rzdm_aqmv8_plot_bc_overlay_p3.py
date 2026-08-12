@@ -72,12 +72,18 @@ if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
 py_code=sys.argv[0]
+if py_code.startswith("rzdm_aqmv8_plot_bc_overlay_"):
+    fig_sec_id = i.split("_")[-1].split(".")[0]
+else:
+    fig_sec_id = np
+print(f" Test fig dir location id = {fig_sec_id}")
+
 nfind=py_code.find("py")
 if nfind == -1:
     workid=py_code
 else:
     workid=py_code[0:nfind-1]
-working_dir=stmp_dir+"/"+envir+"_"+workid+"_p3"
+working_dir=stmp_dir+"/"+envir+"_"+workid
 if not os.path.exists(working_dir):
     os.mkdir(working_dir)
 
