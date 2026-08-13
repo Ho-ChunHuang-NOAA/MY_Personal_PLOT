@@ -197,7 +197,7 @@ date=sdate
 while date <= edate:
     for cyc in cycle:
         for ivar in range(0,num_var):
-            figdir = figout+"/aqm"+"_"+envir.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cyc+"_p1"
+            figdir = figout+"/aqm"+"_"+envir.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cyc+"_"+fig_sec_id
             if os.path.exists(figdir):
                 os.chdir(figdir)
                 parta=os.path.join("/usr", "bin", "scp")

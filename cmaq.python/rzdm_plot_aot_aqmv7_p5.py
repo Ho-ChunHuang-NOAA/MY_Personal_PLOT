@@ -73,7 +73,7 @@ if nfind == -1:
     workid=py_code
 else:
     workid=py_code[0:nfind-1]
-working_dir=stmp_dir+"/aqm_"+workid+"_p5"
+working_dir=stmp_dir+"/aqm_"+workid+"_"+fig_sec_id
 if not os.path.exists(working_dir):
     os.mkdir(working_dir)
 
@@ -163,7 +163,7 @@ while date <= edate:
     for cyc in cyc_opt:
         cycle="t"+cyc+"z"
         for ivar in range(0,num_var):
-            figdir = figout+"/aqm"+"_prod_"+YMD+"_"+var[ivar]+"_"+cycle+"_p5"
+            figdir = figout+"/aqm"+"_prod_"+YMD+"_"+var[ivar]+"_"+cycle+"_"+fig_sec_id
             if os.path.exists(figdir):
                 os.chdir(figdir)
                 parta=os.path.join("/usr", "bin", "scp")

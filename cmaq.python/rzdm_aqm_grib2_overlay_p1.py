@@ -46,6 +46,11 @@ if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
 py_code=sys.argv[0]
+if py_code.startswith("rzdm_aqm_grib2_overlay"):
+    fig_sec_id = py_code.split("_")[-1].split(".")[0]
+else:
+    fig_sec_id = "np"
+
 nfind=py_code.find("py")
 if nfind == -1:
     workid=py_code
@@ -171,7 +176,7 @@ date=sdate
 while date <= edate:
     for cyc in cycle:
         for ivar in range(0,num_var):
-            figdir = figout+"/aqm"+"_"+EXP.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cyc+BC_append.lower()+"_overp1"
+            figdir = figout+"/aqm"+"_"+EXP.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cyc+BC_append.lower()+"_over"+fig_sec_id
             if os.path.exists(figdir):
                 os.chdir(figdir)
                 parta=os.path.join("/usr", "bin", "scp")

@@ -189,7 +189,7 @@ while date <= edate:
     YMD = date.strftime(YMD_date_format)
     for cyc in cycle:
         for ivar in range(0,num_var):
-            figdir = figout+"/aqm"+"_"+EXP.lower()+"obs_"+YMD+"_"+var[ivar]+cyc+BC_append.lower()+"_p3"
+            figdir = figout+"/aqm"+"_"+EXP.lower()+"obs_"+YMD+"_"+var[ivar]+cyc+BC_append.lower()+"_"+fig_sec_id
             ##
             ## scp by cycle and variable
             ##

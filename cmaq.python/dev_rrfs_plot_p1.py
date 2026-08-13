@@ -243,7 +243,7 @@ while date <= edate:
 
         for ivar in range(0,num_var):
             fcst_hour=fcst_ini
-            figdir = figout+"/aqm"+"_"+envir+"_"+YMD+"_"+var[ivar]+cycle_time+"_p1"
+            figdir = figout+"/aqm"+"_"+envir+"_"+YMD+"_"+var[ivar]+cycle_time+"_"+fig_sec_id
             print(figdir)
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)

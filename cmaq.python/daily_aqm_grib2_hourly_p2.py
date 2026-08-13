@@ -68,6 +68,11 @@ if not os.path.exists(log_dir):
     os.mkdir(log_dir)
 
 py_code=sys.argv[0]
+if py_code.startswith("daily_aqm_grib2_hourly_"):
+    fig_sec_id = py_code.split("_")[-1].split(".")[0]
+else:
+    fig_sec_id = "np"
+
 nfind=py_code.find("py")
 if nfind == -1:
     workid=py_code
@@ -339,9 +344,9 @@ while date <= edate:
         for ivar in range(0,num_var):
             fcst_hour=fcst_ini
             if flag_obs:
-                figdir = figout+"/aqm"+"_"+EXP.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cycle_time+BC_append.lower()+"_hrlyp2"
+                figdir = figout+"/aqm"+"_"+EXP.lower()+"obs_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cycle_time+BC_append.lower()+"_hrly"+fig_sec_id
             else:
-                figdir = figout+"/aqm"+"_"+EXP.lower()+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cycle_time+BC_append.lower()+"_p2"
+                figdir = figout+"/aqm"+"_"+EXP.lower()+"_"+date.strftime(YMD_date_format)+"_"+var[ivar]+cycle_time+BC_append.lower()+"_"+fig_sec_id
             print(figdir)
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)

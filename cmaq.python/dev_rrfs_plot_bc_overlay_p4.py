@@ -348,7 +348,7 @@ while date <= edate:
         for ivar in range(0,num_var):
             msg=datetime.datetime.now()
             print("Start processing "+var[ivar])
-            figdir = figout+"/aqm"+"_"+EXP.lower()+"obs_"+YMD+"_"+var[ivar]+cycle_time+BC_append.lower()+"_p4"
+            figdir = figout+"/aqm"+"_"+EXP.lower()+"obs_"+YMD+"_"+var[ivar]+cycle_time+BC_append.lower()+"_"+fig_sec_id
             if os.path.exists(figdir):
                 shutil.rmtree(figdir)
             os.makedirs(figdir)
