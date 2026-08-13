@@ -54,7 +54,7 @@ if not os.path.exists(log_dir):
 
 py_code=sys.argv[0]
 if py_code.startswith("dev_aqmv8_plot_overlay_"):
-    fig_sec_id = i.split("_")[-1].split(".")[0]
+    fig_sec_id = py_code.split("_")[-1].split(".")[0]
 else:
     fig_sec_id = np
 print(f" Test fig dir location id = {fig_sec_id}")
