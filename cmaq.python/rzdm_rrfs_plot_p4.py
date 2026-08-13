@@ -48,7 +48,7 @@ py_code=sys.argv[0]
 if py_code.startswith("rzdm_rrfs_plot_"):
     fig_sec_id = py_code.split("_")[-1].split(".")[0]
 else:
-    fig_sec_id = np
+    fig_sec_id = "np"
 print(f" Test fig dir location id = {fig_sec_id}")
 
 nfind=py_code.find("py")
